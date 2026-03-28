@@ -1,0 +1,5 @@
+name: Lobby
+author: Cássio Martim
+version: 1.0.0
+main: com.minecraft.savagemc.lobby.Lobby
+load: STARTUP

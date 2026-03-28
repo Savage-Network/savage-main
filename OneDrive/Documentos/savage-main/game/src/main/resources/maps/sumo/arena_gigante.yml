@@ -1,0 +1,42 @@
+# Arena Gigante - Mapa grande para muitos jogadores
+# Plataforma ampla com múltiplas áreas de combate
+
+name: "Arena Gigante"
+id: 3
+
+# Spawn central
+spawn:
+  x: 0
+  y: 80
+  z: 0
+  yaw: 0.0
+  pitch: 0.0
+
+# Spawn da equipe vermelha (norte)
+red_spawn:
+  x: 0
+  y: 80
+  z: 15
+  yaw: 180.0
+  pitch: 0.0
+
+# Spawn da equipe azul (sul)
+blue_spawn:
+  x: 0
+  y: 80
+  z: -15
+  yaw: 0.0
+  pitch: 0.0
+
+# Configurações da borda do mundo
+border:
+  center:
+    x: 0
+    z: 0
+  size: 150
+
+# Configurações específicas do evento
+settings:
+  min_y: 55  # Jogadores morrem ao cair abaixo de Y=55
+  max_players: 24
+  min_players: 4

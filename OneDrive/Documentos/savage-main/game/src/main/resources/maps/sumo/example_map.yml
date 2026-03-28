@@ -1,0 +1,42 @@
+# Configuração do mapa de exemplo para Sumo
+# Copie este arquivo e renomeie para criar novos mapas
+
+name: "Arena Principal"
+id: 1
+
+# Posição onde os jogadores nascem ao entrar no evento
+spawn:
+  x: 0
+  y: 100
+  z: 0
+  yaw: 0.0
+  pitch: 0.0
+
+# Posição do spawn da equipe vermelha (opcional para eventos com equipes)
+red_spawn:
+  x: 10
+  y: 100
+  z: 0
+  yaw: -90.0
+  pitch: 0.0
+
+# Posição do spawn da equipe azul (opcional para eventos com equipes)
+blue_spawn:
+  x: -10
+  y: 100
+  z: 0
+  yaw: 90.0
+  pitch: 0.0
+
+# Configurações da borda do mundo
+border:
+  center:
+    x: 0
+    z: 0
+  size: 100
+
+# Configurações específicas do evento
+settings:
+  min_y: 50  # Altura mínima antes de considerar morte por queda
+  max_players: 16
+  min_players: 2

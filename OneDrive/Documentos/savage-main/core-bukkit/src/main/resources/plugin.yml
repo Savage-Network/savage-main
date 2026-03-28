@@ -1,0 +1,6 @@
+name: Core
+author: Cássio Martim
+version: 0.0.1
+main: com.minecraft.savagemc.core.bukkit.BukkitCore
+depend:
+  - ProtocolLib
