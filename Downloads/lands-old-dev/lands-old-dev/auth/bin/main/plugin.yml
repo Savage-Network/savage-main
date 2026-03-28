@@ -1,0 +1,4 @@
+name: Auth
+author: Cássio Martim
+version: 0.0.1
+main: com.minecraft.savagemc.auth.Auth

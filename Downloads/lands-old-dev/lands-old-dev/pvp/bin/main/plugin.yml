@@ -1,0 +1,6 @@
+name: pvp
+version: 0.0.1
+author: Cássio Martim
+main: com.minecraft.savagemc.arcade.pvp.PvP
+depend:
+  - SlimeWorldManager

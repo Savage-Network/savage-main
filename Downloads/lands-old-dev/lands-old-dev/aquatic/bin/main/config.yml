@@ -1,0 +1,5 @@
+modes:
+  Solo:
+    directory: solo
+    min: 1
+    max: 1
