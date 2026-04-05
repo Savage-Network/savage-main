@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class AccountData implements UserTemplate<Account> {
@@ -97,11 +98,11 @@ public class AccountData implements UserTemplate<Account> {
                 JsonObject tree = JsonUtil.jsonTree(account);
                 new AccountUpdateMessage(account, field, tree.get(field)).send();
             } else {
-                Savage.Savage.Logger().severe("[Account-Update] Conta de " + account.getName() + " não encontrada no banco.");
+                Savage.getLogger().severe("[AccountData] Conta de " + account.getName() + " não encontrada no banco.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Savage.Savage.Logger().severe("[Account-Update] Erro ao atualizar campo \"" + field + "\" de " + account.getName());
+            Savage.getLogger().severe("[AccountData] Erro ao atualizar campo \"" + field + "\" de " + account.getName());
         }
     }
 
@@ -133,10 +134,14 @@ public class AccountData implements UserTemplate<Account> {
                     PreparedStatement stmt = conn.prepareStatement("SELECT data FROM accounts WHERE id = ?::uuid");
                     stmt.setString(1, id.toString());
                     ResultSet rs = stmt.executeQuery();
-                    if (rs.next())
-                        account = Savage.GSON.fromJson(rs.getString("data"), Account.class);
+                    if (rs.next()) {
+                        String data = rs.getString("data");
+                        account = Savage.GSON.fromJson(data, Account.class);
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    Savage.getLogger().log(Level.SEVERE, "[AccountData] Erro ao carregar conta " + id, e);
                 }
             }
         }

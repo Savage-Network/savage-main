@@ -250,6 +250,36 @@ public enum ArcadeCategory {
             .iconId("LAVA_BUCKET")
             .slots(singletonList(Slot.SOLO))
             .build()),
+
+    /* HungerGames Categories */
+    HGMIX(ArcadeCategoryBuilder.builder()
+            .server(ServerType.HGMIX)
+            .style(ArcadeStyle.COMBAT)
+            .name("HG Mix")
+            .iconId("MUSHROOM_SOUP")
+            .slots(singletonList(Slot.SOLO))
+            .build()),
+    CLANXCLAN(ArcadeCategoryBuilder.builder()
+            .server(ServerType.CLANXCLAN)
+            .style(ArcadeStyle.COMBAT)
+            .name("Clan x Clan")
+            .iconId("BANNER")
+            .slots(singletonList(Slot.SOLO))
+            .build()),
+    EVENT(ArcadeCategoryBuilder.builder()
+            .server(ServerType.EVENT)
+            .style(ArcadeStyle.FUN)
+            .name("Eventos")
+            .iconId("FIREWORK")
+            .slots(singletonList(Slot.SOLO))
+            .build()),
+    CHAMPION(ArcadeCategoryBuilder.builder()
+            .server(ServerType.CHAMPION)
+            .style(ArcadeStyle.COMBAT)
+            .name("Champion")
+            .iconId("GOLDEN_APPLE")
+            .slots(singletonList(Slot.SOLO))
+            .build()),
     ;
 
     private final ArcadeCategoryBuilder builder;

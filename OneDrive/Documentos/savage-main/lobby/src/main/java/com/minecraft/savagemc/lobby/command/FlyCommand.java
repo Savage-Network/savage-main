@@ -12,7 +12,18 @@ public class FlyCommand implements CommandInheritor {
     public void fly(BukkitCommandContext context) {
         Player player = context.getPlayer();
 
-        player.setFlying(!player.isFlying());
-        player.sendMessage(player.isFlying() ? "§aVocê ativou o seu modo de voo." : "§cVocê desativou o seu modo de voo.");
+        boolean flying = !player.isFlying();
+        player.setAllowFlight(flying);
+        player.setFlying(flying);
+        
+        if (flying) {
+            player.setFlySpeed(0.2f); // Velocidade de voo mais rápida (padrão é 0.1f, máximo é 1.0f)
+        } else {
+            player.setFlySpeed(0.1f); // Velocidade padrão
+        }
+        
+        player.sendMessage(flying ? "§aVocê ativou o seu modo de voo." : "§cVocê desativou o seu modo de voo.");
     }
 }
+
+

@@ -47,7 +47,7 @@ public class BukkitCompleter implements TabCompleter {
                 Completer completer = entry.getKey().getAnnotation(Completer.class);
 
                 if (completer == null) {
-                    Savage.Savage.Logger().warning("O completer " + cmdLabel + " é nulo!");
+                    Savage.getLogger().warning("O completer " + cmdLabel + " é nulo!");
                     return new ArrayList<>();
                 }
 
@@ -57,7 +57,7 @@ public class BukkitCompleter implements TabCompleter {
                     return (List<String>) entry.getKey().invoke(entry.getValue(),
                             new BukkitCommandContext(sender, args, label, cmdLabel.split("\\.").length - 1));
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar o completer...", e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível registrar o completer...", e);
                 }
             }
         }

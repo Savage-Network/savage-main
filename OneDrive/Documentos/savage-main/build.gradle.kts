@@ -29,7 +29,8 @@ val jarModules = mapOf(
     "auth"        to "auth-1.0.0-SNAPSHOT.jar",
     "aquatic"     to "aquatic-1.0.0-SNAPSHOT.jar",
     "duels"       to "duels-1.0.0-SNAPSHOT.jar",
-    "pvp"         to "pvp-1.0.0-SNAPSHOT.jar"
+    "pvp"         to "pvp-1.0.0-SNAPSHOT.jar",
+    "hungergames" to "hungergames-1.0.0-SNAPSHOT.jar"
 )
 
 tasks.register("exportAllJars") {

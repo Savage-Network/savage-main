@@ -49,6 +49,47 @@ public abstract class UserModel {
 
     public abstract void handle();
 
+    // Métodos adicionais para compatibilidade
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public Sidebar getSidebar() {
+        return sidebar;
+    }
+
+    public void setSidebar(Sidebar sidebar) {
+        this.sidebar = sidebar;
+    }
+
+    public Tag getTag() {
+        return tag;
+    }
+
+    public void setTag(Tag tag) {
+        this.tag = tag;
+    }
+
+    public Combat getCombat() {
+        return combat;
+    }
+
+    public void setCombat(Combat combat) {
+        this.combat = combat;
+    }
+
+    public Join getJoin() {
+        return join;
+    }
+
+    public void setJoin(Join join) {
+        this.join = join;
+    }
+
     public static UserModel of(UUID id) {
         return list.stream().filter(user -> user.getAccount().getId().equals(id)).findFirst().orElse(null);
     }

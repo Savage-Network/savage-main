@@ -99,22 +99,22 @@ public class ItemListener implements Listener {
 
                 case MAGMA_CREAM: {
                     /* Cooldowns Keys */
-                    String SLINGSHOT_COOLDOWN = "Estilingue";
+                    String BOOSTER_COOLDOWN = "Booster";
 
                     if (arena.isType(Type.COMPETITIVE)) return;
 
-//                    if (hasCooldown(player, SLINGSHOT_COOLDOWN)) return;
+                    if (hasCooldown(player, BOOSTER_COOLDOWN)) return;
 
                     consumeItem(player);
 
-                    Vector vector = player.getEyeLocation().getDirection().multiply(1.1F).setY(1.2F);
+                    Vector vector = player.getEyeLocation().getDirection().multiply(1.5F).setY(0.8F);
 
                     player.setFallDistance(-1.0F);
                     player.setVelocity(vector);
 
                     player.playSound(Sound.NOTE_PIANO);
 
-//                    setCooldown(player, SLINGSHOT_COOLDOWN, 5);
+                    setCooldown(player, BOOSTER_COOLDOWN, 5);
                     break;
                 }
 
@@ -132,6 +132,39 @@ public class ItemListener implements Listener {
                     fireball.setIsIncendiary(false);
 
                     setCooldown(player, "Fireball", 1);
+                    break;
+                }
+                
+                case FLINT_AND_STEEL: {
+                    Block clickedBlock = event.getClickedBlock();
+                    
+                    if (clickedBlock == null) return;
+                    
+                    // Verificar se pode colocar fogo
+                    Block fireBlock = clickedBlock.getRelative(event.getBlockFace());
+                    
+                    if (fireBlock.getType() != Material.AIR) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    
+                    // Colocar fogo
+                    fireBlock.setType(Material.FIRE);
+                    
+                    // Reduzir durabilidade (3 usos = durabilidade 61, 62, 63)
+                    short durability = hand.getDurability();
+                    
+                    if (durability >= 62) {
+                        // Último uso, remover item
+                        player.setItemInHand(null);
+                        player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1, 1);
+                    } else {
+                        // Aumentar durabilidade
+                        hand.setDurability((short) (durability + 1));
+                    }
+                    
+                    player.playSound(clickedBlock.getLocation(), Sound.FIRE_IGNITE, 1, 1);
+                    event.setCancelled(true);
                     break;
                 }
 
@@ -546,18 +579,67 @@ public class ItemListener implements Listener {
             }
 
             if (arena.isType(Type.CASUAL) && block.getType().equals(Material.SLIME_BLOCK)) {
-                if (!block.hasMetadata("jumper"))
-                    block.setMetadata("jumper", new FixedMetadataValue(plugin, true));
+                // Verificar se está tentando colocar em cima de uma cama
+                Block blockBelow = block.getRelative(BlockFace.DOWN);
+                if (blockBelow.getType().name().contains("BED")) {
+                    event.setCancelled(true);
+                    player.sendMessage("§cVocê não pode colocar o booster em cima da cama!");
+                    return;
+                }
+                
+                // Substituir o bloco do chão ao invés de criar em cima
+                if (blockBelow.getType() != Material.AIR && blockBelow.getType() != Material.SLIME_BLOCK) {
+                    // Salvar o tipo do bloco original
+                    Material originalType = blockBelow.getType();
+                    byte originalData = blockBelow.getData();
+                    
+                    // Remover o bloco de slime que foi colocado
+                    block.setType(Material.AIR);
+                    
+                    // Colocar o slime no lugar do bloco de baixo
+                    blockBelow.setType(Material.SLIME_BLOCK);
+                    blockBelow.setMetadata("jumper", new FixedMetadataValue(plugin, true));
+                    blockBelow.setMetadata("originalType", new FixedMetadataValue(plugin, originalType.name()));
+                    blockBelow.setMetadata("originalData", new FixedMetadataValue(plugin, originalData));
+                    
+                    ParticleBuilder particle = new ParticleBuilder(ParticleEffect.VILLAGER_HAPPY, blockBelow.getLocation().clone().add(0.5, 0.5, 0.5));
 
-                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.VILLAGER_HAPPY, location.clone().add(0.5, 0.5, 0.5));
+                    particle.setSpeed(0.15f)
+                            .setAmount(25)
+                            .display();
 
-                particle.setSpeed(0.15f)
-                        .setAmount(25)
-                        .display();
+                    world.playSound(blockBelow.getLocation(), Sound.FALL_BIG, 2, 2f);
 
-                world.playSound(location, Sound.FALL_BIG, 2, 2f);
+                    // Restaurar o bloco original após 8 segundos
+                    Savage.getPlatform().runSync(() -> {
+                        if (blockBelow.hasMetadata("originalType")) {
+                            String typeName = blockBelow.getMetadata("originalType").get(0).asString();
+                            byte data = blockBelow.getMetadata("originalData").get(0).asByte();
+                            
+                            Material original = Material.valueOf(typeName);
+                            blockBelow.setType(original);
+                            blockBelow.setData(data);
+                            
+                            blockBelow.removeMetadata("jumper", plugin);
+                            blockBelow.removeMetadata("originalType", plugin);
+                            blockBelow.removeMetadata("originalData", plugin);
+                        }
+                    }, 20 * 8);
+                } else {
+                    // Se não há bloco abaixo, manter comportamento normal
+                    if (!block.hasMetadata("jumper"))
+                        block.setMetadata("jumper", new FixedMetadataValue(plugin, true));
 
-                Savage.getPlatform().runSync(() -> block.setType(Material.AIR), 20 * 8);
+                    ParticleBuilder particle = new ParticleBuilder(ParticleEffect.VILLAGER_HAPPY, location.clone().add(0.5, 0.5, 0.5));
+
+                    particle.setSpeed(0.15f)
+                            .setAmount(25)
+                            .display();
+
+                    world.playSound(location, Sound.FALL_BIG, 2, 2f);
+
+                    Savage.getPlatform().runSync(() -> block.setType(Material.AIR), 20 * 8);
+                }
             }
         }
     }
@@ -587,7 +669,7 @@ public class ItemListener implements Listener {
         if (arena.isType(Type.CASUAL) && arena.isPhase(RoomPhase.PLAYING)) {
 
             if (down.getType().equals(Material.SLIME_BLOCK) && down.hasMetadata("jumper")) {
-                Vector vector = player.getEyeLocation().getDirection().multiply(1.1F).setY(0.96F);
+                Vector vector = player.getEyeLocation().getDirection().multiply(1.5F).setY(1.2F);
 
                 player.setFallDistance(-1.0F);
                 player.setVelocity(vector);

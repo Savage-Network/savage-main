@@ -27,7 +27,7 @@ public class PerkController {
 
                     perkList.add(perk);
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível registrar a perk " + perkClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.SEVERE, "Não foi possível registrar a perk " + perkClass.getSimpleName(), e);
                 }
             }
         }

@@ -49,7 +49,7 @@ public class ArcadeManager {
 
                 arcades.add(arcade);
             } catch (Exception e) {
-                Savage.Savage.Logger().log(Level.WARNING, "Não foi possível iniciar o jogo " + name, e);
+                Savage.getLogger().log(Level.WARNING, "Não foi possível iniciar o jogo " + name, e);
             }
         }
     }
@@ -99,5 +99,9 @@ public class ArcadeManager {
         if (game == null || game.getRooms().isEmpty()) return Collections.emptyList();
 
         return new ArrayList<>(game.getRooms());
+    }
+
+    public Set<ArcadeHolder> getArcades() {
+        return arcades;
     }
 }

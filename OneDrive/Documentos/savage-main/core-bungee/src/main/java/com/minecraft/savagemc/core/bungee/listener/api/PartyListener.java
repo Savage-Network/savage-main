@@ -65,7 +65,7 @@ public class PartyListener implements Listener {
 
                             party.send(author.getColoredName() + "§e é o novo dono da party.");
 
-                            Savage.Savage.Logger().info(author.getNickname() + " virou dono de uma party.");
+                            Savage.getLogger().info(author.getNickname() + " virou dono de uma party.");
                         }
                     }
                 }
@@ -87,7 +87,7 @@ public class PartyListener implements Listener {
             if (party != null) {
                 party.reconnect(account);
 
-                Savage.Savage.Logger().info(account.getNickname() + " reconectou-se na party de " + party.getAuthor().getNickname() + ".");
+                Savage.getLogger().info(account.getNickname() + " reconectou-se na party de " + party.getAuthor().getNickname() + ".");
             } else
                 account.send("§cA sua party antiga não foi encontrada.");
         }
@@ -103,18 +103,18 @@ public class PartyListener implements Listener {
             Party party = account.getParty();
 
             if (party == null) {
-                Savage.Savage.Logger().warning("Não foi possível encontrar a party de " + account.getNickname() + ".");
+                Savage.getLogger().warning("Não foi possível encontrar a party de " + account.getNickname() + ".");
                 return;
             }
 
             if (party.getMembersCount() == 1) {
                 party.disband();
 
-                Savage.Savage.Logger().info("A party de " + account.getNickname() + " foi desfeita.");
+                Savage.getLogger().info("A party de " + account.getNickname() + " foi desfeita.");
             } else {
                 party.disconnect(account);
 
-                Savage.Savage.Logger().info(account.getNickname() + " desconectou-se da party de " + party.getAuthor().getNickname() + ".");
+                Savage.getLogger().info(account.getNickname() + " desconectou-se da party de " + party.getAuthor().getNickname() + ".");
             }
         }
     }

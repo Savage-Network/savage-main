@@ -82,27 +82,27 @@ public abstract class ArcadeHolder implements Listener {
         File mapDirectory = new File(mapsFile, getName().toLowerCase());
 
         if (!mapDirectory.isDirectory()) {
-            Savage.Savage.Logger().warning("O arquivo " + mapDirectory.getName() + " não é uma pasta.");
+            Savage.getLogger().warning("O arquivo " + mapDirectory.getName() + " não é uma pasta.");
             return false;
         }
 
         File[] maps = mapDirectory.listFiles();
 
         if (maps == null || maps.length == 0) {
-            Savage.Savage.Logger().warning("Nenhum mapa de " + getName() + " foi encontrado.");
+            Savage.getLogger().warning("Nenhum mapa de " + getName() + " foi encontrado.");
             return false;
         }
 
         for (int index = 0; index < maps.length; index++) {
             File mapFile = maps[index];
 
-            Savage.Savage.Logger().info("[" + (index + 1) + "/" + maps.length + "] Iniciando mapa " + mapFile.getName() + "...");
+            Savage.getLogger().info("[" + (index + 1) + "/" + maps.length + "] Iniciando mapa " + mapFile.getName() + "...");
 
             try {
                 File config = new File(mapFile, "config.json");
 
                 if (!config.exists()) {
-                    Savage.Savage.Logger().info("[" + (index + 1) + "/" + maps.length + "] A configuração do mapa " + mapFile.getName() + " não foi encontrada!");
+                    Savage.getLogger().info("[" + (index + 1) + "/" + maps.length + "] A configuração do mapa " + mapFile.getName() + " não foi encontrada!");
                     continue;
                 }
 
@@ -137,9 +137,9 @@ public abstract class ArcadeHolder implements Listener {
 
                 getMaps().add(map);
 
-                Savage.Savage.Logger().info("[" + map.getId() + "/" + maps.length + "] Mapa " + map.getName() + " iniciado.");
+                Savage.getLogger().info("[" + map.getId() + "/" + maps.length + "] Mapa " + map.getName() + " iniciado.");
             } catch (Exception e) {
-                Savage.Savage.Logger().log(Level.WARNING, "Não foi possível carregar o mapa...", e);
+                Savage.getLogger().log(Level.WARNING, "Não foi possível carregar o mapa...", e);
                 return false;
             }
         }

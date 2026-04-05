@@ -25,4 +25,19 @@ public class BedMenuMetadata extends MenuMetadata {
     public boolean hasItem(String name) {
         return itemList.stream().anyMatch(item -> item.getName().equalsIgnoreCase(name));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        
+        BedMenuMetadata that = (BedMenuMetadata) o;
+        
+        return type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return type != null ? type.hashCode() : 0;
+    }
 }

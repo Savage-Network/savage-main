@@ -17,6 +17,8 @@ include("duels")
 include("pvp")
 include("bedwars")
 include("aquatic")
-include("game")
+include("hungergames")
+include("ponte")
 
-
+// API
+include("savage-api")

@@ -75,14 +75,14 @@ public abstract class Arcade extends ArcadeHolder {
 
     @Override
     public boolean load() {
-        Savage.Savage.Logger().info("Iniciando " + getName() + "...");
+        Savage.getLogger().info("Iniciando " + getName() + "...");
 
         if (!loadMaps(mapsDirectory)) return false;
 
         List<Map> availableMaps = getMaps();
 
         if (availableMaps.isEmpty()) {
-            Savage.Savage.Logger().warning("Nenhum mapa disponível para " + getName() + ".");
+            Savage.getLogger().warning("Nenhum mapa disponível para " + getName() + ".");
             return false;
         }
 
@@ -97,17 +97,17 @@ public abstract class Arcade extends ArcadeHolder {
             mapIndex = (mapIndex + 1) % availableMaps.size();
         }
 
-        Savage.Savage.Logger().info("Modo de jogo " + getName() + " iniciado com sucesso.");
+        Savage.getLogger().info("Modo de jogo " + getName() + " iniciado com sucesso.");
         return true;
     }
 
     @Override
     public void unload() {
-        Savage.Savage.Logger().info("Encerrando jogo " + getName() + "...");
+        Savage.getLogger().info("Encerrando jogo " + getName() + "...");
 
         getRooms().clear();
 
-        Savage.Savage.Logger().info("O jogo " + getName() + " foi desligado com sucesso!");
+        Savage.getLogger().info("O jogo " + getName() + " foi desligado com sucesso!");
     }
 
     @Override
@@ -120,7 +120,7 @@ public abstract class Arcade extends ArcadeHolder {
 
         arena.setType(type);
 
-        Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Criando arena...");
+        Savage.getLogger().info("[" + getName() + "/" + id + "] Criando arena...");
 
         String[] mapSplit = map.getName().split(" ");
 
@@ -158,7 +158,7 @@ public abstract class Arcade extends ArcadeHolder {
         arena.setType(source.getType());
         arena.getProperties().putAll(source.getProperties());
 
-        Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Copiando arena...");
+        Savage.getLogger().info("[" + getName() + "/" + id + "] Copiando arena...");
 
         String[] mapSplit = map.getName().split(" ");
 
@@ -193,7 +193,7 @@ public abstract class Arcade extends ArcadeHolder {
 
             getRooms().add(arena);
 
-            Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Arena criada com sucesso. (Tempo médio: " + Util.formatInstant(now) + ")");
+            Savage.getLogger().info("[" + getName() + "/" + id + "] Arena criada com sucesso. (Tempo médio: " + Util.formatInstant(now) + ")");
         });
     }
 
@@ -204,7 +204,7 @@ public abstract class Arcade extends ArcadeHolder {
         if (occupiedArenas >= (totalArenas / 2)) {
             final int NUM_ARENAS_TO_GENERATE = 3;
 
-            Savage.Savage.Logger().info("[" + getName() + "] Gerando " + NUM_ARENAS_TO_GENERATE + " arenas...");
+            Savage.getLogger().info("[" + getName() + "] Gerando " + NUM_ARENAS_TO_GENERATE + " arenas...");
 
             int loaded = 0;
             for (int i = 0; i < NUM_ARENAS_TO_GENERATE; i++) {
@@ -217,9 +217,9 @@ public abstract class Arcade extends ArcadeHolder {
             }
 
             if (loaded > 0)
-                Savage.Savage.Logger().info("[" + getName() + "] " + loaded + " arenas foram geradas.");
+                Savage.getLogger().info("[" + getName() + "] " + loaded + " arenas foram geradas.");
             else
-                Savage.Savage.Logger().warning("[" + getName() + "] Não foi possível gerar novas arenas!");
+                Savage.getLogger().warning("[" + getName() + "] Não foi possível gerar novas arenas!");
         }
     }
 
@@ -257,7 +257,7 @@ public abstract class Arcade extends ArcadeHolder {
             }
 
             if (account.isPartyOwner() && arena.isReserved() && arena.hasReservation(sender)) {
-                Savage.Savage.Logger().info("[PT-Route] O dono " + account.getNickname() + " entrou em " + arena.getIdentifier() + ".");
+                Savage.getLogger().info("[PT-Route] O dono " + account.getNickname() + " entrou em " + arena.getIdentifier() + ".");
                 return true;
             }
 
@@ -444,7 +444,7 @@ public abstract class Arcade extends ArcadeHolder {
                 TeamPreset winner = (TeamPreset) arena.getTeams().stream().filter(found -> !found.equals(team)).findFirst().orElse(null);
 
                 if (winner == null) {
-                    Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível encontrar o time pontuador da sala " + arena.getIdentifier() + " (" + arcade.getName() + ")");
+                    Savage.getLogger().log(Level.SEVERE, "Não foi possível encontrar o time pontuador da sala " + arena.getIdentifier() + " (" + arcade.getName() + ")");
                     return;
                 }
 

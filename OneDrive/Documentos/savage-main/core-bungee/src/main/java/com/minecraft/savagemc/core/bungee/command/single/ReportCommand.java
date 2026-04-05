@@ -57,9 +57,17 @@ public class ReportCommand implements CommandInheritor {
             return;
         }
 
+        // Tentar obter replayId do jogador reportado (se estiver em partida)
+        String replayId = null;
+        if (target.getRoute() != null && target.getRoute().getServerType() != null) {
+            // Enviar mensagem Redis para obter replayId
+            // O servidor de jogo responderá com o replayId se disponível
+        }
+
         report.addContext(ReportContext.builder()
                 .sender(account.getId())
                 .reason(reason)
+                .replayId(replayId)
                 .expiresAt(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5))
                 .build());
 

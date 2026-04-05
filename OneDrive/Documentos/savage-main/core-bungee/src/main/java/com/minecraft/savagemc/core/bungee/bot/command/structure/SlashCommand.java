@@ -39,27 +39,27 @@ public abstract class SlashCommand {
         Bot bot = BungeeCore.getInstance().getBot();
 
         if (bot == null || bot.getApi() == null) {
-            Savage.Savage.Logger().warning("[Slash] Bot offline, comando \"" + name + "\" não registrado no Discord.");
+            Savage.getLogger().warning("[Slash] Bot offline, comando \"" + name + "\" não registrado no Discord.");
             return builder;
         }
 
         if (category.equals(SlashCommandCategory.GLOBAL))
             builder.createGlobal(bot.getApi())
-                    .thenAccept(command -> Savage.Savage.Logger().info("[Slash/Global] Comando \"" + command.getName() + "\" registrado."))
+                    .thenAccept(command -> Savage.getLogger().info("[Slash/Global] Comando \"" + command.getName() + "\" registrado."))
                     .exceptionally(e -> {
-                        Savage.Savage.Logger().log(Level.SEVERE, "[Slash/Global] Não foi possível rodar o comando...", e);
+                        Savage.getLogger().log(Level.SEVERE, "[Slash/Global] Não foi possível rodar o comando...", e);
                         return null;
                     });
         else {
             if (bot.getServer() == null) {
-                Savage.Savage.Logger().warning("[Slash] Servidor Discord não encontrado, comando \"" + name + "\" não registrado.");
+                Savage.getLogger().warning("[Slash] Servidor Discord não encontrado, comando \"" + name + "\" não registrado.");
                 return builder;
             }
 
             builder.createForServer(bot.getServer())
-                    .thenAccept(command -> Savage.Savage.Logger().info("[Slash/Server] Comando \"" + command.getName() + "\" registrado."))
+                    .thenAccept(command -> Savage.getLogger().info("[Slash/Server] Comando \"" + command.getName() + "\" registrado."))
                     .exceptionally(e -> {
-                        Savage.Savage.Logger().log(Level.SEVERE, "[Slash/Server] Não foi possível rodar o comando...", e);
+                        Savage.getLogger().log(Level.SEVERE, "[Slash/Server] Não foi possível rodar o comando...", e);
                         return null;
                     });
         }

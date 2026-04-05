@@ -33,6 +33,11 @@ public class FriendMenu extends Menu {
         this.filter = FriendFilter.DATE;
     }
 
+    // Método adicional para compatibilidade
+    public void setFilter(FriendFilter filter) {
+        this.filter = filter;
+    }
+
     @Override
     public void handle() {
         clear();
@@ -124,15 +129,21 @@ public class FriendMenu extends Menu {
     }
 
     @Getter
-    @AllArgsConstructor
-    public enum FriendFilter {
+public enum FriendFilter {
 
         DATE("Mais recentes", list -> list.stream().sorted(Comparator.comparing(Friend::getStartedAt)).collect(Collectors.toList())),
         A_Z("A-Z", list -> list.stream().sorted(Comparator.comparing(Friend::getName)).collect(Collectors.toList())),
-        Z_A("Z-A", list -> list.stream().sorted(Comparator.comparing(Friend::getName).reversed()).collect(Collectors.toList()));
+        Z_A("Z-A", list -> list.stream().sorted(Comparator.comparing(Friend::getName).reversed()).collect(Collectors.toList())),
+        ONLINE("Online", list -> list.stream().filter(friend -> Savage.getAccountData().of(friend.getId()).isOnline()).collect(Collectors.toList())),
+        OFFLINE("Offline", list -> list.stream().filter(friend -> !Savage.getAccountData().of(friend.getId()).isOnline()).collect(Collectors.toList()));
 
         private final String name;
         private final FriendFilterAction action;
+
+        FriendFilter(String name, FriendFilterAction action) {
+            this.name = name;
+            this.action = action;
+        }
 
         public interface FriendFilterAction {
             List<Friend> handle(List<Friend> list);

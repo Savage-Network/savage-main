@@ -18,7 +18,7 @@ public class SlashCommandManager {
     public static void handle(String commandDir) {
         int loaded = 0;
 
-        Savage.Savage.Logger().info("[Slash] Registrando comandos...");
+        Savage.getLogger().info("[Slash] Registrando comandos...");
 
         for (Class<?> commandClass : ClassLoader.getClassesForPackage(BungeeCore.getInstance(), commandDir)) {
             if (SlashCommand.class.isAssignableFrom(commandClass)) {
@@ -30,13 +30,13 @@ public class SlashCommandManager {
                     commands.add(command);
                     loaded++;
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar o slash command " + commandClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível registrar o slash command " + commandClass.getSimpleName(), e);
                 }
             }
         }
 
         if (loaded >0 )
-            Savage.Savage.Logger().info("[Slash] Registro de comandos concluído. (" + loaded + " comandos registrados)");
+            Savage.getLogger().info("[Slash] Registro de comandos concluído. (" + loaded + " comandos registrados)");
     }
 
     public static SlashCommand of(String name) {

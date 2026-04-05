@@ -45,13 +45,13 @@ public class ArchitectLoader {
     public ArchitectLoader(JavaPlugin plugin) {
         File configFile = new File(plugin.getDataFolder(), "config.json");
 
-        Savage.Savage.Logger().info("Iniciando configuração...");
+        Savage.getLogger().info("Iniciando configuração...");
 
         List<SignedLocation> locationList = new ArrayList<>();
 
         try {
             if (!configFile.exists()) {
-                Savage.Savage.Logger().warning("O arquivo config.json não foi encontrado. Gerando um padrão...");
+                Savage.getLogger().warning("O arquivo config.json não foi encontrado. Gerando um padrão...");
 
                 plugin.getDataFolder().mkdirs();
 
@@ -60,9 +60,9 @@ public class ArchitectLoader {
                 if (configStream != null) {
                     Files.copy(configStream, configFile.toPath());
 
-                    Savage.Savage.Logger().info("O arquivo config.json foi gerado na pasta do plug-in.");
+                    Savage.getLogger().info("O arquivo config.json foi gerado na pasta do plug-in.");
                 } else {
-                    Savage.Savage.Logger().severe("Não foi possível encontrar o arquivo config.json.");
+                    Savage.getLogger().severe("Não foi possível encontrar o arquivo config.json.");
 
                     Bukkit.shutdown();
                     return;
@@ -76,7 +76,7 @@ public class ArchitectLoader {
             if (server == null) {
                 server = ServerType.HUB;
 
-                Savage.Savage.Logger().warning("Nenhum servidor encontrado, definindo padrão...");
+                Savage.getLogger().warning("Nenhum servidor encontrado, definindo padrão...");
             }
 
             JsonArray locations = json.getAsJsonArray("locations");
@@ -100,11 +100,13 @@ public class ArchitectLoader {
                 throw new IllegalArgumentException("Nenhum Architect registrado para o tipo de servidor: " + server);
             }
 
-            Savage.Savage.Logger().info("Configuração estabelecida com sucesso.");
+            Savage.getLogger().info("Configuração estabelecida com sucesso.");
         } catch (Exception e) {
-            Savage.Savage.Logger().severe("Erro ao carregar o arquivo config.json: " + e.getMessage());
+            Savage.getLogger().severe("Erro ao carregar o arquivo config.json: " + e.getMessage());
 
             e.printStackTrace();
         }
     }
 }
+
+

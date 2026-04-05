@@ -46,7 +46,7 @@ public class ArcadeBuilderMenu extends Menu {
         manager.create(ArcadeConfig.builder()
                 .creator(player.getUniqueId())
                 .arcade(arcade)
-                .slot(slot)
+                .slot(slot.ordinal())
                 .build());
     }
 

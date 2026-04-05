@@ -33,6 +33,11 @@ public class PreferenceMenu extends Menu {
         this.category = ToggleCategory.MEMBER;
     }
 
+    // Método adicional para compatibilidade
+    public void setCategory(ToggleCategory category) {
+        this.category = category;
+    }
+
     @Override
     public void handle() {
         clear();
@@ -81,8 +86,7 @@ public class PreferenceMenu extends Menu {
     }
 
     @Getter
-    @AllArgsConstructor
-    public enum ToggleCategory {
+public enum ToggleCategory {
 
         MEMBER("Membro", ChatColor.GRAY),
         VIP("VIP", ChatColor.GREEN),
@@ -90,6 +94,11 @@ public class PreferenceMenu extends Menu {
 
         private final String name;
         private final ChatColor color;
+
+        ToggleCategory(String name, ChatColor color) {
+            this.name = name;
+            this.color = color;
+        }
 
         public ToggleCategory next(Account account) {
             if (account.isStaffer()) return this != STAFF ? values()[ordinal() + 1] : MEMBER;

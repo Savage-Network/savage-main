@@ -16,7 +16,7 @@ public class SkinController {
 
             return new Skin(type, id, displayName, property.getValue(), property.getSignature());
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível carregar a skin " + id, e);
+            Savage.getLogger().log(Level.SEVERE, "Não foi possível carregar a skin " + id, e);
             return null;
         }
     }

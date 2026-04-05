@@ -26,6 +26,11 @@ public class Vanish {
         list.add(this);
     }
 
+    // Métodos adicionais para compatibilidade
+    public static Set<Vanish> getList() {
+        return list;
+    }
+
     public static void handle(Player player) {
         Account account = Savage.getAccountController().of(player.getUniqueId());
 
@@ -78,5 +83,10 @@ public class Vanish {
                     .filter(target -> target.player() != null && !target.hasRank(account.getRank()))
                     .forEach(target -> target.player().hidePlayer(player));
         }
+    }
+
+    // Métodos adicionais para compatibilidade
+    public Player getPlayer() {
+        return player;
     }
 }

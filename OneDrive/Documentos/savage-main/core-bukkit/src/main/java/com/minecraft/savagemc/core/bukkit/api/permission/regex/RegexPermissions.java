@@ -57,11 +57,11 @@ public class RegexPermissions implements Listener {
                 }
             }
             if (!success) {
-                this.plugin.Savage.Logger().warning("Unable to inject PEX's permissible for " + player.getName());
+                this.plugin.getLogger().warning("Unable to inject PEX's permissible for " + player.getName());
             }
             permissible.recalculatePermissions();
         } catch (Throwable e) {
-            this.plugin.Savage.Logger().log(Level.SEVERE, "Unable to inject permissible for " + player.getName(), e);
+            this.plugin.getLogger().log(Level.SEVERE, "Unable to inject permissible for " + player.getName(), e);
         }
     }
 
@@ -87,7 +87,7 @@ public class RegexPermissions implements Listener {
                 }
             }
             if (!success) {
-                this.plugin.Savage.Logger()
+                this.plugin.getLogger()
                         .warning("No Permissible injector found for your server implementation (while uninjecting for " + player.getName() + "!");
             }
         } catch (Throwable e) {

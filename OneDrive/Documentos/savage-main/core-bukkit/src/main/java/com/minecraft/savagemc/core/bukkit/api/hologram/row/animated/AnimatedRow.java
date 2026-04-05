@@ -28,6 +28,7 @@ public class AnimatedRow extends HologramRow {
         super(hologram, location, "");
 
         this.helmet = helmet;
+        this.headYaw = location.getYaw();
     }
 
     @Override
@@ -43,7 +44,7 @@ public class AnimatedRow extends HologramRow {
         CraftWorld world = (CraftWorld) location.getWorld();
 
         if (world == null) {
-            Savage.Savage.Logger().info("Mundo não encontrado!");
+            Savage.getLogger().info("Mundo não encontrado!");
             return null;
         }
 
@@ -177,5 +178,14 @@ public class AnimatedRow extends HologramRow {
                 connection.sendPacket(teleportPacket);
             }
         }
+    }
+
+    // Métodos adicionais para compatibilidade
+    public EntityArmorStand getStand() {
+        return stand;
+    }
+
+    public Hologram getHologram() {
+        return hologram;
     }
 }

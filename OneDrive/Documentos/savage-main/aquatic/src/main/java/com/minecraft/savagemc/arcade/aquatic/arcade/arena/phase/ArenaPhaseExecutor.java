@@ -85,7 +85,7 @@ public class ArenaPhaseExecutor {
                         "");
                 arena.sound(Sound.ITEM_PICKUP);
 
-                Savage.Savage.Logger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "/" + arena.getMap().getName() + "]" +
+                Savage.getLogger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "/" + arena.getMap().getName() + "]" +
                         " A partida foi iniciada com " + arena.getTotalPlayers() + " jogadores!");
 
                 break;

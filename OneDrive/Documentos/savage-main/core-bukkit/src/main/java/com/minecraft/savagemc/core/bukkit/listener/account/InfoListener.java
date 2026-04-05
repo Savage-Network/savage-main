@@ -72,6 +72,6 @@ public class InfoListener implements Listener {
         if (!account.hasRank(RankType.NATURE))
             account.setCooldown(Constant.CHAT_COOLDOWN_KEY, TimeUnit.SECONDS.toMillis(3));
 
-        Savage.Savage.Logger().info("[Chat] " + player.getName() + ": " + message);
+        Savage.getLogger().info("[Chat] " + player.getName() + ": " + message);
     }
 }

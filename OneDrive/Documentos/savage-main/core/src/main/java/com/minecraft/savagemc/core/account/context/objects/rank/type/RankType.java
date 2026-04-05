@@ -26,12 +26,15 @@ public enum RankType {
     CHAMPION("Champion", RankRole.VIP, ChatColor.GOLD,       emptyList()),
     BETA("Beta",       RankRole.VIP, ChatColor.DARK_BLUE,    emptyList()),
 
+    /* Exclusivas */
+    TAG_2026("2026",   RankRole.EXCLUSIVE, ChatColor.AQUA,   emptyList()),
+
     /* Creator / Mídia */
     YOUTUBER("Youtuber",   RankRole.SPECIAL, ChatColor.AQUA, emptyList()),
     STREAMER("Streamer",   RankRole.SPECIAL, ChatColor.AQUA, emptyList()),
     TIKTOKER("Tiktoker",   RankRole.SPECIAL, ChatColor.AQUA, emptyList()),
     MIDIA("Mídia",         RankRole.SPECIAL, ChatColor.AQUA, emptyList()),
-    MIDIA_PLUS("Mídia+",   RankRole.SPECIAL, ChatColor.DARK_AQUA, emptyList()),
+    MIDIA_PLUS("Mídia+",   RankRole.SPECIAL, ChatColor.DARK_AQUA, Arrays.asList("gm", "tp", "reports", "vanish", "v", "salacustom", "cban")),
 
     /* Staff */
     BUILDER("Builder",     RankRole.STAFF, ChatColor.DARK_GREEN,   emptyList()),

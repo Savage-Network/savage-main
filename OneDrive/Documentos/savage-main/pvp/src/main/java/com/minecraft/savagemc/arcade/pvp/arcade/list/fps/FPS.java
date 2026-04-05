@@ -10,6 +10,7 @@ import com.minecraft.savagemc.core.arcade.category.ArcadeCategory;
 import com.minecraft.savagemc.core.bukkit.api.sidebar.Sidebar;
 import com.minecraft.savagemc.core.bukkit.event.type.player.PlayerDamageEvent;
 import com.minecraft.savagemc.core.bukkit.manager.list.TagManager;
+import com.minecraft.savagemc.core.bukkit.user.combat.Combat;
 import com.minecraft.savagemc.core.event.IgnoreEvent;
 import com.minecraft.savagemc.core.member.list.pvp.PvPMember;
 import com.minecraft.savagemc.core.member.list.pvp.stats.list.ArenaStats;
@@ -144,7 +145,7 @@ public class FPS extends Arcade {
                 player.getWorld().dropItemNaturally(player.getLocation(), content);
         }
 
-        user.setCombat(null);
+        user.setCombat((Combat) null);
         user.getArena().spawn(player);
 
         if (hasKiller) {
@@ -173,7 +174,7 @@ public class FPS extends Arcade {
 
             BukkitUtil.sendArmor(account.player(), BukkitUtil.ArmorType.IRON);
 
-            killer.setCombat(null);
+            killer.setCombat((Combat) null);
 
             handleSidebar(killer);
         }

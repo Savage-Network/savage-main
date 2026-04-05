@@ -9,6 +9,8 @@ import net.md_5.bungee.api.ChatColor;
 public enum ClanRole {
 
     MEMBER("Membro", "☆", ChatColor.GRAY),
+    MODERATOR("Moderador", "✦", ChatColor.BLUE),
+    MANAGER("Gerente", "✪", ChatColor.GOLD),
     RECRUITER("Recrutador", "✸", ChatColor.GREEN),
     LEADER("Líder", "✵", ChatColor.RED);
 

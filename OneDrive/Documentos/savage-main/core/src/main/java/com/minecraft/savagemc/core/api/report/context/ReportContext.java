@@ -13,6 +13,7 @@ public class ReportContext {
 
     private final UUID sender;
     private final String reason;
+    private final String replayId; // ID do replay da partida
 
     private final long timestamp = System.currentTimeMillis(), expiresAt;
 

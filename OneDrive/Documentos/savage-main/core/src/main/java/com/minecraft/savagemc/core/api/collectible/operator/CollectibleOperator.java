@@ -59,13 +59,33 @@ public abstract class CollectibleOperator {
 
         if (account != null) {
             List<String> list = account.getActiveCollectibles();
+            
+            if (list.isEmpty()) {
+                Savage.getLogger().info("[Collectible] Nenhum cosmético ativo para " + host.getName());
+                return;
+            }
+            
+            Savage.getLogger().info("[Collectible] Tentando carregar " + list.size() + " cosmético(s) para " + host.getName());
+            
+            int loaded = 0;
+            int notFound = 0;
 
             for (String id : list) {
                 Collectible collectible = Savage.getCollectibleController().of(id);
 
-                if (collectible != null)
+                if (collectible != null) {
+                    Savage.getLogger().info("[Collectible] ✓ Carregado: " + collectible.getName() + " (" + collectible.getCategory() + ")");
                     start(host, collectible);
+                    loaded++;
+                } else {
+                    Savage.getLogger().info("[Collectible] ✗ Não implementado: " + id);
+                    notFound++;
+                }
             }
+            
+            Savage.getLogger().info("[Collectible] Resumo para " + host.getName() + ": " + loaded + " carregados, " + notFound + " não implementados");
+        } else {
+            Savage.getLogger().warning("[Collectible] Conta não encontrada para " + host.getName());
         }
     }
 

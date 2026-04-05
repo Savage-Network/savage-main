@@ -36,7 +36,7 @@ public class UserFactory {
 
             return (User) constructor.newInstance(member, arena, join);
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível inicializar o usuário de " + member.getId(), e);
+            Savage.getLogger().log(Level.SEVERE, "Não foi possível inicializar o usuário de " + member.getId(), e);
 
             return new User(member, arena, join);
         }

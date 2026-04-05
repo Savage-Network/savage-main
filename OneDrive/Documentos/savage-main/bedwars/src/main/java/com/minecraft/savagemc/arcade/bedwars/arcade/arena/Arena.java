@@ -36,6 +36,7 @@ import com.minecraft.savagemc.core.arcade.room.type.Type;
 import com.minecraft.savagemc.core.arcade.route.state.ArcadeState;
 import com.minecraft.savagemc.core.arcade.slime.SlimeWorldController;
 import com.minecraft.savagemc.core.bukkit.api.firework.FireworkApi;
+import com.minecraft.savagemc.core.bukkit.api.hologram.type.client.HologramClient;
 import com.minecraft.savagemc.core.bukkit.api.hologram.type.server.HologramServer;
 import com.minecraft.savagemc.core.bukkit.api.npc.type.client.NpcClient;
 import com.minecraft.savagemc.core.bukkit.api.sidebar.Sidebar;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
 public class Arena extends Room {
 
     private final ArenaContext context;
+    public String replayId; // ID do replay sendo gravado (público para acesso direto)
 
     public Arena(int id, Arcade arcade, Map map, Slot slot, Type type) {
         super(id, arcade, map, slot, type);
@@ -224,6 +226,12 @@ public class Arena extends Room {
                             }
 
                             getUsers().forEach(this::updateSidebarTeams);
+                        }
+                        
+                        // Verificar vitória após desconexão (verificar times vivos ao invés de jogadores)
+                        if (getAliveTeams().size() == 1) {
+                            setWinner(getAliveTeams().get(0));
+                            setPhase(RoomPhase.ENDING);
                         }
                     }, 3L);
                 }
@@ -635,51 +643,70 @@ public class Arena extends Room {
     public void hideAndShow(User user) {
         Player mainPlayer = user.getAccount().player();
 
-        // 1º passo: Escondendo todos os jogadores
-        for (Player target : Bukkit.getOnlinePlayers()) {
-            if (target == null || target.equals(mainPlayer)) continue;
-
-            target.hidePlayer(mainPlayer);
-            mainPlayer.hidePlayer(target);
-        }
-
-        // 2º passo: Realizar filtragem e ver para quem mostrar o "mainPlayer"
-        for (Player targetPlayer : getPlayers()) {
-            if (targetPlayer == null || mainPlayer.equals(targetPlayer))
-                continue;
+        // 관리 (Manage) visibility for ALL online players
+        for (Player targetPlayer : Bukkit.getOnlinePlayers()) {
+            if (targetPlayer == null || targetPlayer.equals(mainPlayer)) continue;
 
             User target = (User) User.of(targetPlayer.getUniqueId());
+            if (target == null) continue;
 
-            if (target == null || !target.getArena().equals(user.getArena())) continue;
+            // Se o alvo estiver em uma arena diferente, garantimos que ele apareça no Tablist (Lobby style)
+            // Como as arenas estão em mundos diferentes, eles não se verão no jogo.
+            if (!target.getArena().equals(user.getArena())) {
+                if (!target.isVanish()) {
+                    mainPlayer.showPlayer(targetPlayer);
+                } else {
+                    mainPlayer.hidePlayer(targetPlayer);
+                }
+                
+                if (!user.isVanish()) {
+                    targetPlayer.showPlayer(mainPlayer);
+                } else {
+                    targetPlayer.hidePlayer(mainPlayer);
+                }
+                continue;
+            }
 
+            // Lógica para jogadores na MESMA arena
             if (user.isVanish()) {
                 mainPlayer.showPlayer(targetPlayer);
 
                 if (target.isVanish())
                     targetPlayer.showPlayer(mainPlayer);
-            }
-
-            if (user.isSpectator() && !target.isVanish()) {
+                else
+                    targetPlayer.hidePlayer(mainPlayer);
+            } else if (target.isVanish()) {
+                mainPlayer.hidePlayer(targetPlayer);
+                targetPlayer.showPlayer(mainPlayer);
+            } else if (user.isSpectator()) {
+                // Jogador principal é espectador (morto)
+                // SEMPRE mostrar no tab, mas esconder visualmente no jogo
                 mainPlayer.showPlayer(targetPlayer);
 
-                if (target.isSpectator())
+                if (target.isSpectator()) {
+                    // Ambos são espectadores - podem se ver
                     targetPlayer.showPlayer(mainPlayer);
-            }
-
-            if (user.isPlayer()) {
-                if (isPhase(RoomPhase.ENDING) && target.isPlayer()) {
-                    mainPlayer.showPlayer(targetPlayer);
+                } else {
+                    // Target está vivo, user está morto
+                    // Mostrar no tab mas esconder nametag
                     targetPlayer.showPlayer(mainPlayer);
+                    // Esconder nametag do espectador para jogadores vivos
+                    com.minecraft.savagemc.core.bukkit.api.protocol.ProtocolHandler.hidePlayerName(mainPlayer, targetPlayer);
                 }
-
-                if (target.isPlayer() && !target.inState(ArcadeState.ALIVE) && !user.inState(ArcadeState.ALIVE))
-                    mainPlayer.showPlayer(targetPlayer);
-
-                if (target.isPlayer() && target.inState(ArcadeState.ALIVE))
-                    mainPlayer.showPlayer(targetPlayer);
-
-                if (user.inState(ArcadeState.ALIVE))
-                    targetPlayer.showPlayer(mainPlayer);
+            } else if (target.isSpectator()) {
+                // Target é espectador (morto), user está vivo
+                // Mostrar no tab mas esconder visualmente no jogo
+                mainPlayer.showPlayer(targetPlayer);
+                targetPlayer.showPlayer(mainPlayer);
+                // Esconder nametag do espectador para jogadores vivos
+                com.minecraft.savagemc.core.bukkit.api.protocol.ProtocolHandler.hidePlayerName(targetPlayer, mainPlayer);
+            } else {
+                // Ambos são jogadores vivos na mesma arena
+                mainPlayer.showPlayer(targetPlayer);
+                targetPlayer.showPlayer(mainPlayer);
+                // Garantir que nametags estejam visíveis entre jogadores vivos
+                com.minecraft.savagemc.core.bukkit.api.protocol.ProtocolHandler.showPlayerName(targetPlayer, mainPlayer);
+                com.minecraft.savagemc.core.bukkit.api.protocol.ProtocolHandler.showPlayerName(mainPlayer, targetPlayer);
             }
         }
     }
@@ -761,7 +788,7 @@ public class Arena extends Room {
         Top top = getTop(type);
 
         if (top == null) {
-            Savage.Savage.Logger().warning("O top " + type.name() + " é nulo.");
+            Savage.getLogger().warning("O top " + type.name() + " é nulo.");
             return null;
         }
 
@@ -772,7 +799,7 @@ public class Arena extends Room {
         Top top = getTop(type);
 
         if (top == null) {
-            Savage.Savage.Logger().warning("O top " + type.name() + " é nulo.");
+            Savage.getLogger().warning("O top " + type.name() + " é nulo.");
             return null;
         }
 

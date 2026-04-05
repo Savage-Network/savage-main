@@ -18,10 +18,8 @@ public enum ClanTag {
 
     /* Admin-only */
     CXC("CXC",            "§c",  ChatColor.RED,         RankType.ADMIN,  "clantag.cxc"),
-    BRASIL("Brasil",      null,  ChatColor.DARK_GREEN,  RankType.ADMIN,  "clantag.brasil"),
     SAVAGE("Savage",      null,  ChatColor.DARK_GREEN,  RankType.ADMIN,  "clantag.savage");
 
-    private static final String[] BRASIL_COLORS = {"§a", "§e", "§9"};
     private static final String[] SAVAGE_COLORS = {"§2", "§2", "§2", "§a", "§a", "§a"};
 
     private final String name, colorCode;
@@ -49,7 +47,6 @@ public enum ClanTag {
     }
 
     public String format(String clanTag) {
-        if (this == BRASIL) return colorize(clanTag, BRASIL_COLORS);
         if (this == SAVAGE) return colorize(clanTag, SAVAGE_COLORS);
         return colorCode != null ? colorCode + clanTag : clanTag;
     }

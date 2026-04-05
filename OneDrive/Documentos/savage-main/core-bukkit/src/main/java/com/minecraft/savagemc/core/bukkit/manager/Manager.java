@@ -20,4 +20,37 @@ public class Manager {
     private final HologramManager hologram = new HologramManager();
 
     private final CooldownManager cooldown = new CooldownManager();
+
+    // Métodos adicionais para compatibilidade
+    public NpcManager getNpc() {
+        return npc;
+    }
+
+    public ProtocolManager getProtocol() {
+        return protocol;
+    }
+
+    public SidebarManager getSidebar() {
+        return sidebar;
+    }
+
+    public ArcadeManager getArcade() {
+        return arcade;
+    }
+
+    public CooldownManager getCooldown() {
+        return cooldown;
+    }
+
+    public HologramManager getHologram() {
+        return hologram;
+    }
+
+    public MenuManager getMenu() {
+        return menu;
+    }
+
+    public ArcadeConfigManager getArcadeConfig() {
+        return arcadeConfig;
+    }
 }

@@ -36,7 +36,7 @@ public class SlimeWorldController {
         SlimeLoader loader = plugin.getLoader(Constant.SLIME_FILE_LOADER);
 
         if (loader == null) {
-            plugin.Savage.Logger().info("Loader \"" + Constant.SLIME_FILE_LOADER + "\" não encontrado.");
+            Savage.getLogger().info("Loader \"" + Constant.SLIME_FILE_LOADER + "\" não encontrado.");
             return;
         }
 
@@ -45,24 +45,24 @@ public class SlimeWorldController {
         WorldData worldData = config.getWorlds().get(template);
 
         if (worldData == null) {
-            plugin.Savage.Logger().info("Mundo \"" + template + "\" não encontrado.");
+            Savage.getLogger().info("Mundo \"" + template + "\" não encontrado.");
             return;
         }
 
         if (template.equalsIgnoreCase(name)) {
-            plugin.Savage.Logger().info("Os mundos não podem ter os nomes iguais. (" + template + "/" + name + ")");
+            Savage.getLogger().info("Os mundos não podem ter os nomes iguais. (" + template + "/" + name + ")");
             return;
         }
 
         // Gerar mundo
-        plugin.Savage.Logger().info("Gerando mundo \"" + name + "\" de \"" + template + "\"...");
+        Savage.getLogger().info("Gerando mundo \"" + name + "\" de \"" + template + "\"...");
 
         generateWorld(plugin, loader, template, name, afterGenerate, 3); // Tente gerar o mundo até 3 vezes
     }
 
     private static void generateWorld(SWMPlugin plugin, SlimeLoader loader, String template, String name, SlimeAction afterGenerate, int attempts) {
         if (attempts <= 0) {
-            plugin.Savage.Logger().info("Não foi possível gerar o mundo \"" + name + "\" após " + attempts + " tentativas.");
+            Savage.getLogger().info("Não foi possível gerar o mundo \"" + name + "\" após " + attempts + " tentativas.");
             return;
         }
 
@@ -85,7 +85,7 @@ public class SlimeWorldController {
                 templateWorld = plugin.loadWorld(loader, template, true, properties);
 
                 if (templateWorld == null) {
-                    plugin.Savage.Logger().info("O template \"" + template + "\" não foi encontrado.");
+                    Savage.getLogger().info("O template \"" + template + "\" não foi encontrado.");
                     return;
                 }
 
@@ -108,24 +108,24 @@ public class SlimeWorldController {
 
                             afterGenerate.run();
 
-                            plugin.Savage.Logger().info("Mundo \"" + name + "\" carregado e gerado em "
+                            Savage.getLogger().info("Mundo \"" + name + "\" carregado e gerado em "
                                     + Duration.between(start, Instant.now()).toMillis() + "ms.");
                         } else {
-                            plugin.Savage.Logger().info("Não foi possível executar a ação do mundo " + name);
+                            Savage.getLogger().info("Não foi possível executar a ação do mundo " + name);
                             generateWorld(plugin, loader, template, name, afterGenerate, attempts - 1); // Tente novamente
                         }
                     } else {
-                        plugin.Savage.Logger().info("Não foi possível executar a ação do mundo " + name);
+                        Savage.getLogger().info("Não foi possível executar a ação do mundo " + name);
                         generateWorld(plugin, loader, template, name, afterGenerate, attempts - 1); // Tente novamente
                     }
 
                 } catch (Exception e) {
-                    plugin.Savage.Logger().log(Level.WARNING, "Não foi possível gerar o mundo \"" + name + "\" (1x)", e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível gerar o mundo \"" + name + "\" (1x)", e);
                     generateWorld(plugin, loader, template, name, afterGenerate, attempts - 1); // Tente novamente
                 }
             });
         } catch (Exception e) {
-            plugin.Savage.Logger().log(Level.WARNING, "Não foi possível gerar o mundo \"" + name + "\" (2x)", e);
+            Savage.getLogger().log(Level.WARNING, "Não foi possível gerar o mundo \"" + name + "\" (2x)", e);
             generateWorld(plugin, loader, template, name, afterGenerate, attempts - 1); // Tente novamente
         }
     }
@@ -135,7 +135,7 @@ public class SlimeWorldController {
         SlimeLoader loader = SWMPlugin.getInstance().getLoader(loaderName);
 
         if (loader == null) {
-            Savage.Savage.Logger().info("Loader não encontrado!");
+            Savage.getLogger().info("Loader não encontrado!");
             return;
         }
 
@@ -144,7 +144,7 @@ public class SlimeWorldController {
                 try {
                     loader.deleteWorld(world);
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível deletar o mundo \"" + world + "\".", e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível deletar o mundo \"" + world + "\".", e);
                 }
             });
         } catch (Exception e) {
@@ -157,7 +157,7 @@ public class SlimeWorldController {
         SlimeLoader loader = SWMPlugin.getInstance().getLoader(Constant.SLIME_FILE_LOADER);
 
         if (loader == null) {
-            Savage.Savage.Logger().info("Loader não encontrado!");
+            Savage.getLogger().info("Loader não encontrado!");
             return;
         }
 
@@ -188,7 +188,7 @@ public class SlimeWorldController {
         SlimeLoader loader = SWMPlugin.getInstance().getLoader(Constant.SLIME_FILE_LOADER);
 
         if (loader == null) {
-            Savage.Savage.Logger().log(Level.WARNING, "Não foi possível encontrar o loader \"Hikari\".");
+            Savage.getLogger().log(Level.WARNING, "Não foi possível encontrar o loader \"Hikari\".");
             return;
         }
 
@@ -204,15 +204,15 @@ public class SlimeWorldController {
             loader.deleteWorld(worldName);
 
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Ocorreu um erro ao encerrar o mundo \"" + (worldName) + "\"...", e);
+            Savage.getLogger().log(Level.WARNING, "Ocorreu um erro ao encerrar o mundo \"" + (worldName) + "\"...", e);
         }
 
         if (Bukkit.getWorld(worldName) == null) {
-            Savage.Savage.Logger().info("[SlimeWorld] Mundo \"" + worldName + "\" deletado! Executando ação...");
+            Savage.getLogger().info("[SlimeWorld] Mundo \"" + worldName + "\" deletado! Executando ação...");
 
             afterUnloadWorld.run();
         } else {
-            Savage.Savage.Logger().info("[SlimeWorld] Não foi possível deletar o mundo \"" + worldName + "\".");
+            Savage.getLogger().info("[SlimeWorld] Não foi possível deletar o mundo \"" + worldName + "\".");
         }
     }
 

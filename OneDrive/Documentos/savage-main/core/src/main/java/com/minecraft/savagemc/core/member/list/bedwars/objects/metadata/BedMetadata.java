@@ -1,5 +1,6 @@
 package com.minecraft.savagemc.core.member.list.bedwars.objects.metadata;
 
+import com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedShop;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.metadata.objects.collectible.objects.type.BedCollectibleType;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.metadata.objects.profile.ProfileType;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.metadata.objects.share.ShareType;
@@ -23,4 +24,5 @@ public class BedMetadata {
     private List<BedMenuMetadata> menus = new ArrayList<>();
 
     private final Map<BedCollectibleType, String> collectibles = new HashMap<>();
+    private final Map<BedShop, Integer> hotbarPreferences = new HashMap<>();
 }

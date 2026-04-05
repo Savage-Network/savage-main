@@ -178,7 +178,7 @@ public class GladiatorRing {
 
     public void teleport() {
         if (!isSpawned()) {
-            Savage.Savage.Logger().warning("Não foi possível gerar o ringue de Gladiator.");
+            Savage.getLogger().warning("Não foi possível gerar o ringue de Gladiator.");
             return;
         }
 

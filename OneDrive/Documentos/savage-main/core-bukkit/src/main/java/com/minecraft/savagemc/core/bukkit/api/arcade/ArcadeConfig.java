@@ -22,7 +22,7 @@ public class ArcadeConfig {
     private final UUID creator;
 
     private final ArcadeCategory arcade;
-    private final Slot slot;
+    private final Integer slot;
 
     private final List<Map> maps = new ArrayList<>();
 
@@ -46,5 +46,30 @@ public class ArcadeConfig {
 
     public void setProperty(String key, Object value) {
         properties.put(key.toLowerCase(), value);
+    }
+
+    // Métodos adicionais para compatibilidade
+    public UUID getCreator() {
+        return creator;
+    }
+
+    public ArcadeCategory getArcade() {
+        return arcade;
+    }
+
+    public Integer getSlot() {
+        return slot;
+    }
+
+    public List<Map> getMaps() {
+        return maps;
+    }
+
+    public java.util.Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public static ArcadeConfigBuilder builder() {
+        return new ArcadeConfigBuilder();
     }
 }

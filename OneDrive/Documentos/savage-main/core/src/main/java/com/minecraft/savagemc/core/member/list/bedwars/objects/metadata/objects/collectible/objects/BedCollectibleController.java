@@ -56,7 +56,7 @@ public class BedCollectibleController {
                         list.add(collectible);
 
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "[BW-Collectible] Não foi possível carregar o colecionável " + collectibleClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.WARNING, "[BW-Collectible] Não foi possível carregar o colecionável " + collectibleClass.getSimpleName(), e);
                 }
             }
         }

@@ -59,7 +59,7 @@ public class BungeeCompleter implements Listener {
                 Completer completer = entry.getKey().getAnnotation(Completer.class);
 
                 if (completer == null) {
-                    Savage.Savage.Logger().warning("O completer " + cmdLabel + " é nulo!");
+                    Savage.getLogger().warning("O completer " + cmdLabel + " é nulo!");
                     return;
                 }
 
@@ -73,7 +73,7 @@ public class BungeeCompleter implements Listener {
 
                     event.getSuggestions().addAll(list);
                 } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível realizar o completer de " + label, e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível realizar o completer de " + label, e);
                 }
             }
         }

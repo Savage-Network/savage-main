@@ -5,6 +5,8 @@ import com.minecraft.savagemc.arcade.bedwars.arcade.Arcade;
 import com.minecraft.savagemc.arcade.bedwars.arcade.arena.Arena;
 import com.minecraft.savagemc.arcade.bedwars.arcade.arena.context.objects.event.Event;
 import com.minecraft.savagemc.arcade.bedwars.arcade.arena.context.objects.top.Top;
+import com.minecraft.savagemc.arcade.bedwars.arcade.arena.context.objects.top.enums.TopCategory;
+import com.minecraft.savagemc.arcade.bedwars.arcade.arena.context.objects.top.enums.TopType;
 import com.minecraft.savagemc.arcade.bedwars.arcade.arena.context.objects.top.user.TopUser;
 import com.minecraft.savagemc.arcade.bedwars.structure.team.Team;
 import com.minecraft.savagemc.arcade.bedwars.user.User;
@@ -74,6 +76,22 @@ public class ArenaPhaseExecutor {
 
                 arena.getContext().setEvent(new Event());
                 arena.spawnGenerators();
+
+                // Iniciar gravação do replay
+                String arenaId = "arena_" + arena.getId() + "_" + arena.getWorld();
+                com.minecraft.savagemc.core.api.report.replay.ReplayRecorder.startRecording(
+                    arenaId, 
+                    "BedWars", 
+                    arena.getMap().getName()
+                );
+                arena.replayId = arenaId;
+
+                // Definir replayId em todos os usuários
+                users.forEach(user -> {
+                    if (user instanceof User) {
+                        ((User) user).setCurrentReplayId(arenaId);
+                    }
+                });
 
                 /* Definir times */
                 for (Team team : arena.getTeamList()) {
@@ -167,7 +185,7 @@ public class ArenaPhaseExecutor {
 
                 arena.getAllUsers().forEach(arena::hideAndShow);
 
-                Savage.Savage.Logger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "/" + arena.getMap().getName() + "]" +
+                Savage.getLogger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "/" + arena.getMap().getName() + "]" +
                         " A partida foi iniciada com " + arena.getTotalPlayers() + " jogadores!");
 
                 break;
@@ -177,6 +195,16 @@ public class ArenaPhaseExecutor {
 
                 arcade.updateStatisticalData((Team) arena.getWinner(),
                         arena.getLosers().stream().map(team -> (Team) team).collect(Collectors.toList()));
+
+                // Parar gravação do replay (sem jogador específico ainda)
+                // O replay será associado quando alguém for reportado
+                if (arena.replayId != null) {
+                    // Mantém o replay disponível por 30 minutos para possíveis reports
+                    Savage.getPlatform().runSync(() -> {
+                        // Cleanup automático após 30 minutos
+                        com.minecraft.savagemc.core.api.report.replay.ReplayRecorder.stopRecording(arena.replayId, null);
+                    }, 36000L); // 30 minutos em ticks
+                }
 
                 users.forEach(user -> {
                     CompletableFuture.runAsync(() -> arcade.load(user));
@@ -370,6 +398,27 @@ public class ArenaPhaseExecutor {
             user.setXpGain(xpForBeingAtTop);
 
             account.send("§b+" + xpForBeingAtTop + " XP");
+        }
+        
+        // Bônus de 100 XP para MVP (mais kills ou mais camas destruídas)
+        TopUser killsTop = arena.getTopUser(TopType.FINAL_KILL, TopCategory.PRIMARY);
+        TopUser bedsTop = arena.getTopUser(TopType.BED_DESTRUCTION, TopCategory.PRIMARY);
+        
+        boolean isMvpKills = killsTop != null && killsTop.getId().equals(user.getAccount().getId());
+        boolean isMvpBeds = bedsTop != null && bedsTop.getId().equals(user.getAccount().getId());
+        
+        if (isMvpKills || isMvpBeds) {
+            int mvpBonus = 100;
+            
+            if (arena.isType(Type.CASUAL))
+                member.addLevelXp(mvpBonus);
+            else
+                member.addEloXp(mvpBonus);
+            
+            user.setXpGain(user.getXpGain() + mvpBonus);
+            
+            String mvpType = isMvpKills && isMvpBeds ? "Kills e Camas" : isMvpKills ? "Kills" : "Camas";
+            account.send("§b+" + mvpBonus + " XP §7(MVP " + mvpType + ")");
         }
 
         account.send("§eVocê reivindicou §b" + Util.formatNumber(user.getXpGain()) + " de XP§e nessa partida!");

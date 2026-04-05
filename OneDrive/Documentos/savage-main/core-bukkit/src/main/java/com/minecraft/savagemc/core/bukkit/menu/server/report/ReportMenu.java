@@ -27,6 +27,11 @@ public class ReportMenu extends Menu {
         super(player, "Histórico de denúncias", 5, 21);
     }
 
+    // Método adicional para compatibilidade
+    public void setFilter(ReportFilter filter) {
+        this.filter = filter;
+    }
+
     @Override
     public void handle() {
         clear();
@@ -133,8 +138,7 @@ public class ReportMenu extends Menu {
     }
 
     @Getter
-    @AllArgsConstructor
-    public enum ReportFilter {
+public enum ReportFilter {
 
         ALL("Todos", list -> list),
         MOST_RECENT("Mais recentes", list -> list.stream().sorted(Comparator.comparing(Report::getCreatedAt)).collect(Collectors.toList())),
@@ -157,6 +161,19 @@ public class ReportMenu extends Menu {
 
         private final String name;
         private final ReportFilterAction action;
+
+        ReportFilter(String name, ReportFilterAction action) {
+            this.name = name;
+            this.action = action;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public ReportFilterAction getAction() {
+            return action;
+        }
 
         public interface ReportFilterAction {
             List<Report> handle(List<Report> list);

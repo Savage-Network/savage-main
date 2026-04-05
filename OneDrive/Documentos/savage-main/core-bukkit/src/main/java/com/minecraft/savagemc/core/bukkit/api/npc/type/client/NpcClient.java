@@ -43,4 +43,14 @@ public class NpcClient extends Npc {
         despawnTo(receiver);
         spawnTo(receiver);
     }
+
+    // Métodos adicionais para compatibilidade
+    public Player getReceiver() {
+        return receiver;
+    }
+
+    @Override
+    public String getTag() {
+        return super.getTag();
+    }
 }

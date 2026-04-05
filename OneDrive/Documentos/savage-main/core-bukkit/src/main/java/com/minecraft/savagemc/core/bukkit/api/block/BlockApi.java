@@ -88,11 +88,11 @@ public class BlockApi {
                     try {
                         BukkitCore.getManager().getProtocol().sendServerPacket(player, packet);
                     } catch (Exception e) {
-                        Savage.Savage.Logger().log(Level.WARNING, "Não foi possível enviar o pacote de quebra de bloco...", e);
+                        Savage.getLogger().log(Level.WARNING, "Não foi possível enviar o pacote de quebra de bloco...", e);
                     }
                 });
             } catch (Exception e) {
-                Savage.Savage.Logger().log(Level.WARNING, "Erro ao criar pacote de quebra de bloco.", e);
+                Savage.getLogger().log(Level.WARNING, "Erro ao criar pacote de quebra de bloco.", e);
             }
         }
     }

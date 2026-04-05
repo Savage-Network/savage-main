@@ -12,10 +12,10 @@ import org.bukkit.event.Cancellable;
 @AllArgsConstructor
 public class PlayerDamageTargetEvent extends EventHandler implements Cancellable {
 
-    private final Player player, target;
+    private Player player, target;
 
-    private final DamageCause cause;
-    private final double finalDamage;
+    private DamageCause cause;
+    private double finalDamage;
 
     private double damage, currentHealth;
     private boolean cancelled;
@@ -26,5 +26,43 @@ public class PlayerDamageTargetEvent extends EventHandler implements Cancellable
 
     public boolean isDead() {
         return currentHealth <= 0.05;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+    // Métodos adicionais para compatibilidade
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public void setCurrentHealth(double currentHealth) {
+        this.currentHealth = currentHealth;
+    }
+
+    public double getDamage() {
+        return damage;
+    }
+
+    public void setDamage(double damage) {
+        this.damage = damage;
+    }
+
+    public void setTarget(Player target) {
+        this.target = target;
+    }
+
+    public void setCause(DamageCause cause) {
+        this.cause = cause;
+    }
+
+    public void setFinalDamage(double finalDamage) {
+        this.finalDamage = finalDamage;
     }
 }

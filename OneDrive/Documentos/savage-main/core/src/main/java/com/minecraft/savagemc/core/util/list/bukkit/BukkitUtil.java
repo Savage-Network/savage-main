@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -93,7 +94,23 @@ public class BukkitUtil {
         if (source == null || source.getType().equals(Material.AIR) || copy == null || copy.getType().equals(Material.AIR))
             return false;
 
-        return source.getItemMeta().getDisplayName().equals(copy.getItemMeta().getDisplayName()) && source.getType().equals(copy.getType());
+        ItemMeta sourceMeta = source.getItemMeta();
+        ItemMeta copyMeta = copy.getItemMeta();
+        
+        String sourceDisplayName = sourceMeta != null ? sourceMeta.getDisplayName() : null;
+        String copyDisplayName = copyMeta != null ? copyMeta.getDisplayName() : null;
+        
+        // Se ambos os displayNames são null, considera iguais
+        if (sourceDisplayName == null && copyDisplayName == null) {
+            return source.getType().equals(copy.getType());
+        }
+        
+        // Se um é null e outro não, são diferentes
+        if (sourceDisplayName == null || copyDisplayName == null) {
+            return false;
+        }
+        
+        return sourceDisplayName.equals(copyDisplayName) && source.getType().equals(copy.getType());
     }
 
     public static boolean isNotUsingArmors(Player player) {
@@ -204,9 +221,9 @@ public class BukkitUtil {
 
             if ((type == EquipmentType.SWORD && content.getType().name().endsWith("_SWORD")) ||
                     (type == EquipmentType.AXE && content.getType().name().endsWith("_AXE"))) {
-                if (enchantment.canEnchantItem(content)) {
-                    content.addEnchantment(enchantment, level);
-                }
+                // Remover encantamento existente e adicionar o novo nível
+                content.removeEnchantment(enchantment);
+                content.addUnsafeEnchantment(enchantment, level);
             }
         }
     }
@@ -214,9 +231,9 @@ public class BukkitUtil {
     private static void enchantArmor(PlayerInventory inv, Enchantment enchantment, int level) {
         for (ItemStack content : inv.getArmorContents()) {
             if (content != null && content.getType() != Material.AIR) {
-                if (enchantment.canEnchantItem(content)) {
-                    content.addEnchantment(enchantment, level);
-                }
+                // Remover encantamento existente e adicionar o novo nível
+                content.removeEnchantment(enchantment);
+                content.addUnsafeEnchantment(enchantment, level);
             }
         }
     }
@@ -238,7 +255,9 @@ public class BukkitUtil {
 
     public static void removeCommand(JavaPlugin plugin, String... commands) {
         try {
-            CommandMap commandMap = plugin.getServer().getCommandMap();
+            Field commandMapField = plugin.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            CommandMap commandMap = (CommandMap) commandMapField.get(plugin.getServer());
 
             Field field = commandMap.getClass().getDeclaredField("knownCommands");
 

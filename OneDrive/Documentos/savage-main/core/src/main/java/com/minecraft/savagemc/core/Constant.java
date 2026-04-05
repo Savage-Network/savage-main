@@ -87,6 +87,7 @@ public class Constant {
     public static final String REDIS_ROOM_INFO_CHANNEL = "room-info-channel";
     public static final String REDIS_ACCOUNT_EXECUTE_COMMAND_CHANNEL = "account-execute-command-channel";
     public static final String REDIS_ACCOUNT_CLAN_CHANGE_CHANNEL = "account-clan-change-channel";
+    public static final String REDIS_REPORT_CHANNEL = "report-channel";
 
     public static final String[] REDIS_CHANNELS = new String[]{
             REDIS_ACCOUNT_UPDATE_CHANNEL, REDIS_ACCOUNT_RANK_UPDATE_CHANNEL, REDIS_ACCOUNT_FRIEND_MENU_CHANNEL,
@@ -94,7 +95,7 @@ public class Constant {
             REDIS_ARENA_SEARCH_CHANNEL, REDIS_ARENA_STATS_CHANNEL, REDIS_ARENA_PARTY_WARP_CHANNEL, REDIS_ARENA_PARTY_LIST_CHANNEL,
             REDIS_ACCOUNT_PUNISHMENTS_CHANNEL, REDIS_ACCOUNT_VANISH_CHANNEL, REDIS_ACCOUNT_GLOBAL_MESSAGE_CHANNEL,
             REDIS_ROOM_REQUEST_CHANNEL, REDIS_ROOM_INFO_CHANNEL, REDIS_ACCOUNT_EXECUTE_COMMAND_CHANNEL,
-            REDIS_ACCOUNT_CLAN_CHANGE_CHANNEL};
+            REDIS_ACCOUNT_CLAN_CHANGE_CHANNEL, REDIS_REPORT_CHANNEL};
 
     public static final String SLIME_FILE_LOADER = "file";
 

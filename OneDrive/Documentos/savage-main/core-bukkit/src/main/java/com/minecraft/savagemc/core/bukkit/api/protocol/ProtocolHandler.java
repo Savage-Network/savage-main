@@ -388,8 +388,6 @@ public class ProtocolHandler {
 
         if (team != null && !team.getNameTagVisibility().equals(NameTagVisibility.NEVER)) {
             team.setNameTagVisibility(NameTagVisibility.NEVER);
-
-            receiver.setScoreboard(team.getScoreboard());
         }
     }
 
@@ -406,8 +404,6 @@ public class ProtocolHandler {
 
         if (team != null && team.getNameTagVisibility().equals(NameTagVisibility.NEVER)) {
             team.setNameTagVisibility(NameTagVisibility.ALWAYS);
-
-            receiver.setScoreboard(team.getScoreboard());
         }
     }
 
@@ -443,7 +439,7 @@ public class ProtocolHandler {
 
             ((CraftPlayer) viewer).getHandle().playerConnection.sendPacket(packet);
         } catch (Exception e) {
-            Savage.Savage.Logger().warning("Erro ao enviar team packet: " + e.getMessage());
+            Savage.getLogger().warning("Erro ao enviar team packet: " + e.getMessage());
         }
     }
 

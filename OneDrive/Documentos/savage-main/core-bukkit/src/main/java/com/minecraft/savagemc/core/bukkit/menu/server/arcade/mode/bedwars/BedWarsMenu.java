@@ -44,7 +44,7 @@ public class BedWarsMenu extends Menu {
             addErrorButton("§cNão foi possível carregar os seus dados...");
         else {
 
-            addItem(10, Item.of(Material.BREWING_STAND_ITEM, "§aEditar " + BedShop.FAVORITE.getName().toLowerCase(),
+            addItem(10, Item.of(Material.BREWING_STAND_ITEM, "§aEditar " + BedShop.FAVORITE.getName().toLowerCase() + " (&#0379)",
                             "§7Altere o inventário",
                             "§7dos seus itens " + BedShop.FAVORITE.getName().toLowerCase() + ".",
                             "",

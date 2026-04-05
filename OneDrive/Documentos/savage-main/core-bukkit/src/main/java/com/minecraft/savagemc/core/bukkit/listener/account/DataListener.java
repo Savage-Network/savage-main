@@ -43,40 +43,53 @@ public class DataListener implements Listener {
         String name = event.getName();
 
         Instant startTime = Instant.now();
+        
+        Savage.getLogger().info("[Bukkit-PreLogin] Iniciando carregamento para " + name + " (" + id + ")");
 
         try {
             Account account = data.of(id, true);
+            
+            Savage.getLogger().info("[Bukkit-PreLogin] data.of() retornou: " + (account != null ? "conta" : "null") + " para " + name);
 
             if (account == null) {
                 controller.remove(id);
+                Savage.getLogger().severe("[Bukkit-PreLogin] Conta é null para " + name + " - kickando");
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Constant.ACCOUNT_LOAD_FAILED_MESSAGE);
                 return;
             }
 
             controller.save(account);
 
-            Savage.Savage.Logger().info("[Account] Conta de " + name + " iniciada. (Tempo: " + Util.formatInstant(startTime) + ")");
+            Savage.getLogger().info("[Account] Conta de " + name + " iniciada. (Tempo: " + Util.formatInstant(startTime) + ")");
 
             event.allow();
         } catch (Exception e) {
             controller.remove(id);
+            Savage.getLogger().log(Level.SEVERE, "[Bukkit-PreLogin] Erro ao carregar a conta de " + name + " (" + id + ")", e);
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Constant.ACCOUNT_LOAD_FAILED_MESSAGE);
-            Savage.Savage.Logger().log(Level.SEVERE, "Erro ao carregar a conta de " + name + "!", e);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void check(PlayerLoginEvent event) {
         Player player = event.getPlayer();
+        UUID id = player.getUniqueId();
+        String name = player.getName();
 
-        Account account = controller.of(player.getUniqueId());
+        Savage.getLogger().info("[Bukkit-Login] Verificando conta para " + name + " (" + id + ")");
+
+        Account account = controller.of(id);
+        
+        Savage.getLogger().info("[Bukkit-Login] controller.of() retornou: " + (account != null ? "conta" : "null") + " para " + name);
 
         if (account != null) {
             account.setDefaultProfileSkin();
-
             event.allow();
-        } else
+            Savage.getLogger().info("[Bukkit-Login] Login permitido para " + name);
+        } else {
+            Savage.getLogger().severe("[Bukkit-Login] Conta é null no controller para " + name + " - kickando");
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Constant.ACCOUNT_LOAD_FAILED_MESSAGE);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -100,7 +113,7 @@ public class DataListener implements Listener {
             ProtocolHandler.changePlayerSkin(player, account.getSkin(), false);
 
         if (account.isUsingFake())
-            ProtocolHandler.changePlayerName(player, account.getNickname());
+            ProtocolHandler.changePlayerName(player, account.getNickname(), false);
 
         if (!Savage.getServerType().isArcade())
             account.setRoute(RouteContext.builder()
@@ -116,7 +129,7 @@ public class DataListener implements Listener {
 
         PermissionManager.loadPermissions(player);
 
-        Savage.Savage.Logger().info(player.getName() + " entrou no servidor.");
+        Savage.getLogger().info(player.getName() + " entrou no servidor.");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -144,6 +157,6 @@ public class DataListener implements Listener {
 
         controller.remove(player.getUniqueId());
 
-        Savage.Savage.Logger().info(player.getName() + " saiu do servidor.");
+        Savage.getLogger().info(player.getName() + " saiu do servidor.");
     }
 }

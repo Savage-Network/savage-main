@@ -38,7 +38,7 @@ public class BungeeCommandHandler implements CommandHandler {
 
         int loaded = 0;
 
-        Savage.Savage.Logger().info("Registrando comandos...");
+        Savage.getLogger().info("Registrando comandos...");
 
         for (Class<?> cmdClass : ClassLoader.getClassesForPackage(bungee, path)) {
             if (CommandInheritor.class.isAssignableFrom(cmdClass)) {
@@ -49,13 +49,13 @@ public class BungeeCommandHandler implements CommandHandler {
 
                     loaded++;
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar o comando " + cmdClass.getSimpleName() + "!", e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível registrar o comando " + cmdClass.getSimpleName() + "!", e);
                 }
             }
         }
 
         if (loaded > 0)
-            Savage.Savage.Logger().info("Registro de comandos concluído. " +
+            Savage.getLogger().info("Registro de comandos concluído. " +
                     "(Total de comandos registrados: " + loaded + " em " + Duration.between(now, Instant.now()).toMillis() + "ms)");
     }
 
@@ -66,7 +66,7 @@ public class BungeeCommandHandler implements CommandHandler {
             if (method.isAnnotationPresent(Command.class)) {
 
                 if (method.getParameterCount() != 1 || !CommandContext.class.isAssignableFrom(method.getParameterTypes()[0])) {
-                    Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível registrar o comando " + method.getName() + ". Argumentos de métodos inesperados.");
+                    Savage.getLogger().log(Level.SEVERE, "Não foi possível registrar o comando " + method.getName() + ". Argumentos de métodos inesperados.");
                     continue;
                 }
 
@@ -81,13 +81,13 @@ public class BungeeCommandHandler implements CommandHandler {
             } else if (method.isAnnotationPresent(Completer.class)) {
 
                 if (method.getParameterCount() != 1 || !CommandContext.class.isAssignableFrom(method.getParameterTypes()[0])) {
-                    Savage.Savage.Logger().log(Level.SEVERE,
+                    Savage.getLogger().log(Level.SEVERE,
                             "Não foi possível registrar o completer " + method.getName() + ". Argumentos de métodos inesperados.");
                     continue;
                 }
 
                 if (method.getReturnType() != List.class) {
-                    Savage.Savage.Logger().log(Level.SEVERE,
+                    Savage.getLogger().log(Level.SEVERE,
                             "Não foi possível registrar o completer " + method.getName() + ". Tipo de retorno inválido.");
                     continue;
                 }

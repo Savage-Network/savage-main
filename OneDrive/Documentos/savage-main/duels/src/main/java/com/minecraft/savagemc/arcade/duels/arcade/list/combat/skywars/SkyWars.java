@@ -174,7 +174,7 @@ public class SkyWars extends Arcade {
         List<SignedLocation> chests = arena.getSignedLocations(signed -> signed.getName().toLowerCase().contains("chest"));
 
         if (chests.isEmpty()) {
-            Savage.Savage.Logger().warning("Não há baús na arena " + arena.getIdentifier() + " (" + arena.getArcade().getName() + ").");
+            Savage.getLogger().warning("Não há baús na arena " + arena.getIdentifier() + " (" + arena.getArcade().getName() + ").");
             return;
         }
 

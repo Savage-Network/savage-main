@@ -34,3 +34,5 @@ public class User extends UserModel {
         return Savage.getMemberController().of(getAccount().getId(), generic);
     }
 }
+
+

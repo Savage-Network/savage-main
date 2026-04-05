@@ -24,18 +24,27 @@ public class PostgresDatabase implements Database {
     }
 
     public Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        if (dataSource == null || dataSource.isClosed()) {
+            Savage.getLogger().severe("[Postgres] DataSource está null ou fechado!");
+            throw new SQLException("DataSource não disponível");
+        }
+        Connection conn = dataSource.getConnection();
+        if (conn == null || conn.isClosed()) {
+            Savage.getLogger().severe("[Postgres] Conexão retornada está null ou fechada!");
+            throw new SQLException("Conexão não disponível");
+        }
+        return conn;
     }
 
     @Override
     public void load() {
         Instant now = Instant.now();
-        Savage.Savage.Logger().info("Conectando ao PostgreSQL...");
+        Savage.getLogger().info("Conectando ao PostgreSQL...");
 
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            Savage.Savage.Logger().severe("Driver PostgreSQL não encontrado no classpath.");
+            Savage.getLogger().severe("Driver PostgreSQL não encontrado no classpath.");
             return;
         }
 
@@ -56,9 +65,9 @@ public class PostgresDatabase implements Database {
         try {
             dataSource = new HikariDataSource(config);
             createTables();
-            Savage.Savage.Logger().info("Conexão com PostgreSQL efetuada com sucesso. (" + Duration.between(now, Instant.now()).toMillis() + "ms)");
+            Savage.getLogger().info("Conexão com PostgreSQL efetuada com sucesso. (" + Duration.between(now, Instant.now()).toMillis() + "ms)");
         } catch (Exception e) {
-            Savage.Savage.Logger().severe("Não foi possível conectar ao PostgreSQL: " + e.getMessage());
+            Savage.getLogger().severe("Não foi possível conectar ao PostgreSQL: " + e.getMessage());
             e.printStackTrace();
         }
     }

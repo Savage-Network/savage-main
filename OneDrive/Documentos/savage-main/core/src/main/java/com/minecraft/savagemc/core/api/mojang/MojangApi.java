@@ -88,7 +88,7 @@ public class MojangApi {
                 return Optional.ofNullable(action.call());
             } catch (Exception e) {
                 if (i == retries - 1) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Erro ao realizar tentativa", e);
+                    Savage.getLogger().log(Level.WARNING, "Erro ao realizar tentativa", e);
                 }
             }
         }
@@ -169,9 +169,9 @@ public class MojangApi {
                 if (code == 404) return ResponseCode.FAIL;
                 if (code == 200) return ResponseCode.DONE;
 
-                Savage.Savage.Logger().warning("Erro inesperado ao verificar jogador " + name + ": Código de resposta " + code);
+                Savage.getLogger().warning("Erro inesperado ao verificar jogador " + name + ": Código de resposta " + code);
             } catch (Exception e) {
-                Savage.Savage.Logger().log(Level.WARNING, "Erro ao tentar verificar se o jogador é premium na API: " + apiUrl, e);
+                Savage.getLogger().log(Level.WARNING, "Erro ao tentar verificar se o jogador é premium na API: " + apiUrl, e);
             }
         }
         return ResponseCode.UNKNOWN;

@@ -1,14 +1,18 @@
 package com.minecraft.savagemc.core.bukkit.service.task;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
 
-@Getter
-@RequiredArgsConstructor
 public abstract class TaskBase implements Runnable {
 
-    private final Plugin plugin;
+    protected Plugin plugin;
+
+    public TaskBase(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public Plugin getPlugin() {
+        return plugin;
+    }
 
     public abstract void init();
 }

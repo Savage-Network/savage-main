@@ -47,7 +47,7 @@ public class Clan {
     }
 
     public void disband() {
-        Savage.Savage.Logger().info("Deletando o clan " + name + " (" + tag + ")...");
+        Savage.getLogger().info("Deletando o clan " + name + " (" + tag + ")...");
 
         for (UUID id : metadata.getMembers().keySet()) {
             Account account = Savage.getAccountData().of(id);
@@ -63,7 +63,7 @@ public class Clan {
 
         Savage.getClanData().delete(this);
 
-        Savage.Savage.Logger().info("O clan " + name + " (" + tag + ") foi deletado!");
+        Savage.getLogger().info("O clan " + name + " (" + tag + ") foi deletado!");
     }
 
     public void send(String message) {

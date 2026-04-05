@@ -40,7 +40,7 @@ public class RedisDatabase implements Database {
     public void load() {
         Instant now = Instant.now();
 
-        Savage.Savage.Logger().info("Conectando ao Redis...");
+        Savage.getLogger().info("Conectando ao Redis...");
 
         int maxRetries = 3;
         for (int i = 0; i < maxRetries; i++) {
@@ -56,7 +56,7 @@ public class RedisDatabase implements Database {
 
                 break;
             } catch (Exception e) {
-                Savage.Savage.Logger().warning("Erro ao estabelecer conexão com o Redis. Tentativa " + (i + 1) + " de " + maxRetries);
+                Savage.getLogger().warning("Erro ao estabelecer conexão com o Redis. Tentativa " + (i + 1) + " de " + maxRetries);
 
                 try {
                     Thread.sleep(1000); // Aguarda 1 segundo antes de tentar novamente
@@ -67,9 +67,9 @@ public class RedisDatabase implements Database {
         }
 
         if (pool == null)
-            Savage.Savage.Logger().severe("Não foi possível efetuar a conexão com o Redis após " + maxRetries + " tentativas. Verifique as credenciais.");
+            Savage.getLogger().severe("Não foi possível efetuar a conexão com o Redis após " + maxRetries + " tentativas. Verifique as credenciais.");
         else
-            Savage.Savage.Logger().info("Conexão com Redis efetuada com sucesso. (Tempo médio: " + Duration.between(now, Instant.now()).toMillis() + "ms)");
+            Savage.getLogger().info("Conexão com Redis efetuada com sucesso. (Tempo médio: " + Duration.between(now, Instant.now()).toMillis() + "ms)");
     }
 
     @Override

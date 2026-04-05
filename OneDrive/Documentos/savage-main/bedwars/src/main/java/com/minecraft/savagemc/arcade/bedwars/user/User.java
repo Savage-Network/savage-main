@@ -36,6 +36,7 @@ public class User extends UserModel {
     private Team team;
 
     private int respawnTime;
+    private String currentReplayId; // ID do replay da partida atual
 
     public User(BedMember member, Arena arena, Join join) {
         super(member.getId(), join);

@@ -57,7 +57,6 @@ public class BedWarsArchitect extends Architect {
     @Override
     public void load() {
         super.load();
-
         BedCollectibleController.handle(Lobby.getInstance());
     }
 
@@ -80,8 +79,49 @@ public class BedWarsArchitect extends Architect {
 
         User user = (User) User.of(player.getUniqueId());
 
-        // Renderizar tabelas de classificações
+        // Renderizar tabelas de classificações e sidebar
         super.join(player);
+
+        // FIX TABLIST: Garantir que o jogador veja seu próprio nick e todos os outros
+        // Primeira atualização após 20 ticks
+        org.bukkit.Bukkit.getScheduler().runTaskLater(
+                BukkitCore.getInstance(),
+                () -> {
+                    // Primeiro, garantir que todos estão visíveis
+                    for (Player online : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        if (online != null && online.isOnline()) {
+                            player.showPlayer(online);
+                            online.showPlayer(player);
+                        }
+                    }
+                    
+                    // Depois, atualizar as tags de todos para garantir que apareçam no scoreboard
+                    for (Player online : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        if (online == null || !online.isOnline()) continue;
+                        User onlineUser = (User) User.of(online.getUniqueId());
+                        if (onlineUser != null && onlineUser.getAccount() != null) {
+                            TagManager.updateTag(onlineUser.getAccount());
+                        }
+                    }
+                },
+                20L
+        );
+        
+        // Segunda atualização após 60 ticks (3 segundos) - depois que os NPCs são removidos do tablist
+        org.bukkit.Bukkit.getScheduler().runTaskLater(
+                BukkitCore.getInstance(),
+                () -> {
+                    // Atualizar as tags novamente para garantir que permaneçam após NPCs serem removidos
+                    for (Player online : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        if (online == null || !online.isOnline()) continue;
+                        User onlineUser = (User) User.of(online.getUniqueId());
+                        if (onlineUser != null && onlineUser.getAccount() != null) {
+                            TagManager.updateTag(onlineUser.getAccount());
+                        }
+                    }
+                },
+                60L
+        );
 
         CompletableFuture.runAsync(() -> handleLeaderboards(user));
     }
@@ -89,7 +129,6 @@ public class BedWarsArchitect extends Architect {
     @Override
     public void quit(Player player) {
         super.quit(player);
-
         Savage.getBedWarsData().startExpiration(player.getUniqueId());
     }
 
@@ -112,7 +151,8 @@ public class BedWarsArchitect extends Architect {
                         ? member.getMinLevelXp()
                         : member.getNextElo() != null ? member.getNextElo().getMinXp() : member.getElo().getMinXp();
 
-        sidebar.addRow("rank", member.isProfile(ProfileType.RANKED) ? "Rank: " + member.getElo().getFullName()
+        sidebar.addRow("rank", member.isProfile(ProfileType.RANKED)
+                ? "Rank: " + member.getElo().getFullName()
                 : "Seu nível: " + member.getLevelId());
 
         sidebar.addRow("progress", " §8[" + Util.createProgressBar(
@@ -136,7 +176,6 @@ public class BedWarsArchitect extends Architect {
         sidebar.addWebsiteRow();
 
         sidebar.display();
-        TagManager.updateTag(user.getAccount());
     }
 
     @Override
@@ -153,14 +192,22 @@ public class BedWarsArchitect extends Architect {
     public void handleEntities() {
         List<Location> list = getLocationsByKey("npc_stats", "npc_solo", "npc_duo", "npc_trio", "npc_quartet", "npc_versus");
 
+        if (list.isEmpty()) {
+            Savage.getLogger().warning("[BedWarsArchitect] Nenhuma localização de NPC encontrada! Configure o config.json");
+            return;
+        }
+
+        if (list.size() < 6) {
+            Savage.getLogger().warning("[BedWarsArchitect] Apenas " + list.size() + " localizações encontradas, esperado 6!");
+        }
+
         for (SignedLocation signed : getLocationsByName("emerald")) {
             Location emerald = signed.getSynthetic().of(getWorld());
-
             if (emerald != null)
                 buildHeadRotation(emerald);
         }
 
-        handleStatsNpc(list.get(0));
+        if (list.size() > 0) handleStatsNpc(list.get(0));
 
         handleArcadeNpc(ArcadeCategory.BEDWARS_SOLO, list.get(1),
                 "ewogICJ0aW1lc3RhbXAiIDogMTYxOTI5NDc0NjQ5NiwKICAicHJvZmlsZUlkIiA6ICJjMGYzYjI3YTUwMDE0YzVhYjIxZDc5ZGRlMTAxZGZlMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJDVUNGTDEzIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2VmNDFlNDIwMmI4YTFhMTMzZjBiYjVlZWFhM2IyZTA2NmJiZWYzOTZlNTkxMTVkODg2OTliZTE5NTlkY2M3MTciCiAgICB9CiAgfQp9",
@@ -211,16 +258,58 @@ public class BedWarsArchitect extends Architect {
 
         BedMember member = user.getMember(BedMember.class);
 
-        new BedLevelLeaderboard(player, getLocation("leaderboard_level")).handle();
-        new BedRankLeaderboard(player, getLocation("leaderboard_rank")).handle();
-        new BedWinsLeaderboard(player, getLocation("leaderboard_wins")).handle();
-        new BedFinalKillLeaderboard(player, getLocation("leaderboard_kill")).handle();
+        Location levelLoc = getLocation("leaderboard_level");
+        Location rankLoc  = getLocation("leaderboard_rank");
+        Location winsLoc  = getLocation("leaderboard_wins");
+        Location killLoc  = getLocation("leaderboard_kill");
 
-        // Renderizar mais estatísticas no holograma de "Suas Estatísticas"
+        Savage.getLogger().info("[BedWarsArchitect] Criando leaderboards para " + player.getName());
+        Savage.getLogger().info("[BedWarsArchitect] leaderboard_level: " + (levelLoc != null ? "OK" : "NULL"));
+        Savage.getLogger().info("[BedWarsArchitect] leaderboard_rank:  " + (rankLoc  != null ? "OK" : "NULL"));
+        Savage.getLogger().info("[BedWarsArchitect] leaderboard_wins:  " + (winsLoc  != null ? "OK" : "NULL"));
+        Savage.getLogger().info("[BedWarsArchitect] leaderboard_kill:  " + (killLoc  != null ? "OK" : "NULL"));
+
+        if (levelLoc == null || rankLoc == null || winsLoc == null || killLoc == null) {
+            Savage.getLogger().warning("[BedWarsArchitect] Localizações de leaderboard não configuradas!");
+            Savage.getLogger().warning("[BedWarsArchitect] Configure: leaderboard_level, leaderboard_rank, leaderboard_wins, leaderboard_kill no config.json");
+        }
+
+        try {
+            new BedLevelLeaderboard(player, levelLoc).handle();
+            Savage.getLogger().info("[BedWarsArchitect] BedLevelLeaderboard criada");
+        } catch (Exception e) {
+            Savage.getLogger().severe("[BedWarsArchitect] Erro ao criar BedLevelLeaderboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            new BedRankLeaderboard(player, rankLoc).handle();
+            Savage.getLogger().info("[BedWarsArchitect] BedRankLeaderboard criada");
+        } catch (Exception e) {
+            Savage.getLogger().severe("[BedWarsArchitect] Erro ao criar BedRankLeaderboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            new BedWinsLeaderboard(player, winsLoc).handle();
+            Savage.getLogger().info("[BedWarsArchitect] BedWinsLeaderboard criada");
+        } catch (Exception e) {
+            Savage.getLogger().severe("[BedWarsArchitect] Erro ao criar BedWinsLeaderboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            new BedFinalKillLeaderboard(player, killLoc).handle();
+            Savage.getLogger().info("[BedWarsArchitect] BedFinalKillLeaderboard criada");
+        } catch (Exception e) {
+            Savage.getLogger().severe("[BedWarsArchitect] Erro ao criar BedFinalKillLeaderboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Renderizar estatísticas no holograma de "Suas Estatísticas"
         Location statsLocation = getLocation("npc_stats");
 
         if (statsLocation != null) {
-
             HologramClient details = BukkitCore.getManager().getHologram().spawnClient(player, "stats-details",
                     statsLocation.clone().add(0, 2.3, 0));
 
@@ -232,7 +321,9 @@ public class BedWarsArchitect extends Architect {
                             : member.getNextElo() != null ? member.getNextElo().getMinXp() : member.getElo().getMinXp();
 
             details.setText(Arrays.asList(
-                    member.isProfile(ProfileType.NORMAL) ? "Seu nível: " + member.getLevelId() : "Seu rank: " + member.getElo().getFullName(),
+                    member.isProfile(ProfileType.NORMAL)
+                            ? "Seu nível: " + member.getLevelId()
+                            : "Seu rank: " + member.getElo().getFullName(),
                     "§f[" + Util.createProgressBar(ChatColor.GREEN, ChatColor.DARK_GRAY, Constant.SQUARE_SYMBOL, xp, minXp, 10) + "§f] " +
                             "§7(" + Util.formatNumberWithLetter(xp) + "/" + Util.formatNumberWithLetter(minXp) + ")",
                     "",
@@ -248,7 +339,6 @@ public class BedWarsArchitect extends Architect {
     }
 
     protected void handleTopNpc() {
-        // TOP RANK do Bed Wars
         List<BedMember> topList = Savage.getBedWarsData().ranking("context.eloXp", 3)
                 .stream()
                 .limit(3)
@@ -269,7 +359,6 @@ public class BedWarsArchitect extends Architect {
             if (index == 1 && BukkitCore.getManager().getHologram().notExistsServer("top_rank")) {
                 HologramServer server = BukkitCore.getManager().getHologram().spawnServer("top_rank",
                         location.clone().add(0, 1.5, 0));
-
                 server.setText(Collections.singletonList("§6§lTOP RANK COMPETITIVO"));
             }
 
@@ -281,12 +370,11 @@ public class BedWarsArchitect extends Architect {
 
             if (notExists) {
                 npc.setTag("npc_top_" + index);
-
                 npc.setContact(true);
-
                 npc.display();
-            } else
+            } else {
                 npc.updateTexture(new Property("textures", account.getSkin().getValue(), account.getSkin().getSignature()));
+            }
 
             HologramServer hologram = BukkitCore.getManager().getHologram().notExistsServer("npc_top_" + index)
                     ? BukkitCore.getManager().getHologram().spawnServer("npc_top_" + index, location)
@@ -303,17 +391,16 @@ public class BedWarsArchitect extends Architect {
     }
 
     public void buildHeadRotation(Location location) {
-        /* Caso a localização existir, criar a cabeça */
         location = location.clone().add(0, 1.5, 0);
 
         ItemStack helmet = new ItemStack(Material.EMERALD_BLOCK);
 
         location = location.clone().add(0.5, 0, 0.5);
 
-        HologramServer hologram = BukkitCore.getManager().getHologram().spawnServer("emerald-" + StringUtil.generateExclusiveCode(5), location);
+        HologramServer hologram = BukkitCore.getManager().getHologram().spawnServer(
+                "emerald-" + StringUtil.generateExclusiveCode(5), location);
 
         hologram.setText(Collections.singletonList(""));
-
         hologram.addAnimatedRow(helmet);
     }
 
@@ -332,17 +419,14 @@ public class BedWarsArchitect extends Architect {
 
         Elo elo = member.getElo();
 
-        // Enviar apenas para jogadores no mesmo servidor (lobby bedwars)
-        player.getServer().getOnlinePlayers().forEach(targetPlayer -> {
-            Account targetAccount = Savage.getAccountController().of(targetPlayer.getUniqueId());
-            if (targetAccount != null) {
-                TextComponent text = new TextComponent((member.isProfile(ProfileType.NORMAL) ? member.getLevelId() : elo.getChat())
-                        + " " + account.getTag().getByPrefix(targetAccount.getTagPrefix()) + account.getNickname() + ": ");
+        Savage.getAccountController().list().forEach(target -> {
+            TextComponent text = new TextComponent(
+                    (member.isProfile(ProfileType.NORMAL) ? member.getLevelId() : elo.getChat())
+                            + " " + account.getTag().getByPrefix(target.getTagPrefix()) + account.getNickname() + ": ");
 
-                text.addExtra(account.isAllowColoredChat() ? "§f" + Util.color(message) : "§7" + message);
+            text.addExtra(account.isAllowColoredChat() ? "§f" + Util.color(message) : "§7" + message);
 
-                targetAccount.send(text);
-            }
+            target.send(text);
         });
     }
 

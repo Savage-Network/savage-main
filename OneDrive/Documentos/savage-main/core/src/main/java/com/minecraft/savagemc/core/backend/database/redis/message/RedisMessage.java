@@ -11,6 +11,11 @@ public class RedisMessage {
     private final String channel;
 
     public void send() {
-        Savage.getRedis().publish(channel, Savage.GSON.toJson(this));
+        if (Savage.getRedis() != null) {
+            Savage.getRedis().publish(channel, Savage.GSON.toJson(this));
+            System.out.println("[RedisMessage] Mensagem enviada para o canal: " + channel);
+        } else {
+            System.err.println("[RedisMessage] Redis não está conectado! Mensagem não enviada para: " + channel);
+        }
     }
 }

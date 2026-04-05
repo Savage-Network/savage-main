@@ -65,11 +65,6 @@ public class BedMember extends Member {
             Savage.getBedWarsData().update(this, field);
     }
 
-    @Override
-    public int getMinLevelXp() {
-        return 10000;
-    }
-
     /* Metadata */
     public void saveMetadata(BedMetadata metadata) {
         this.metadata = metadata;
@@ -107,13 +102,34 @@ public class BedMember extends Member {
     }
 
     public void updateStats(BedStats stats) {
-        int indexOf = getStatsList().indexOf(stats);
+        System.out.println("[BedMember] updateStats chamado para " + getName());
+        System.out.println("[BedMember] Stats recebido - Wins: " + stats.getWins() + ", Arcade: " + stats.getArcade() + ", Type: " + stats.getType());
+        System.out.println("[BedMember] Lista atual tem " + getStatsList().size() + " stats");
+        
+        int indexOf = -1;
+        
+        // Procurar pelo stats usando equals
+        for (int i = 0; i < getStatsList().size(); i++) {
+            BedStats existing = getStatsList().get(i);
+            System.out.println("[BedMember] Comparando com stats[" + i + "] - Arcade: " + existing.getArcade() + ", Type: " + existing.getType() + ", Wins: " + existing.getWins());
+            if (existing.equals(stats)) {
+                indexOf = i;
+                System.out.println("[BedMember] Match encontrado no índice " + i);
+                break;
+            }
+        }
 
         if (indexOf >= 0) {
             getStatsList().set(indexOf, stats);
-
-            saveMetadata(metadata);
+            System.out.println("[BedMember] Atualizando stats existente no índice " + indexOf + " - Wins: " + stats.getWins());
+        } else {
+            // Se não encontrou, adicionar à lista
+            getStatsList().add(stats);
+            System.out.println("[BedMember] Adicionando novo stats - Wins: " + stats.getWins());
         }
+        
+        saveMetadata(metadata);
+        System.out.println("[BedMember] Stats salvo no banco de dados para " + getName() + " - Total de stats: " + getStatsList().size());
     }
 
     public int getTotalMatches() {
@@ -214,34 +230,58 @@ public class BedMember extends Member {
     }
 
     public void updateMenu(BedMenuMetadata menu) {
-        int indexOf = getMetadataMenus().indexOf(menu);
-
-        if (indexOf >= 0) {
-            getMetadataMenus().set(getMetadataMenus().indexOf(menu), menu);
-            saveMetadata(metadata);
+        if (menu == null) return;
+        
+        // Buscar o menu pelo tipo ao invés de usar indexOf direto
+        for (int i = 0; i < getMetadataMenus().size(); i++) {
+            BedMenuMetadata existing = getMetadataMenus().get(i);
+            if (existing.getType().equals(menu.getType())) {
+                getMetadataMenus().set(i, menu);
+                saveMetadata(metadata);
+                return;
+            }
         }
+        
+        // Se não encontrou, adicionar o menu à lista
+        getMetadataMenus().add(menu);
+        saveMetadata(metadata);
     }
 
     public void removeFavoriteItem(BedWarsItem item) {
         BedMenuMetadata menu = getMenu(BedMenuType.FAVORITE);
 
         if (menu != null) {
-            menu.getItemList().removeIf(search -> search.getName().equalsIgnoreCase(item.getName()));
-            updateMenu(menu);
+            menu.getItemList().removeIf(search -> search.getName().equalsIgnoreCase(item.name()));
+            saveMetadata(metadata);
         }
     }
 
     public void setFavoriteItem(int slot, BedWarsItem item) {
         BedMenuMetadata menu = getMenu(BedMenuType.FAVORITE);
 
-        if (menu != null) {
-            menu.getItemList().add(new BedItem(slot, item.getName().toLowerCase()));
-            updateMenu(menu);
+        if (menu == null) {
+            return;
         }
+        
+        // Remover item existente neste slot antes de adicionar o novo
+        menu.getItemList().removeIf(bedItem -> bedItem.getSlot() == slot);
+        
+        // Remover duplicatas do mesmo item em outros slots
+        menu.getItemList().removeIf(bedItem -> bedItem.getName().equalsIgnoreCase(item.name()));
+        
+        // Salvar usando o nome do enum (ex: BLOCKS_WOOL) ao invés do display name
+        BedItem newItem = new BedItem(slot, item.name());
+        menu.getItemList().add(newItem);
+        
+        // Salvar diretamente
+        saveMetadata(metadata);
     }
 
     public boolean isFavoriteItem(BedWarsItem item) {
-        return getMenu(BedMenuType.FAVORITE).getItemList().stream().anyMatch(search -> search.getName().equalsIgnoreCase(item.getName()));
+        BedMenuMetadata menu = getMenu(BedMenuType.FAVORITE);
+        if (menu == null) return false;
+        
+        return menu.getItemList().stream().anyMatch(search -> search.getName().equalsIgnoreCase(item.name()));
     }
 
     /* Collectibles */
@@ -300,6 +340,21 @@ public class BedMember extends Member {
         getActiveCollectibles().removeIf(search -> search.getType().equals(collectible.getType()));
 
         metadata.getCollectibles().put(collectible.getType(), collectible.getName().toLowerCase());
+        saveMetadata(metadata);
+    }
+
+    /* Hotbar Preferences */
+    public int getHotbarSlot(com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedShop category) {
+        return metadata.getHotbarPreferences().getOrDefault(category, -1);
+    }
+
+    public void setHotbarSlot(com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedShop category, int slot) {
+        metadata.getHotbarPreferences().put(category, slot);
+        saveMetadata(metadata);
+    }
+
+    public void removeHotbarSlot(com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedShop category) {
+        metadata.getHotbarPreferences().remove(category);
         saveMetadata(metadata);
     }
 

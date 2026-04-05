@@ -61,7 +61,7 @@ public class DuelsArchitect extends Architect {
         Sidebar sidebar = user.getSidebar();
 
         sidebar.clear();
-        sidebar.setTitle("PRACTICE");
+        sidebar.setTitle("DUELS");
 
         sidebar.addRow("date", "§7" + DateUtil.getCurrentDate() + " §8" + getId());
         sidebar.blankRow();
@@ -89,7 +89,7 @@ public class DuelsArchitect extends Architect {
 
         PlayerInventory inv = player.getInventory();
 
-        inv.setItem(2, Item.of(Material.EMERALD, "§aMenu do Practice")
+        inv.setItem(2, Item.of(Material.EMERALD, "§aMenu do Duels")
                 .interact(event -> new DuelsMenu(event.getPlayer()).handle()));
     }
 
@@ -160,17 +160,13 @@ public class DuelsArchitect extends Architect {
 
         Elo elo = member.getElo();
 
-        // Enviar apenas para jogadores no mesmo servidor (lobby duels)
-        player.getServer().getOnlinePlayers().forEach(targetPlayer -> {
-            Account targetAccount = Savage.getAccountController().of(targetPlayer.getUniqueId());
-            if (targetAccount != null) {
-                TextComponent text = new TextComponent(elo.getChat()
-                        + " " + account.getTag().getByPrefix(targetAccount.getTagPrefix()) + account.getNickname() + ": ");
+        Savage.getAccountController().list().forEach(target -> {
+            TextComponent text = new TextComponent(elo.getChat()
+                    + " " + account.getTag().getByPrefix(target.getTagPrefix()) + account.getNickname() + ": ");
 
-                text.addExtra(account.isAllowColoredChat() ? "§f" + Util.color(message) : "§7" + message);
+            text.addExtra(account.isAllowColoredChat() ? "§f" + Util.color(message) : "§7" + message);
 
-                targetAccount.send(text);
-            }
+            target.send(text);
         });
     }
 
@@ -179,3 +175,6 @@ public class DuelsArchitect extends Architect {
         return direction.multiply(0.8).setY(0.4);
     }
 }
+
+
+

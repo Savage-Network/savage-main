@@ -1,6 +1,9 @@
 package com.minecraft.savagemc.core.bukkit.api.menu;
 
 import com.minecraft.savagemc.core.bukkit.BukkitCore;
+import com.minecraft.savagemc.core.bukkit.command.structure.BukkitCommandSender;
+import com.minecraft.savagemc.core.bukkit.manager.Manager;
+import com.minecraft.savagemc.core.server.type.ServerType;
 import com.minecraft.savagemc.core.api.item.Item;
 import com.minecraft.savagemc.core.bukkit.api.menu.page.ItemPageBuilder;
 import com.minecraft.savagemc.core.bukkit.api.menu.sound.MenuSound;
@@ -40,6 +43,8 @@ public abstract class Menu {
     private boolean returnable, paginated, allowClick, allowClickItemWithQuantity, allowDrag = true, allowShift = true, showTitlePage = true;
 
     private int size, rows, maxItems, pageIndex, pageNumber = 1, totalPages = 1;
+    
+    private ServerType serverType;
 
     public Menu(Player player, String title, Menu last, int rows, int maxItems) {
         this.player = player;
@@ -98,6 +103,15 @@ public abstract class Menu {
             updateTitle();
 
         BukkitCore.getManager().getMenu().save(this);
+    }
+
+    // Métodos adicionais para compatibilidade
+    public void setAllowClick(boolean allowClick) {
+        this.allowClick = allowClick;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
     }
 
     public void close() {
@@ -323,5 +337,88 @@ public abstract class Menu {
 
     public int getTotalSlots() {
         return rows * 9;
+    }
+
+    // Métodos adicionais para compatibilidade
+    public Map<Integer, Item> getContents() {
+        return contents;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        holder = Bukkit.createInventory(player, size, title);
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public String getInitialTitle() {
+        return initialTitle;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public boolean isReturnable() {
+        return returnable;
+    }
+
+    public Menu getLast() {
+        return last;
+    }
+
+    public void setAllowClickItemWithQuantity(boolean allow) {
+        this.allowClickItemWithQuantity = allow;
+    }
+
+    public void setAllowShift(boolean allow) {
+        this.allowShift = allow;
+    }
+
+    public void setAllowDrag(boolean allow) {
+        this.allowDrag = allow;
+    }
+
+    public void setServer(ServerType server) {
+        this.serverType = server;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public boolean isAllowClickItemWithQuantity() {
+        return allowClickItemWithQuantity;
+    }
+
+    public boolean isAllowShift() {
+        return allowShift;
+    }
+
+    public boolean isAllowClick() {
+        return allowClick;
+    }
+
+    public boolean isAllowDrag() {
+        return allowDrag;
+    }
+
+    public boolean isProtectedContent(Item item) {
+        // Implementação básica - pode ser ajustada conforme necessário
+        return false;
+    }
+
+    public int getMaxItems() {
+        return getTotalSlots();
+    }
+
+    public int getTotalPages() {
+        return totalPages;
     }
 }

@@ -25,7 +25,17 @@ public abstract class ForgeGenerator extends Generator {
         this.team = team;
 
         this.originTime = updateAt;
-        this.updateAt = System.currentTimeMillis() + updateAt;
+        
+        // Aplicar multiplicador de velocidade da sala custom
+        long baseTime = updateAt;
+        if (arena.getCustom() != null) {
+            int forgeSpeed = arena.getCustom().getForgeSpeed();
+            if (forgeSpeed > 1) {
+                baseTime = updateAt / forgeSpeed;
+            }
+        }
+        
+        this.updateAt = System.currentTimeMillis() + baseTime;
     }
 
     public abstract void spawn();
@@ -36,6 +46,16 @@ public abstract class ForgeGenerator extends Generator {
     }
 
     public void resetTime() {
-        this.updateAt = System.currentTimeMillis() + originTime;
+        // Aplicar multiplicador de velocidade da sala custom
+        long baseTime = originTime;
+        
+        if (arena.getCustom() != null) {
+            int forgeSpeed = arena.getCustom().getForgeSpeed();
+            if (forgeSpeed > 1) {
+                baseTime = originTime / forgeSpeed;
+            }
+        }
+        
+        this.updateAt = System.currentTimeMillis() + baseTime;
     }
 }

@@ -17,6 +17,11 @@ public class CooldownManager {
 
     private final Map<UUID, List<Cooldown>> cooldownMap = new ConcurrentHashMap<>();
 
+    // Métodos adicionais para compatibilidade
+    public Map<UUID, List<Cooldown>> getCooldownMap() {
+        return cooldownMap;
+    }
+
     public void display(Player player, Cooldown cooldown) {
         StringBuilder bar = new StringBuilder();
 

@@ -25,7 +25,7 @@ public class ArcadePreferenceMenu extends Menu {
     public void handle() {
         clear();
 
-        Slot slot = config.getSlot();
+        Slot slot = Slot.values()[config.getSlot()];
 
         int minPlayers = slot.getMaxPlayers() / 2;
 

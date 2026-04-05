@@ -30,8 +30,8 @@ public class PunishmentData {
                     "INSERT INTO punishments (id, player, author, data) VALUES (?, ?, ?, ?::jsonb)"
                 );
                 insert.setString(1, punishment.getId());
-                insert.setString(2, punishment.getPlayer().toString());
-                insert.setString(3, punishment.getAuthor().toString());
+                insert.setObject(2, punishment.getPlayer(), Types.OTHER);
+                insert.setObject(3, punishment.getAuthor(), Types.OTHER);
                 insert.setString(4, Savage.GSON.toJson(punishment));
                 insert.executeUpdate();
 

@@ -3,6 +3,7 @@ package com.minecraft.savagemc.core.bungee;
 import com.minecraft.savagemc.core.bungee.bot.Bot;
 import com.minecraft.savagemc.core.bungee.bot.command.structure.manager.SlashCommandManager;
 import com.minecraft.savagemc.core.bungee.server.BungeeServer;
+import com.minecraft.savagemc.core.bungee.service.security.AntiDDoSService;
 import com.minecraft.savagemc.core.Constant;
 import com.minecraft.savagemc.core.Savage;
 import com.minecraft.savagemc.core.backend.database.redis.listener.RedisListener;
@@ -33,13 +34,13 @@ public class BungeeCore extends Plugin {
 
     @Override
     public void onLoad() {
-        Savage.Logger().info("Iniciando Bungee...");
+        getLogger().info("Iniciando Bungee...");
 
         instance = this;
 
         new BungeeLogFilter().registerFilter();
 
-        Savage.load(new BungeePlatform(this), new BungeeServer(), Savage.Logger());
+        Savage.load(new BungeePlatform(this), new BungeeServer(), getLogger());
 
         Savage.getPartyData().clear();
         Savage.getAccountData().clearCache();
@@ -51,6 +52,7 @@ public class BungeeCore extends Plugin {
 
         new BungeeCommandHandler(this).handle(Constant.SOURCE_DIR + ".core.bungee.command");
         new ListenerHandler(this).handle(Constant.SOURCE_DIR + ".core.bungee");
+        getProxy().getPluginManager().registerListener(this, new AntiDDoSService());
 
         Savage.getPlatform().runAsync(() -> new RedisListener(new BungeeRedis(), Constant.REDIS_CHANNELS).load());
 
@@ -60,17 +62,11 @@ public class BungeeCore extends Plugin {
 
         SlashCommandManager.handle(Constant.SOURCE_DIR + ".core.bungee.bot.command.list");
 
-        Savage.Logger().info("Bungee iniciado com sucesso.");
+        getLogger().info("Bungee iniciado com sucesso.");
     }
 
     @Override
     public void onDisable() {
-        getProxy().getPlayers().forEach(player ->
-                player.disconnect(net.md_5.bungee.api.chat.TextComponent.fromLegacyText(
-                        Constant.SERVER_TITLE + "\n\n§cOs servidores foram fechados no momento.\n§cTente entrar novamente mais tarde!\n\n§ePara dúvidas, consulte: §6" + Constant.SERVER_WEBSITE
-                ))
-        );
-
         if (bot != null)
             bot.disconnect();
 

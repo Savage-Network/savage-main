@@ -46,7 +46,7 @@ public class DuelCollectibleController {
                         list.add(collectible);
 
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "[Duel-Collectible] Não foi possível carregar o colecionável " + collectibleClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.WARNING, "[Duel-Collectible] Não foi possível carregar o colecionável " + collectibleClass.getSimpleName(), e);
                 }
             }
         }

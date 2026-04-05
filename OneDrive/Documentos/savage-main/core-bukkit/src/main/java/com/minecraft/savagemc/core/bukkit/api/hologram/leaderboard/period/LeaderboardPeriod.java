@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
 public enum LeaderboardPeriod {
 
     GENERAL("Geral"),
@@ -16,6 +15,14 @@ public enum LeaderboardPeriod {
     MONTH("Mensal");
 
     private final String name;
+
+    LeaderboardPeriod(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public LeaderboardPeriod next() {
         return this != MONTH ? values()[ordinal() + 1] : GENERAL;

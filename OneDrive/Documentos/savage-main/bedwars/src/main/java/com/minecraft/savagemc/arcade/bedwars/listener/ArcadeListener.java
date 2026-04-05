@@ -8,6 +8,7 @@ import com.minecraft.savagemc.arcade.bedwars.structure.team.Team;
 import com.minecraft.savagemc.arcade.bedwars.user.User;
 import com.minecraft.savagemc.core.Savage;
 import com.minecraft.savagemc.core.account.Account;
+import com.minecraft.savagemc.core.account.context.objects.rank.type.RankType;
 import com.minecraft.savagemc.core.api.party.Party;
 import com.minecraft.savagemc.core.arcade.ArcadeHolder;
 import com.minecraft.savagemc.core.arcade.room.event.ArenaSearchedEvent;
@@ -40,7 +41,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -64,7 +67,8 @@ public class ArcadeListener implements Listener {
 
     private final List<Material> ALLOWED_DROP_ITEMS = Arrays.asList(
             Material.BOW, Material.ARROW, Material.GOLDEN_APPLE, Material.ENDER_PEARL,
-            Material.EGG, Material.FIREBALL, Material.MAGMA_CREAM, Material.STICK
+            Material.EGG, Material.FIREBALL, Material.MAGMA_CREAM, Material.STICK,
+            Material.FLINT_AND_STEEL
     );
 
     private final List<String> BLOCKED_CHEST_ITEMS = Arrays.asList(
@@ -231,6 +235,14 @@ public class ArcadeListener implements Listener {
     @EventHandler
     public void onBlockInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        
+        User user = (User) User.of(player.getUniqueId());
+        
+        // Impedir espectadores de interagir com blocos
+        if (user != null && !user.isPlayer()) {
+            event.setCancelled(true);
+            return;
+        }
 
         ItemStack hand = player.getItemInHand();
 
@@ -313,6 +325,12 @@ public class ArcadeListener implements Listener {
         User user = (User) User.of(player.getUniqueId());
 
         if (user == null || !user.isPlayer() || !user.inState(ArcadeState.ALIVE)) {
+            // Permitir construção apenas para admins (MODPLUS+) com /build ativado
+            if (user != null && user.getAccount().getToggle().isAllowBuild() 
+                    && user.getAccount().getRank().getType().ordinal() >= RankType.MODPLUS.ordinal()) {
+                event.setCancelled(false);
+                return;
+            }
             event.setCancelled(true);
             return;
         }
@@ -322,9 +340,22 @@ public class ArcadeListener implements Listener {
         Block block = event.getBlockPlaced();
 
         if (arena.isProtectedArea(block.getLocation())) {
+            // Permitir construção em área protegida apenas para admins (MODPLUS+) com /build ativado
+            if (user.getAccount().getToggle().isAllowBuild() 
+                    && user.getAccount().getRank().getType().ordinal() >= RankType.MODPLUS.ordinal()) {
+                event.setCancelled(false);
+                return;
+            }
             event.setCancelled(true);
 
             player.sendMessage("§cVocê não pode colocar blocos aqui.");
+            return;
+        }
+
+        // Permitir construção apenas para admins (MODPLUS+) com /build ativado
+        if (user.getAccount().getToggle().isAllowBuild() 
+                && user.getAccount().getRank().getType().ordinal() >= RankType.MODPLUS.ordinal()) {
+            event.setCancelled(false);
             return;
         }
 
@@ -341,6 +372,12 @@ public class ArcadeListener implements Listener {
         User user = (User) User.of(player.getUniqueId());
 
         if (user == null || !user.isPlayer() || !user.inState(ArcadeState.ALIVE)) {
+            // Permitir quebrar blocos apenas para admins (MODPLUS+) com /build ativado
+            if (user != null && user.getAccount().getToggle().isAllowBuild() 
+                    && user.getAccount().getRank().getType().ordinal() >= RankType.MODPLUS.ordinal()) {
+                event.setCancelled(false);
+                return;
+            }
             event.setCancelled(true);
             return;
         }
@@ -348,6 +385,12 @@ public class ArcadeListener implements Listener {
         Arena arena = user.getArena();
 
         if (!arena.isPhase(RoomPhase.PLAYING)) {
+            // Permitir quebrar blocos apenas para admins (MODPLUS+) com /build ativado
+            if (user.getAccount().getToggle().isAllowBuild() 
+                    && user.getAccount().getRank().getType().ordinal() >= RankType.MODPLUS.ordinal()) {
+                event.setCancelled(false);
+                return;
+            }
             event.setCancelled(true);
             return;
         }
@@ -373,6 +416,12 @@ public class ArcadeListener implements Listener {
         }
 
         if (!arena.isReversible(block) && !isBed) {
+            // Permitir quebrar blocos não reversíveis apenas para admins (MODPLUS+) com /build ativado
+            if (user.getAccount().getToggle().isAllowBuild() 
+                    && user.getAccount().getRank().getType().ordinal() >= RankType.MODPLUS.ordinal()) {
+                event.setCancelled(false);
+                return;
+            }
             event.setCancelled(true);
 
             player.sendMessage("§cVocê não pode quebrar este bloco.");
@@ -486,5 +535,19 @@ public class ArcadeListener implements Listener {
             if (stack.getDurability() != hexColor)
                 stack.setDurability((short) hexColor);
         }
+    }
+    
+    @EventHandler
+    public void onBlockSpread(BlockSpreadEvent event) {
+        // Impedir que fogo se espalhe
+        if (event.getSource().getType() == Material.FIRE) {
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent event) {
+        // Impedir que blocos queimem
+        event.setCancelled(true);
     }
 }

@@ -54,6 +54,15 @@ public class LoginListener implements Listener {
         }
 
         user.handle();
+        
+        // Adicionar speed 2 sem mostrar o efeito
+        player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.SPEED, 
+                Integer.MAX_VALUE, 
+                1, // Level 2 (0 = level 1, 1 = level 2)
+                true, // Ambient (sem partículas visíveis)
+                false // Sem mostrar ícone
+        ));
 
         /* Tem reconexão */
         Reconnect reconnect = Savage.getReconnectData().of(player.getUniqueId());
@@ -90,3 +99,5 @@ public class LoginListener implements Listener {
         Lobby.getLoader().getArchitect().quit(player);
     }
 }
+
+

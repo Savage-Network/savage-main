@@ -70,7 +70,9 @@ public class ClanCommand implements CommandInheritor {
                     "§c* " + label + " convidar (jogador)",
                     "§c* " + label + " aceitar (jogador)",
                     "§c* " + label + " recusar (jogador)",
-                    "§c* " + label + " transferir (jogador)"
+                    "§c* " + label + " transferir (jogador)",
+                    "§c* " + label + " membros",
+                    "§c* " + label + " promover (jogador) (cargo)"
             );
     }
 
@@ -385,3 +387,146 @@ public class ClanCommand implements CommandInheritor {
         target.send("§c" + account.getNickname() + " recusou o convite para entrar no clan.");
     }
 }
+
+    @Command(name = "clan.membros")
+    public void clanMembers(BungeeCommandContext context) {
+        Account account = context.getAccount();
+
+        if (!account.hasClan()) {
+            account.send(NOT_PART_OF_CLAN);
+            return;
+        }
+
+        Clan clan = account.getClan();
+
+        account.send("§6§lMEMBROS DO CLAN " + clan.getName().toUpperCase());
+        account.send("");
+
+        // Listar membros por cargo
+        for (ClanRole role : ClanRole.values()) {
+            List<UUID> membersWithRole = new ArrayList<>();
+            
+            for (UUID memberId : clan.getMembers()) {
+                ClanRole memberRole = clan.getRole(memberId);
+                if (memberRole == role) {
+                    membersWithRole.add(memberId);
+                }
+            }
+
+            if (!membersWithRole.isEmpty()) {
+                account.send(role.getColor() + role.getSymbol() + " " + role.getName() + "s:");
+                
+                for (UUID memberId : membersWithRole) {
+                    Account member = Savage.getAccountController().of(memberId);
+                    if (member != null) {
+                        String status = member.isOnline() ? "§a●" : "§c●";
+                        account.send("  " + status + " " + role.getColor() + member.getNickname());
+                    }
+                }
+                account.send("");
+            }
+        }
+
+        account.send("§7Total de membros: §f" + clan.getMembers().size());
+    }
+
+    @Command(name = "clan.promover")
+    public void clanPromote(BungeeCommandContext context) {
+        Account account = context.getAccount();
+
+        if (!account.hasClan()) {
+            account.send(NOT_PART_OF_CLAN);
+            return;
+        }
+
+        if (!account.hasClanRole(ClanRole.MANAGER) && !account.isClanLeader()) {
+            account.send("§cVocê não tem permissão para promover membros. (Necessário: Gerente ou Líder)");
+            return;
+        }
+
+        String[] args = context.getArgs();
+
+        if (args.length < 2) {
+            account.send("§cUso: /" + context.getCommandLabel() + " (jogador) (cargo)");
+            account.send("§cCargos disponíveis: membro, moderador, gerente, recrutador");
+            return;
+        }
+
+        Account target = context.getAccount(args[0]);
+
+        if (target == null) {
+            account.send(TARGET_NOT_FOUND);
+            return;
+        }
+
+        if (account.equals(target)) {
+            account.send(SAME_PLAYER);
+            return;
+        }
+
+        Clan clan = account.getClan();
+
+        if (!clan.isMember(target.getId())) {
+            account.send("§cO jogador " + target.getNickname() + " não é membro do seu clan.");
+            return;
+        }
+
+        if (target.isClanLeader()) {
+            account.send("§cVocê não pode alterar o cargo do líder do clan.");
+            return;
+        }
+
+        String roleArg = args[1].toUpperCase();
+        ClanRole newRole;
+
+        switch (roleArg) {
+            case "MEMBRO":
+            case "MEMBER":
+                newRole = ClanRole.MEMBER;
+                break;
+            case "MODERADOR":
+            case "MODERATOR":
+            case "MOD":
+                newRole = ClanRole.MODERATOR;
+                break;
+            case "GERENTE":
+            case "MANAGER":
+            case "GER":
+                newRole = ClanRole.MANAGER;
+                break;
+            case "RECRUTADOR":
+            case "RECRUITER":
+            case "REC":
+                newRole = ClanRole.RECRUITER;
+                break;
+            default:
+                account.send("§cCargo inválido! Use: membro, moderador, gerente ou recrutador");
+                return;
+        }
+
+        // Apenas o líder pode promover para gerente
+        if (newRole == ClanRole.MANAGER && !account.isClanLeader()) {
+            account.send("§cApenas o líder pode promover membros para Gerente.");
+            return;
+        }
+
+        // Gerente não pode promover para gerente
+        if (newRole == ClanRole.MANAGER && account.hasClanRole(ClanRole.MANAGER)) {
+            account.send("§cApenas o líder pode promover membros para Gerente.");
+            return;
+        }
+
+        ClanRole currentRole = clan.getRole(target.getId());
+
+        if (currentRole == newRole) {
+            account.send("§c" + target.getNickname() + " já possui o cargo de " + newRole.getName() + ".");
+            return;
+        }
+
+        clan.setRole(target.getId(), newRole);
+
+        account.send("§aVocê promoveu " + target.getNickname() + " para " + newRole.getColor() + newRole.getName() + "§a.");
+        target.send("§aVocê foi promovido para " + newRole.getColor() + newRole.getName() + "§a no clan " + clan.getName() + ".");
+        
+        clan.send("§e" + account.getNickname() + " promoveu " + target.getNickname() + " para " + newRole.getColor() + newRole.getName() + "§e.");
+    }

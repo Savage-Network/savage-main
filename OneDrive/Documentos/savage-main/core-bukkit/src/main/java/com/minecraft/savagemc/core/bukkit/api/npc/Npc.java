@@ -51,12 +51,15 @@ public class Npc {
     private Location location;
 
     private String tag;
+
     private ItemStack hand, helmet, chestPlate, leggings, boots;
 
     private NpcAction action;
+
     private final Set<Player> viewers = new HashSet<>();
 
     private int entityId, batEntityId;
+
     private boolean spawned, contact;
 
     public Npc(@NonNull Location location) {
@@ -66,8 +69,36 @@ public class Npc {
         this.profile = new GameProfile(uuid, "§8[NPC] " + uuid.toString().substring(0, 8));
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public GameProfile getProfile() {
+        return profile;
+    }
+
+    public NpcAction getAction() {
+        return action;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public boolean isContact() {
+        return contact;
+    }
+
+    public void setContact(boolean contact) {
+        this.contact = contact;
+    }
+
     public World getWorld() {
         return location.getWorld();
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     public List<Player> getPlayers() {
@@ -162,7 +193,13 @@ public class Npc {
 
         updateEquipment(player);
 
-        Savage.getPlatform().runSync(() -> connection.sendPacket(buildPlayerInfoPacket(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, profile)), 40);
+        // NPCs permanecem no tablist junto com os jogadores
+        // Savage.getPlatform().runSync(() -> {
+        //     if (player.isOnline()) {
+        //         PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
+        //         conn.sendPacket(buildPlayerInfoPacket(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, profile));
+        //     }
+        // }, 40);
     }
 
     public void despawnTo(Player player) {
@@ -330,5 +367,30 @@ public class Npc {
 
     protected static byte getCompressedAngle(float value) {
         return (byte) ((int) value * 256.0F / 360.0F);
+    }
+
+    // Métodos adicionais para compatibilidade
+    public boolean isSpawned() {
+        return spawned;
+    }
+
+    public void setSpawned(boolean spawned) {
+        this.spawned = spawned;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
+    }
+
+    public void setBatEntityId(int batEntityId) {
+        this.batEntityId = batEntityId;
+    }
+
+    public Set<Player> getViewers() {
+        return viewers;
+    }
+
+    public int getEntityId() {
+        return entityId;
     }
 }

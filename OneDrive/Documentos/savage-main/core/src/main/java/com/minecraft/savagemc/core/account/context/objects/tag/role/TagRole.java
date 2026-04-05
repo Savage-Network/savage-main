@@ -11,6 +11,7 @@ public enum TagRole {
     COLORED("Colorida"),
     VIP("VIP"),
     SPECIAL("Especial"),
+    EXCLUSIVE("Exclusiva"),
     ONLY_THESE("Somente para"),
     STAFF("Equipe");
 

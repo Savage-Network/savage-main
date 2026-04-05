@@ -46,14 +46,14 @@ public class Duels extends BukkitCore {
 
         handleRecipes();
 
-        Savage.Logger().info("Duels iniciado com sucesso!");
+        Savage.getLogger().info("Duels iniciado com sucesso!");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
 
-        Savage.Logger().info("Duels encerrado com sucesso!");
+        Savage.getLogger().info("Duels encerrado com sucesso!");
     }
 
     @SuppressWarnings("deprecation")

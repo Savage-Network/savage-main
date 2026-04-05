@@ -32,7 +32,7 @@ public class BungeeCommand extends net.md_5.bungee.api.plugin.Command {
         try {
             entry.getKey().invoke(entry.getValue(), new BungeeCommandContext(sender, args, label, subCommand));
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar o comando " + label, e);
+            Savage.getLogger().log(Level.WARNING, "Não foi possível registrar o comando " + label, e);
         }
     }
 

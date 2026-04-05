@@ -45,11 +45,11 @@ public abstract class PermissibleInjector {
         try {
             humanEntity = Class.forName(this.clazzName);
         } catch (ClassNotFoundException e) {
-            Logger.Savage.Logger("PermissionsEx").warning("[PermissionsEx] Unknown server implementation being used!");
+            Logger.getLogger("PermissionsEx").warning("[PermissionsEx] Unknown server implementation being used!");
             return null;
         }
         if (!humanEntity.isAssignableFrom(player.getClass())) {
-            Logger.Savage.Logger("PermissionsEx").warning("[PermissionsEx] Strange error while injecting permissible!");
+            Logger.getLogger("PermissionsEx").warning("[PermissionsEx] Strange error while injecting permissible!");
             return null;
         }
         final Field permField = humanEntity.getDeclaredField(this.fieldName);

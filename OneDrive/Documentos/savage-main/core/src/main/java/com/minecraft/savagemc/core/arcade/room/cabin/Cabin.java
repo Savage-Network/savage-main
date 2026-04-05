@@ -69,7 +69,7 @@ public class Cabin {
 
             return true;
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Não foi possível gerar a cabine " + identifier, e);
+            Savage.getLogger().log(Level.WARNING, "Não foi possível gerar a cabine " + identifier, e);
 
             return false;
         }
@@ -97,7 +97,7 @@ public class Cabin {
                 }
             }.runTaskTimer(plugin, 0L, 1L);
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Não foi possível restaurar a cabine " + identifier, e);
+            Savage.getLogger().log(Level.WARNING, "Não foi possível restaurar a cabine " + identifier, e);
         }
     }
 }

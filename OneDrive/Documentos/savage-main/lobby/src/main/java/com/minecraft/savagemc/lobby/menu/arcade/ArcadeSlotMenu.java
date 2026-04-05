@@ -136,3 +136,5 @@ public class ArcadeSlotMenu extends Menu {
         display();
     }
 }
+
+

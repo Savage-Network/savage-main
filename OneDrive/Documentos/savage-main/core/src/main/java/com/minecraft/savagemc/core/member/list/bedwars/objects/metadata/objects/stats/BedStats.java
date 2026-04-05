@@ -94,4 +94,21 @@ public class BedStats {
         this.weekWinStreak += 1;
         this.monthWinStreak += 1;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        
+        BedStats bedStats = (BedStats) o;
+        
+        return arcade == bedStats.arcade && type == bedStats.type;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = arcade != null ? arcade.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
 }

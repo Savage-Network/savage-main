@@ -15,7 +15,7 @@ public class Aquatic extends BukkitCore {
     public void onLoad() {
         super.onLoad();
 
-        Savage.Logger().info("Iniciando Water Fight...");
+        Savage.getLogger().info("Iniciando Water Fight...");
 
         saveDefaultConfig();
 
@@ -33,13 +33,13 @@ public class Aquatic extends BukkitCore {
 
         getManager().getArcade().handle(this, Constant.SOURCE_DIR + ".arcade.aquatic.arcade.list");
 
-        Savage.Logger().info("Water Fight iniciado com sucesso.");
+        Savage.getLogger().info("Water Fight iniciado com sucesso.");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
 
-        Savage.Logger().info("Water Fight desligado com sucesso.");
+        Savage.getLogger().info("Water Fight desligado com sucesso.");
     }
 }

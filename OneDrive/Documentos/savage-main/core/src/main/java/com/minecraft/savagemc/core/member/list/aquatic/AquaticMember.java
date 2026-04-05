@@ -19,11 +19,6 @@ public class AquaticMember extends Member {
             Savage.getAquaticData().update(this, field);
     }
 
-    @Override
-    public int getMinLevelXp() {
-        return 5000;
-    }
-
     public int getTotalMatches() {
         return getStats().values().stream().mapToInt(ArcadeStats::getMatches).sum();
     }

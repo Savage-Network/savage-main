@@ -121,3 +121,4 @@ public class BedFinalKillLeaderboard extends LeaderboardHologram {
         hologram.setSpaciousText(newLines);
     }
 }
+

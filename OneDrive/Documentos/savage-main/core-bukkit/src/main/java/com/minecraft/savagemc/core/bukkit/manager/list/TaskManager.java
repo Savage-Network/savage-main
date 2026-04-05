@@ -23,7 +23,7 @@ public class TaskManager {
 
         int loaded = 0;
 
-        Savage.Savage.Logger().info("Registrando tasks...");
+        Savage.getLogger().info("Registrando tasks...");
 
         for (Class<?> taskClass : ClassLoader.getClassesForPackage(plugin, directory)) {
             if (TaskBase.class.isAssignableFrom(taskClass)) {
@@ -37,13 +37,13 @@ public class TaskManager {
 
                     loaded++;
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar a task " + taskClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível registrar a task " + taskClass.getSimpleName(), e);
                 }
             }
         }
 
         if (loaded > 0)
-            Savage.Savage.Logger().info("Registro de tasks concluído com sucesso. (Total de tasks registradas: " + tasks.size()
+            Savage.getLogger().info("Registro de tasks concluído com sucesso. (Total de tasks registradas: " + tasks.size()
                     + " em " + Duration.between(startedAt, Instant.now()).toMillis() + "ms)");
     }
 

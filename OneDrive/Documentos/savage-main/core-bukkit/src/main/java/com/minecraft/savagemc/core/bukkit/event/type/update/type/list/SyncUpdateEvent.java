@@ -7,4 +7,8 @@ public class SyncUpdateEvent extends UpdateEvent {
     public SyncUpdateEvent(UpdateType type, long ticks) {
         super(type, ticks);
     }
+
+    public SyncUpdateEvent() {
+        super(UpdateType.SYNC, 1);
+    }
 }

@@ -17,6 +17,7 @@ public class RoomCustom {
     private List<Map> maps, playedMaps;
 
     private int teamSize;
+    private int forgeSpeed = 1; // Velocidade da forja (1 = normal, 3 = 3x, 4 = 4x, 5 = 5x)
 
     public RoomCustom(UUID author, List<Map> maps, int teamSize) {
         this.author = author;
@@ -25,6 +26,7 @@ public class RoomCustom {
         this.playedMaps = new ArrayList<>();
 
         this.teamSize = teamSize;
+        this.forgeSpeed = 1; // Padrão
     }
 
     public boolean isAuthor(UUID author) {

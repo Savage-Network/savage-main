@@ -17,6 +17,7 @@ public class Report {
     private final UUID target;
 
     private final Set<ReportContext> contexts = new HashSet<>();
+    private String replayId; // ID do replay mais recente
 
     private final long createdAt = System.currentTimeMillis(), expiresAt;
 
@@ -64,6 +65,14 @@ public class Report {
 
     public void addContext(ReportContext context) {
         contexts.add(context);
+        if (context.getReplayId() != null) {
+            this.replayId = context.getReplayId();
+        }
+        update();
+    }
+
+    public void setReplayId(String replayId) {
+        this.replayId = replayId;
         update();
     }
 

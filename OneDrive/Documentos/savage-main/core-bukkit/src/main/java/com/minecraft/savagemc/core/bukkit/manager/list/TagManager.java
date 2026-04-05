@@ -4,6 +4,7 @@ import com.minecraft.savagemc.core.Savage;
 import com.minecraft.savagemc.core.account.Account;
 import com.minecraft.savagemc.core.account.context.objects.tag.Tag;
 import com.minecraft.savagemc.core.account.context.objects.tag.prefix.TagPrefix;
+import com.minecraft.savagemc.core.bukkit.api.protocol.ProtocolHandler;
 import com.minecraft.savagemc.core.bukkit.user.UserModel;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -16,6 +17,8 @@ import org.bukkit.scoreboard.Team;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.minecraft.savagemc.core.Savage.*;
 
 public class TagManager {
 
@@ -67,91 +70,153 @@ public class TagManager {
     }
 
     public static void updateTag(Player player) {
-        Account account = Savage.getAccountController().of(player.getUniqueId());
+        Account account = getAccountController().of(player.getUniqueId());
 
         if (account != null)
             updateTag(account);
     }
 
     public static void updateTag(Account account, Tag tag) {
+        updateTagWithSuffix(account, tag, null);
+    }
+    
+    public static void updateTagWithSuffix(Account account, Tag tag, String customSuffix) {
         Player player = account.player();
 
         if (player == null || !player.isOnline()) return;
 
         if (tag == null) tag = Tag.MEMBER;
 
-        String order = "tag:" + tag.getOrder() + ":" + player.getEntityId();
+        // Nome do team deve ter no máximo 16 caracteres
+        String teamName = "tag:" + tag.getOrder() + ":" + player.getEntityId();
 
         String prefix = getAdjustedPrefix(account.getTagPrefix(), tag);
-        String suffix = !account.isUsingFake() ? (account.hasClan() && account.getToggle().isAllowClanTag() ? " §8[" + account.getClanTag() + "]" : "") : "";
+        
+        // Usar customSuffix se fornecido, caso contrário usar clan tag
+        String suffix;
+        if (customSuffix != null) {
+            suffix = customSuffix;
+        } else {
+            suffix = !account.isUsingFake() ? (account.hasClan() && account.getToggle().isAllowClanTag() ? " " + account.getClanTag() : "") : "";
+        }
 
-        // Scoreboard sem suffix para evitar limite de 16 chars e kick
-        Team team = createOrResetTeam(getOrCreateScoreboard(player), order, prefix, "");
-        team.addEntry(player.getName());
-
-        // displayName e playerListName com suffix completo (sem limite de 16 chars)
+        // displayName com suffix completo (para chat)
         String displayName = prefix + player.getName() + suffix;
         player.setDisplayName(displayName);
-        player.setPlayerListName(displayName);
-        player.setScoreboard(team.getScoreboard());
+        
+        // Definir playerListName para garantir que apareça no tab
+        player.setPlayerListName(prefix + player.getName());
 
-        // Atualizar para todos os jogadores online
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (onlinePlayer.equals(player)) continue;
-
-            applyTagForViewer(player, onlinePlayer, tag);
+        // Criar/atualizar team no próprio scoreboard do jogador PRIMEIRO
+        Scoreboard playerScoreboard = getOrCreateScoreboard(player);
+        Team playerOwnTeam = playerScoreboard.getTeam(teamName);
+        if (playerOwnTeam == null) {
+            playerOwnTeam = playerScoreboard.registerNewTeam(teamName);
+            playerOwnTeam.setCanSeeFriendlyInvisibles(false);
+            playerOwnTeam.setNameTagVisibility(org.bukkit.scoreboard.NameTagVisibility.ALWAYS);
         }
-    }
+        playerOwnTeam.setPrefix(truncateForScoreboard(prefix, 16));
+        playerOwnTeam.setSuffix(truncateForScoreboard(suffix, 16));
+        if (!playerOwnTeam.hasEntry(player.getName())) {
+            playerOwnTeam.addEntry(player.getName());
+        }
 
-    private static void applyTagForViewer(Player player, Player viewer, Tag tag) {
-        Account viewerAccount = Savage.getAccountController().of(viewer.getUniqueId());
-        Account playerAccount = Savage.getAccountController().of(player.getUniqueId());
-
-        if (viewerAccount == null || playerAccount == null) return;
-
-        String viewerPrefix = getAdjustedPrefix(viewerAccount.getTagPrefix(), tag);
-        String viewerClanTag = !viewerAccount.isUsingFake() ? (viewerAccount.hasClan() && viewerAccount.getToggle().isAllowClanTag()
-                ? " §8[" + viewerAccount.getClanTag() + "]" : "") : "";
-
-        String playerOrder = "tag:" + tag.getOrder() + ":" + player.getEntityId();
-
-        // Scoreboard do viewer sem suffix do player (evita limite de 16 chars)
-        Team viewerTeam = createOrResetTeam(getOrCreateScoreboard(viewer), playerOrder, viewerPrefix, "");
-        viewerTeam.addEntry(player.getName());
-
-        // Atualizar display do viewer com sua própria clan tag
-        String viewerDisplay = viewerPrefix + viewer.getName() + viewerClanTag;
-        viewer.setDisplayName(viewerDisplay);
-        viewer.setPlayerListName(viewerDisplay);
+        // Atualizar para TODOS os outros jogadores online
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            if (viewer.equals(player)) continue; // Já fizemos o próprio jogador acima
+            
+            Scoreboard viewerScoreboard = getOrCreateScoreboard(viewer);
+            
+            // Criar/atualizar team no scoreboard do viewer
+            Team viewerTeam = viewerScoreboard.getTeam(teamName);
+            if (viewerTeam == null) {
+                viewerTeam = viewerScoreboard.registerNewTeam(teamName);
+                viewerTeam.setCanSeeFriendlyInvisibles(false);
+                viewerTeam.setNameTagVisibility(org.bukkit.scoreboard.NameTagVisibility.ALWAYS);
+            }
+            
+            // Atualizar prefix e suffix
+            viewerTeam.setPrefix(truncateForScoreboard(prefix, 16));
+            viewerTeam.setSuffix(truncateForScoreboard(suffix, 16));
+            
+            // Adicionar o jogador ao team se ainda não estiver
+            if (!viewerTeam.hasEntry(player.getName())) {
+                viewerTeam.addEntry(player.getName());
+            }
+        }
+        
+        // Atualizar todos os outros jogadores no scoreboard deste jogador
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.equals(player)) continue; // Já fizemos o próprio jogador no início
+            
+            Account otherAccount = getAccountController().of(other.getUniqueId());
+            if (otherAccount != null) {
+                Tag otherTag = UserModel.has(otherAccount.getId()) ? UserModel.of(otherAccount.getId()).getTag() : otherAccount.getTag();
+                if (otherTag == null) otherTag = Tag.MEMBER;
+                
+                String otherTeamName = "tag:" + otherTag.getOrder() + ":" + other.getEntityId();
+                String otherPrefix = getAdjustedPrefix(otherAccount.getTagPrefix(), otherTag);
+                String otherSuffix = !otherAccount.isUsingFake() ? (otherAccount.hasClan() && otherAccount.getToggle().isAllowClanTag() ? " " + otherAccount.getClanTag() : "") : "";
+                
+                Team otherTeam = playerScoreboard.getTeam(otherTeamName);
+                if (otherTeam == null) {
+                    otherTeam = playerScoreboard.registerNewTeam(otherTeamName);
+                    otherTeam.setCanSeeFriendlyInvisibles(false);
+                    otherTeam.setNameTagVisibility(org.bukkit.scoreboard.NameTagVisibility.ALWAYS);
+                }
+                
+                otherTeam.setPrefix(truncateForScoreboard(otherPrefix, 16));
+                otherTeam.setSuffix(truncateForScoreboard(otherSuffix, 16));
+                
+                if (!otherTeam.hasEntry(other.getName())) {
+                    otherTeam.addEntry(other.getName());
+                }
+            }
+        }
     }
 
     private static Scoreboard getOrCreateScoreboard(Player player) {
         Scoreboard scoreboard = player.getScoreboard();
-        if (scoreboard == null || scoreboard.equals(Bukkit.getScoreboardManager().getMainScoreboard()))
+        if (scoreboard == null || scoreboard.equals(Bukkit.getScoreboardManager().getMainScoreboard())) {
             scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        player.setScoreboard(scoreboard);
+            player.setScoreboard(scoreboard);
+        }
         return scoreboard;
     }
-
-    private static Team createOrResetTeam(Scoreboard scoreboard, String name, String prefix, String suffix) {
-        Team team = scoreboard.getTeam(name);
-        if (team != null) scoreboard.getTeam(name).unregister();
-        team = scoreboard.registerNewTeam(name);
-        team.setCanSeeFriendlyInvisibles(false);
-        team.setPrefix(prefix.length() > 16 ? prefix.substring(0, 16) : prefix);
-        team.setSuffix(suffix.length() > 16 ? suffix.substring(0, 16) : suffix);
-        return team;
+    
+    private static String truncateForScoreboard(String text, int maxLength) {
+        if (text == null) return "";
+        if (text.length() <= maxLength) return text;
+        
+        // Truncar mantendo códigos de cor válidos
+        StringBuilder result = new StringBuilder();
+        int length = 0;
+        
+        for (int i = 0; i < text.length() && length < maxLength; i++) {
+            char c = text.charAt(i);
+            
+            // Se encontrar §, adicionar ele e o próximo caractere juntos
+            if (c == '§' && i + 1 < text.length()) {
+                // Só adicionar se ainda couber
+                if (length + 2 <= maxLength) {
+                    result.append(c);
+                    result.append(text.charAt(i + 1));
+                    i++; // Pular o próximo char
+                    length += 2;
+                }
+            } else {
+                if (length < maxLength) {
+                    result.append(c);
+                    length++;
+                }
+            }
+        }
+        
+        return result.toString();
     }
 
     private static String getAdjustedPrefix(TagPrefix prefixType, Tag tag) {
-        String prefix = tag.getByPrefix(prefixType);
-        if (prefix.length() > 16) prefix = prefix.substring(0, 16);
-        return prefix;
-    }
-
-    private static String getAdjustedSuffix(String suffix) {
-        if (suffix.length() > 16) suffix = suffix.substring(0, 16);
-        return suffix;
+        return tag.getByPrefix(prefixType);
     }
 
     public static void removeTag(Player player) {

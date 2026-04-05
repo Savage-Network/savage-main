@@ -7,9 +7,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class AccountPrefixTypeEvent extends EventHandler {
 
     private final Account account;
     private final TagPrefix prefix;
+
+    public AccountPrefixTypeEvent(Account account, TagPrefix prefix) {
+        this.account = account;
+        this.prefix = prefix;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public TagPrefix getPrefix() {
+        return prefix;
+    }
 }

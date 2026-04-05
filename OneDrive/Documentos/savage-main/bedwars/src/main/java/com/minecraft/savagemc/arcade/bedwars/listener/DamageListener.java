@@ -1,5 +1,6 @@
 package com.minecraft.savagemc.arcade.bedwars.listener;
 
+import com.minecraft.savagemc.arcade.bedwars.BedWars;
 import com.minecraft.savagemc.arcade.bedwars.arcade.Arcade;
 import com.minecraft.savagemc.arcade.bedwars.arcade.arena.Arena;
 import com.minecraft.savagemc.arcade.bedwars.user.User;
@@ -7,6 +8,7 @@ import com.minecraft.savagemc.core.arcade.feature.ArcadeFeature;
 import com.minecraft.savagemc.core.arcade.route.state.ArcadeState;
 import com.minecraft.savagemc.core.bukkit.event.type.player.PlayerDamageEvent;
 import com.minecraft.savagemc.core.bukkit.event.type.player.PlayerDamageTargetEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
@@ -15,6 +17,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 public class DamageListener implements Listener {
 
@@ -81,8 +84,19 @@ public class DamageListener implements Listener {
             event.setCancelled(true);
             return;
         }
+        
+        // Verificar se as arenas existem
+        if (user.getArena() == null || killer.getArena() == null) {
+            event.setCancelled(true);
+            return;
+        }
 
         Arcade arcade = user.getArena().getArcade();
+        
+        if (arcade == null) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (damager.equals(target)) {
             event.setCancelled(true);
@@ -98,6 +112,12 @@ public class DamageListener implements Listener {
             event.setCancelled(true);
             return;
         }
+        
+        // Verificar se os times existem
+        if (user.getTeam() == null || killer.getTeam() == null) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (killer.getTeam().equals(user.getTeam())) {
             event.setCancelled(true);
@@ -109,9 +129,28 @@ public class DamageListener implements Listener {
                 event.setCancelled(true);
 
                 arcade.handleDeath(user.getArena(), user, killer, Arcade.DeathCause.PLAYER);
-            } else
+            } else {
                 user.setCombat(damager);
+            }
         }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onKnockback(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player) || !(event.getDamager() instanceof Player)) return;
+        
+        Player target = (Player) event.getEntity();
+        Player damager = (Player) event.getDamager();
+        
+        User targetUser = (User) User.of(target.getUniqueId());
+        User damagerUser = (User) User.of(damager.getUniqueId());
+        
+        if (targetUser == null || damagerUser == null) return;
+        if (!targetUser.isPlayer() || !damagerUser.isPlayer()) return;
+        if (!targetUser.inState(ArcadeState.ALIVE) || !damagerUser.inState(ArcadeState.ALIVE)) return;
+        
+        // Deixar o knockback vanilla fluido do Minecraft 1.8
+        // Sem modificações para manter a fluidez natural
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

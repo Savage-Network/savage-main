@@ -1,0 +1,4 @@
+name: Game
+version: 1.0.0
+main: com.minecraft.game.Game
+depend: [Core, Core-Bukkit]

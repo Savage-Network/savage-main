@@ -10,9 +10,11 @@ import com.minecraft.savagemc.core.util.list.StringUtil;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -86,6 +88,45 @@ public class BungeeListener implements Listener {
             }
 
             event.setTarget(server.getProxyServer());
+        }
+    }
+
+    @EventHandler
+    public void onServerKick(ServerKickEvent event) {
+        ProxiedPlayer player = event.getPlayer();
+        
+        // Mensagem personalizada quando servidor fecha
+        String kickMessage = "§2§lSAVAGE\n\n" +
+                            "§cOs servidores foram fechados no momento.\n" +
+                            "§eTente entrar novamente mais tarde!\n\n" +
+                            "§7Para dúvidas, consulte: §bwww.savagemc.net";
+        
+        event.setCancelServer(null);
+        
+        // Tentar conectar ao lobby
+        Server lobbyServer = Savage.getServerData().of(ServerType.HUB);
+        
+        if (lobbyServer != null && lobbyServer.getProxyServer() != null) {
+            ServerInfo lobby = lobbyServer.getProxyServer();
+            
+            // Se o servidor que kickou não é o lobby, tentar conectar ao lobby
+            if (event.getKickedFrom() != null && !event.getKickedFrom().equals(lobby)) {
+                event.setCancelled(true);
+                event.setCancelServer(lobby);
+                
+                player.sendMessage(TextComponent.fromLegacyText(
+                    "§cServidor desconectado!\n" +
+                    "§eVocê foi redirecionado ao lobby."
+                ));
+            } else {
+                // Se foi kickado do lobby, desconectar com mensagem
+                event.setCancelled(false);
+                event.setKickReasonComponent(TextComponent.fromLegacyText(kickMessage));
+            }
+        } else {
+            // Se não há lobby disponível, desconectar com mensagem
+            event.setCancelled(false);
+            event.setKickReasonComponent(TextComponent.fromLegacyText(kickMessage));
         }
     }
 }

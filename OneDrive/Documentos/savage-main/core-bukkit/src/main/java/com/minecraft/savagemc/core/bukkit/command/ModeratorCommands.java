@@ -15,12 +15,12 @@ import org.bukkit.entity.Player;
 
 public class ModeratorCommands implements CommandInheritor {
 
-    @Command(name = "reports", rank = RankType.TRIAL)
+    @Command(name = "reports", permission = "reports")
     public void reports(BukkitCommandContext context) {
         new ReportMenu(context.getPlayer()).handle();
     }
 
-    @Command(name = "gamemode", aliases = {"gm"}, rank = RankType.STUDIO)
+    @Command(name = "gamemode", aliases = {"gm"}, permission = "gm")
     public void gameMode(BukkitCommandContext context) {
         Player player = context.getPlayer();
 
@@ -76,7 +76,7 @@ public class ModeratorCommands implements CommandInheritor {
         log(context.getSender(), player.getName() + " entrou no modo " + modeName);
     }
 
-    @Command(name = "vanish", aliases = {"admin", "v"}, rank = RankType.STUDIO)
+    @Command(name = "vanish", aliases = {"admin", "v"}, permission = "vanish")
     public void vanish(BukkitCommandContext context) {
         Vanish.handle(context.getPlayer());
     }
@@ -117,7 +117,7 @@ public class ModeratorCommands implements CommandInheritor {
         account.send(toggle.isAllowBuild() ? "§aO seu modo de construção foi ativado." : "§cO seu modo de construção foi desativado.");
     }
 
-    @Command(name = "teleport", aliases = {"tp"}, rank = RankType.STUDIO)
+    @Command(name = "teleport", aliases = {"tp"}, permission = "tp")
     public void teleport(BukkitCommandContext context) {
         Player player = context.getPlayer();
 
@@ -136,6 +136,34 @@ public class ModeratorCommands implements CommandInheritor {
         }
 
         player.teleport(target);
+    }
+
+    @Command(name = "puxar", permission = "tp")
+    public void puxar(BukkitCommandContext context) {
+        Player player = context.getPlayer();
+
+        String[] args = context.getArgs();
+
+        if (args.length == 0) {
+            player.sendMessage("§cUtilize /" + context.getLabel() + " (jogador).");
+            return;
+        }
+
+        Player target = context.getPlayer(args[0]);
+
+        if (target == null) {
+            player.sendMessage(TARGET_NOT_FOUND);
+            return;
+        }
+
+        if (player.equals(target)) {
+            player.sendMessage(SAME_PLAYER);
+            return;
+        }
+
+        target.teleport(player);
+        player.sendMessage("§aVocê puxou §f" + target.getName() + "§a até você.");
+        target.sendMessage("§eVocê foi teleportado até §f" + player.getName() + "§e.");
     }
 
     @Command(name = "invsee", aliases = {"inventorysee", "inv"}, rank = RankType.STUDIO)

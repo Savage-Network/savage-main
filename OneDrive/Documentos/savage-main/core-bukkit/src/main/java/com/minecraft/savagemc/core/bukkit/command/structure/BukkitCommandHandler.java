@@ -29,7 +29,7 @@ public class BukkitCommandHandler implements CommandHandler {
 
     private final JavaPlugin plugin;
 
-    private final CommandMap map;
+    private CommandMap map;
 
     @Getter
     private static final Map<String, Map.Entry<Method, Object>> commandMap = new HashMap<>();
@@ -39,15 +39,18 @@ public class BukkitCommandHandler implements CommandHandler {
     public BukkitCommandHandler(JavaPlugin plugin) {
         this.plugin = plugin;
 
-        this.map = plugin.getServer().getCommandMap();
-
         try {
+            Field commandMapField = plugin.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            this.map = (CommandMap) commandMapField.get(plugin.getServer());
+
             Field field = map.getClass().getDeclaredField("knownCommands");
             field.setAccessible(true);
 
             knownCommands = (HashMap<String, org.bukkit.command.Command>) field.get(map);
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Ocorreu um erro ao carregar os comandos", e);
+            Savage.getLogger().log(Level.WARNING, "Ocorreu um erro ao carregar os comandos", e);
+            this.map = null;
         }
     }
 
@@ -57,7 +60,7 @@ public class BukkitCommandHandler implements CommandHandler {
 
         int loaded = 0;
 
-        Savage.Savage.Logger().info("Registrando comandos...");
+        Savage.getLogger().info("Registrando comandos...");
 
         for (Class<?> cmdClass : ClassLoader.getClassesForPackage(plugin, path)) {
             if (CommandInheritor.class.isAssignableFrom(cmdClass)) {
@@ -68,13 +71,13 @@ public class BukkitCommandHandler implements CommandHandler {
 
                     loaded++;
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar o comando " + cmdClass.getSimpleName() + "!", e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível registrar o comando " + cmdClass.getSimpleName() + "!", e);
                 }
             }
         }
 
         if (loaded > 0)
-            Savage.Savage.Logger().info("Registro de comandos concluído. " +
+            Savage.getLogger().info("Registro de comandos concluído. " +
                     "(Total de comandos registrados: " + loaded + " em " + Util.formatInstant(now) + ")");
     }
 
@@ -84,7 +87,7 @@ public class BukkitCommandHandler implements CommandHandler {
         for (Method method : inheritor.getClass().getMethods()) {
             if (method.isAnnotationPresent(Command.class)) {
                 if (method.getParameterCount() != 1 || !CommandContext.class.isAssignableFrom(method.getParameterTypes()[0])) {
-                    Savage.Savage.Logger().info("Não foi possível registrar o comando " + method.getName() + ". Argumentos de método não esperados!");
+                    Savage.getLogger().info("Não foi possível registrar o comando " + method.getName() + ". Argumentos de método não esperados!");
                     continue;
                 }
 
@@ -105,12 +108,12 @@ public class BukkitCommandHandler implements CommandHandler {
         for (Method method : inheritor.getClass().getMethods()) {
             if (method.isAnnotationPresent(Completer.class)) {
                 if (method.getParameterCount() != 1 || !CommandContext.class.isAssignableFrom(method.getParameterTypes()[0])) {
-                    Savage.Savage.Logger().info("Não foi possível registrar o completer " + method.getName() + ". Argumentos de método não esperados!");
+                    Savage.getLogger().info("Não foi possível registrar o completer " + method.getName() + ". Argumentos de método não esperados!");
                     continue;
                 }
 
                 if (!List.class.isAssignableFrom(method.getReturnType())) {
-                    Savage.Savage.Logger().info("Não foi possível registrar o completer " + method.getName() + ". Tipo de retorno inesperado. O retorno deve ser uma Lista de Strings.");
+                    Savage.getLogger().info("Não foi possível registrar o completer " + method.getName() + ". Tipo de retorno inesperado. O retorno deve ser uma Lista de Strings.");
                     continue;
                 }
 
@@ -185,13 +188,18 @@ public class BukkitCommandHandler implements CommandHandler {
 
                     completer.addCompleter(label, method, base);
                 } else {
-                    Savage.Savage.Logger().info("Não foi possível registrar o completer " + method.getName()
+                    Savage.getLogger().info("Não foi possível registrar o completer " + method.getName()
                             + ". Um completer já está registrado para esse comando!");
                 }
 
             } catch (Exception e) {
-                Savage.Savage.Logger().log(Level.WARNING, "Não foi possível registrar o completador...", e);
+                Savage.getLogger().log(Level.WARNING, "Não foi possível registrar o completador...", e);
             }
         }
+    }
+
+    // Métodos adicionais para compatibilidade
+    public static Map<String, Map.Entry<Method, Object>> getCommandMap() {
+        return commandMap;
     }
 }

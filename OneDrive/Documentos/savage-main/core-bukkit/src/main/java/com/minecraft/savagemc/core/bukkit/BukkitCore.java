@@ -55,18 +55,17 @@ public class BukkitCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        Savage.Logger().info("Iniciando Bukkit...");
-
         instance = this;
         Savage.setJavaPlugin(this);
 
         new BukkitLogFilter().registerFilter();
 
-        /* Configurando Spigot Customizado */
-        SpigotConstant.SERVER_TITLE = Constant.SERVER_TITLE;
-        SpigotConstant.SERVER_SUPPORT_URL = Constant.SERVER_DISCORD;
-
-        Savage.load(new BukkitPlatform(this), new BukkitServer(), Savage.Logger());
+        // Inicializar o Savage primeiro com um logger temporário
+        java.util.logging.Logger tempLogger = java.util.logging.Logger.getLogger("Savage");
+        Savage.load(new BukkitPlatform(this), new BukkitServer(), tempLogger);
+        
+        // Agora pode usar o logger do Savage
+        Savage.getLogger().info("Iniciando Bukkit...");
     }
 
     @Override
@@ -74,35 +73,35 @@ public class BukkitCore extends JavaPlugin {
         manager = new Manager();
 
         if (Savage.getServerData() == null) {
-            Savage.Logger().severe("ServerData é null! O onLoad() falhou. Verifique os logs de inicialização.");
+            Savage.getLogger().severe("ServerData é null! O onLoad() falhou. Verifique os logs de inicialização.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
-        Savage.Logger().info("[DEBUG] Iniciando ServerData...");
+        Savage.getLogger().info("[DEBUG] Iniciando ServerData...");
         Savage.getServerData().start(Bukkit.getMaxPlayers());
 
-        Savage.Logger().info("[DEBUG] Iniciando RedisListener...");
+        Savage.getLogger().info("[DEBUG] Iniciando RedisListener...");
         CompletableFuture.runAsync(() -> new RedisListener(new BukkitRedis(), Constant.REDIS_CHANNELS).load());
 
-        Savage.Logger().info("[DEBUG] Removendo comandos...");
+        Savage.getLogger().info("[DEBUG] Removendo comandos...");
         Savage.getPlatform().runSync(() -> BukkitUtil.removeCommand(this, COMMANDS_TO_DISABLE), 3L);
 
-        Savage.Logger().info("[DEBUG] Registrando comandos...");
+        Savage.getLogger().info("[DEBUG] Registrando comandos...");
         new BukkitCommandHandler(this).handle(Constant.SOURCE_DIR + ".core.bukkit.command");
 
-        Savage.Logger().info("[DEBUG] Registrando listeners...");
+        Savage.getLogger().info("[DEBUG] Registrando listeners...");
         new ListenerHandler(this).handle(Constant.SOURCE_DIR + ".core.bukkit");
 
-        Savage.Logger().info("[DEBUG] Registrando tasks...");
+        Savage.getLogger().info("[DEBUG] Registrando tasks...");
         TaskManager.handle(this, Constant.SOURCE_DIR + ".core.bukkit.service.task.list");
 
-        Savage.Logger().info("[DEBUG] Registrando PacketHook...");
+        Savage.getLogger().info("[DEBUG] Registrando PacketHook...");
         new PacketHook(this).handle();
 
         this.permissions = new RegexPermissions();
 
-        Savage.Logger().info("Bukkit iniciado com sucesso.");
+        Savage.getLogger().info("Bukkit iniciado com sucesso.");
     }
 
     @Override
@@ -120,5 +119,14 @@ public class BukkitCore extends JavaPlugin {
         TaskManager.unloadTasks();
 
         Savage.unload();
+    }
+
+    // Métodos adicionais para compatibilidade
+    public static Manager getManager() {
+        return manager;
+    }
+
+    public static BukkitCore getInstance() {
+        return instance;
     }
 }

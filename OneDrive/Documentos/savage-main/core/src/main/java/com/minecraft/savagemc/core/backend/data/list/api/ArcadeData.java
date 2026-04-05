@@ -55,10 +55,12 @@ public class ArcadeData {
     }
 
     public int getOnlinePlayers(ArcadeCategory category) {
+        if (category == null) return 0;
+        
         int onlinePlayers = 0;
 
         for (ArcadePayload payload : getPayloads()) {
-            if (payload.getCategory().equals(category))
+            if (payload.getCategory() != null && payload.getCategory().equals(category))
                 onlinePlayers += payload.getOnlinePlayers();
         }
 
@@ -71,11 +73,13 @@ public class ArcadeData {
 
     public void delete(ServerType server) {
         getPayloads().stream()
-                .filter(payload -> payload.getCategory().getServer().equals(server))
+                .filter(payload -> payload.getCategory() != null && payload.getCategory().getServer().equals(server))
                 .forEach(payload -> redis.delete(ARCADE_KEY + server.name().toLowerCase() + "-" + Savage.getServerId() + ":" + payload.getCategory().name().toLowerCase()));
     }
 
     public void update(ArcadePayload property) {
-        redis.update(ARCADE_KEY + property.getCategory().getServer().name().toLowerCase() + "-" + Savage.getServerId() + ":" + property.getCategory().name().toLowerCase(), property);
+        if (property.getCategory() != null) {
+            redis.update(ARCADE_KEY + property.getCategory().getServer().name().toLowerCase() + "-" + Savage.getServerId() + ":" + property.getCategory().name().toLowerCase(), property);
+        }
     }
 }

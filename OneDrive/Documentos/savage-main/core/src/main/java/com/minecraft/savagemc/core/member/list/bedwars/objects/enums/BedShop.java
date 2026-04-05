@@ -25,7 +25,8 @@ public enum BedShop {
     TOOLS("Ferramentas", Item.of(Material.STONE_PICKAXE)),
     ARTILLERY("Artilharia", Item.of(Material.BOW)),
     POTION("Poções", Item.of(Material.BREWING_STAND_ITEM)),
-    UTIL("Utilidades", Item.of(Material.TNT));
+    UTIL("Utilidades", Item.of(Material.TNT)),
+    ROTATIVOS("Rotativos", Item.of(Material.NETHER_STAR));
 
     private final String name;
     private final ItemStack icon;

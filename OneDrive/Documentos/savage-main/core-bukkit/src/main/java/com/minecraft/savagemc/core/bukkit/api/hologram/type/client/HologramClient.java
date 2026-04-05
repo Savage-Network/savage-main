@@ -1,6 +1,5 @@
 package com.minecraft.savagemc.core.bukkit.api.hologram.type.client;
 
-import com.minecraft.savagemc.core.Savage;
 import com.minecraft.savagemc.core.bukkit.api.hologram.Hologram;
 import com.minecraft.savagemc.core.bukkit.api.hologram.row.HologramRow;
 import lombok.Getter;
@@ -165,5 +164,22 @@ public class HologramClient extends Hologram {
             if (!isEntityId(row.getId()))
                 getEntityIds().add(row.getId());
         });
+    }
+
+    // Métodos adicionais para compatibilidade
+    public Player getReceiver() {
+        return receiver;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return String.valueOf(id);
+    }
+
+    public String getTag() {
+        return tag;
     }
 }

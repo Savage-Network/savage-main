@@ -32,7 +32,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.PlayerInventory;
@@ -64,11 +63,9 @@ public abstract class Architect implements Listener {
     );
 
     public void load() {
-        /* Limpa o mundo antes de spawnar entidades reais (ex.: armor stand).
-         * NPCs/hologramas do core são por pacote/NMS e não dependem desta ordem. */
-        WorldUtil.setup(getWorld());
-
         handleEntities();
+
+        WorldUtil.setup(getWorld());
 
         Bukkit.getPluginManager().registerEvents(this, Lobby.getInstance());
     }
@@ -97,13 +94,7 @@ public abstract class Architect implements Listener {
             if (tag.ordinal() >= Tag.TAG_2026.ordinal() && !tag.isRole(TagRole.STAFF)) {
                 String message = JOIN_MESSAGES.get(Savage.RANDOM.nextInt(JOIN_MESSAGES.size()));
 
-                // Enviar apenas para jogadores no mesmo servidor
-                player.getServer().getOnlinePlayers().forEach(targetPlayer -> {
-                    Account targetAccount = Savage.getAccountController().of(targetPlayer.getUniqueId());
-                    if (targetAccount != null) {
-                        targetAccount.send(tag.getByPrefix(targetAccount.getTagPrefix()) + account.getNickname() + "§6 " + message);
-                    }
-                });
+                Savage.getAccountController().list().forEach(target -> target.send(tag.getByPrefix(target.getTagPrefix()) + account.getNickname() + "§6 " + message));
             }
         }
 
@@ -257,91 +248,6 @@ public abstract class Architect implements Listener {
         ));
     }
 
-    public void handleCommandNpc(String hologramId, Location location, String value, String signature, List<String> hologramLines, String command) {
-        NpcServer npc = BukkitCore.getManager().getNpc().spawnServer(location, value, signature);
-
-        npc.setContact(true);
-        npc.setAction((player, action) -> player.performCommand(command));
-
-        npc.display();
-
-        HologramServer hologram = BukkitCore.getManager().getHologram().spawnServer(hologramId, location);
-        hologram.setText(hologramLines);
-    }
-
-    /**
-     * Armor stand como no comando /summon: braços, sem base, couro (bota/calça/peitoral) e cabeça
-     * SkullOwner "Cash Register" (textura do Value que passaste).
-     */
-    public void handleShopCashRegisterStand(Location location) {
-        if (location == null || location.getWorld() == null) return;
-
-        ArmorStand stand = location.getWorld().spawn(location, ArmorStand.class);
-        stand.setGravity(false);
-        stand.setVisible(true);
-        stand.setSmall(false);
-        stand.setArms(true);
-        stand.setBasePlate(false);
-
-        Item helmet = Item.of(Material.SKULL_ITEM, 3).skullByBase64(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZmYjQ0MzFlODZlNjIxYTgxMjcxZTlhOGQ1OTQ0YTI5MjRjOGM4MmE4NDE5NjY4ZWE4MWZlNzc5ZWE5In19fQ==")
-                .name("Cash Register");
-
-        stand.getEquipment().setHelmet(helmet);
-        stand.getEquipment().setChestplate(Item.of(Material.LEATHER_CHESTPLATE));
-        stand.getEquipment().setLeggings(Item.of(Material.LEATHER_LEGGINGS));
-        stand.getEquipment().setBoots(Item.of(Material.LEATHER_BOOTS));
-    }
-
-    /**
-     * Cria blocos pequenos girando ao redor do NPC da loja
-     * Bloco de diamante e esmeralda girando em torno do NPC
-     */
-    public void handleShopRotatingBlocks(Location npcLocation) {
-        if (npcLocation == null || npcLocation.getWorld() == null) return;
-
-        // Bloco de diamante (na frente)
-        ArmorStand diamondStand = npcLocation.getWorld().spawn(npcLocation.clone().add(1, 1.5, 0), ArmorStand.class);
-        diamondStand.setGravity(false);
-        diamondStand.setVisible(false);
-        diamondStand.setSmall(true);
-        diamondStand.setBasePlate(false);
-        diamondStand.setMarker(true);
-        diamondStand.getEquipment().setHelmet(Item.of(Material.DIAMOND_BLOCK));
-        diamondStand.setCustomName("shop_diamond");
-        diamondStand.setCustomNameVisible(false);
-
-        // Bloco de esmeralda (atrás)
-        ArmorStand emeraldStand = npcLocation.getWorld().spawn(npcLocation.clone().add(-1, 1.5, 0), ArmorStand.class);
-        emeraldStand.setGravity(false);
-        emeraldStand.setVisible(false);
-        emeraldStand.setSmall(true);
-        emeraldStand.setBasePlate(false);
-        emeraldStand.setMarker(true);
-        emeraldStand.getEquipment().setHelmet(Item.of(Material.EMERALD_BLOCK));
-        emeraldStand.setCustomName("shop_emerald");
-        emeraldStand.setCustomNameVisible(false);
-
-        // Task para rotacionar os blocos
-        Bukkit.getScheduler().runTaskTimer(Lobby.getInstance(), () -> {
-            if (!diamondStand.isValid() || !emeraldStand.isValid()) return;
-
-            double angle = (System.currentTimeMillis() % 3600) / 3600.0 * 2 * Math.PI;
-            double radius = 1.0;
-
-            // Diamante girando
-            double diamondX = npcLocation.getX() + Math.cos(angle) * radius;
-            double diamondZ = npcLocation.getZ() + Math.sin(angle) * radius;
-            diamondStand.teleport(new Location(npcLocation.getWorld(), diamondX, npcLocation.getY() + 1.5, diamondZ));
-
-            // Esmeralda girando (oposto ao diamante)
-            double emeraldX = npcLocation.getX() + Math.cos(angle + Math.PI) * radius;
-            double emeraldZ = npcLocation.getZ() + Math.sin(angle + Math.PI) * radius;
-            emeraldStand.teleport(new Location(npcLocation.getWorld(), emeraldX, npcLocation.getY() + 1.5, emeraldZ));
-
-        }, 0L, 1L);
-    }
-
     public void handleArcadeNpc(ArcadeCategory arcade, Location location, NpcAction action, String value, String signature) {
         NpcServer npc = BukkitCore.getManager().getNpc().spawnServer(location, value, signature);
 
@@ -362,3 +268,5 @@ public abstract class Architect implements Listener {
         handleArcadeNpc(arcade, location, (player, action) -> new ArcadeSlotMenu(player, null, arcade).handle(), value, signature);
     }
 }
+
+

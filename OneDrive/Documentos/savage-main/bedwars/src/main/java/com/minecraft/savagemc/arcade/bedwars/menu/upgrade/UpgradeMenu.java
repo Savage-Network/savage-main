@@ -10,13 +10,17 @@ import com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.stru
 import com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.haste.Haste;
 import com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.sword.Sword;
 import com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.trap.Trap;
+import com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.trap.enums.TrapCategory;
+import com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.trap.enums.TrapType;
 import com.minecraft.savagemc.arcade.bedwars.user.User;
 import com.minecraft.savagemc.core.api.item.Item;
 import com.minecraft.savagemc.core.arcade.room.slot.Slot;
 import com.minecraft.savagemc.core.bukkit.api.menu.Menu;
 import com.minecraft.savagemc.core.bukkit.api.menu.sound.MenuSound;
+import com.minecraft.savagemc.core.bukkit.api.protocol.ProtocolHandler;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedOre;
 import com.minecraft.savagemc.core.util.list.bukkit.BukkitUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -51,12 +55,15 @@ public class UpgradeMenu extends Menu {
 
         Team team = user.getTeam();
 
-        addItem(10, buildForge(team));
-        addItem(11, buildSword(team));
-        addItem(12, buildHaste(team));
-        addItem(13, buildArmor(team));
-        addItem(14, buildAutoRegeneration(team));
-        addItem(15, buildTrap(team));
+        addItem(10, buildSword(team));        // Sharp
+        addItem(11, buildArmor(team));        // Armaduras
+        addItem(12, buildForge(team));        // Forja
+        addItem(13, buildHaste(team));        // Haste
+        addItem(14, buildAutoRegeneration(team)); // Auto Regeneração
+        
+        // Armadilhas diretamente no menu
+        addItem(16, buildTrapItem(team, com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.trap.enums.TrapType.FATIGUE));
+        addItem(25, buildTrapItem(team, com.minecraft.savagemc.arcade.bedwars.structure.team.objects.upgrade.structure.trap.enums.TrapType.ITS_A_TRAP));
 
         addCloseButton();
 
@@ -188,13 +195,19 @@ public class UpgradeMenu extends Menu {
                     team.getUpgrade().setSword(next);
 
                     team.getPlayers().forEach(player -> {
-                        next.applyEnchantment(player);
-
                         player.sendMessage(team.getColor()
                                 + getPlayer().getName() + "§e evoluiu as espadas para o nível §c" + next.getTag() + "§e!");
                     });
-
-                    handle();
+                    
+                    // Fechar menu e aplicar encantamento após 1 tick
+                    getPlayer().closeInventory();
+                    
+                    Bukkit.getScheduler().runTaskLater(com.minecraft.savagemc.arcade.bedwars.BedWars.getInstance(), () -> {
+                        team.getPlayers().forEach(p -> {
+                            next.applyEnchantment(p);
+                            p.updateInventory();
+                        });
+                    }, 1L);
                 });
 
         return icon;
@@ -257,13 +270,18 @@ public class UpgradeMenu extends Menu {
                     team.getUpgrade().setHaste(next);
 
                     team.getPlayers().forEach(player -> {
-                        next.applyEnchantment(player);
-
                         player.sendMessage(team.getColor()
                                 + getPlayer().getName() + "§e evoluiu as picaretas para o nível §c" + next.getTag() + "§e!");
                     });
-
-                    handle();
+                    
+                    // Fechar menu e aplicar encantamento após 1 tick
+                    getPlayer().closeInventory();
+                    
+                    Bukkit.getScheduler().runTaskLater(com.minecraft.savagemc.arcade.bedwars.BedWars.getInstance(), () -> {
+                        team.getPlayers().forEach(p -> {
+                            next.applyEnchantment(p);
+                        });
+                    }, 1L);
                 });
 
         return icon;
@@ -328,13 +346,19 @@ public class UpgradeMenu extends Menu {
                     team.getUpgrade().setArmor(next);
 
                     team.getPlayers().forEach(player -> {
-                        next.applyEnchantment(player);
-
                         player.sendMessage(team.getColor()
                                 + getPlayer().getName() + "§e evoluiu as armaduras para o nível §c" + next.getTag() + "§e!");
                     });
-
-                    handle();
+                    
+                    // Fechar menu e aplicar encantamento após 1 tick
+                    getPlayer().closeInventory();
+                    
+                    Bukkit.getScheduler().runTaskLater(com.minecraft.savagemc.arcade.bedwars.BedWars.getInstance(), () -> {
+                        team.getPlayers().forEach(p -> {
+                            next.applyEnchantment(p);
+                            p.updateInventory();
+                        });
+                    }, 1L);
                 });
 
         return icon;
@@ -396,6 +420,67 @@ public class UpgradeMenu extends Menu {
 
                     handle();
                 });
+
+        return icon;
+    }
+
+    protected Item buildTrapItem(Team team, TrapType type) {
+        Item icon = type.getIcon().clone()
+                .flags(ItemFlag.values());
+
+        List<String> description = new ArrayList<>(type.getDescription());
+
+        boolean has = team.getTraps().stream().anyMatch(trap -> trap.getType().equals(type)),
+                canPurchase = type.canPurchase(getPlayer());
+
+        int totalTraps = team.getTraps().size();
+
+        description.addAll(Arrays.asList(
+                "",
+                "§7Armadilhas ativas: §e" + totalTraps + "/3",
+                "",
+                "§7Custo: §b" + type.getCost() + " diamante" + (type.getCost() > 1 ? "s" : ""),
+                "",
+                totalTraps >= 3 ? "§cLimite de armadilhas atingido." :
+                has ? "§cArmadilha já adquirida." : canPurchase
+                        ? "§eClique para comprar!"
+                        : "§cVocê não tem diamantes suficientes."
+        ));
+
+        icon.name(((has || !canPurchase || totalTraps >= 3) ? "§c" : "§a") + type.getName());
+        icon.lore(description);
+
+        icon.click(event -> {
+            if (totalTraps >= 3) {
+                sound(MenuSound.ERROR);
+                getPlayer().sendMessage("§cVocê já atingiu o limite de armadilhas.");
+                return;
+            }
+
+            if (has) {
+                sound(MenuSound.ERROR);
+                getPlayer().sendMessage("§cVocê já adquiriu a armadilha " + type.getName());
+                return;
+            }
+
+            if (!canPurchase) {
+                sound(MenuSound.ERROR);
+                getPlayer().sendMessage("§cVocê não tem diamantes suficientes. " +
+                        "Faltam " + user.getRemainingOre(type.getOre(), type.getCost()) + " diamantes.");
+                return;
+            }
+
+            sound(MenuSound.SUCCESS);
+
+            user.removeOre(type.getOre(), type.getCost());
+
+            team.getTraps().add(new Trap(type, TrapCategory.of(totalTraps)));
+
+            team.getPlayers().forEach(player -> ProtocolHandler.sendBar(player, team.getColor() + getPlayer().getName()
+                    + "§e adquiriu §6Armadilha " + type.getName()));
+
+            handle();
+        });
 
         return icon;
     }

@@ -21,7 +21,7 @@ public class Lobby extends BukkitCore {
 
         loader = new ArchitectLoader(this);
 
-        Savage.Logger().info("Iniciando Lobby...");
+        getLogger().info("Iniciando Lobby...");
 
         Savage.setServerType(loader.getArchitect().getServer());
 
@@ -34,19 +34,18 @@ public class Lobby extends BukkitCore {
         super.onEnable();
 
         if (loader.getArchitect() == null) {
-            Savage.Logger().severe("Não foi possível carregar as configurações...");
+            getLogger().severe("Não foi possível carregar as configurações...");
 
             Bukkit.shutdown();
         } else
             Bukkit.getScheduler().runTask(this, () -> loader.getArchitect().load());
 
-        // Registrar collectibles
-        Savage.getCollectibleController().handle(this, "com.minecraft.savagemc.core.api.collectible.type");
-
-        new BukkitCommandHandler(this).handle(Constant.SOURCE_DIR + ".lobby.command");
+        BukkitCommandHandler commandHandler = new BukkitCommandHandler(this);
+        commandHandler.handle(Constant.SOURCE_DIR + ".lobby.command");
+        
         new ListenerHandler(this).handle(Constant.SOURCE_DIR + ".lobby");
 
-        Savage.Logger().info("Lobby iniciado com sucesso.");
+        getLogger().info("Lobby iniciado com sucesso.");
     }
 
     @Override
@@ -55,6 +54,8 @@ public class Lobby extends BukkitCore {
 
         loader.getArchitect().unload();
 
-        Savage.Logger().info("Lobby encerrado com sucesso.");
+        getLogger().info("Lobby encerrado com sucesso.");
     }
 }
+
+

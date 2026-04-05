@@ -210,7 +210,7 @@ public class PhaseAction {
                             loser = (User) User.of(arena.getLoser().getMembers().stream().findFirst().orElse(null));
 
                     if (winner == null || loser == null) {
-                        Savage.Savage.Logger().log(Level.WARNING, "Não foi possível enviar os inventários de batalha.");
+                        Savage.getLogger().log(Level.WARNING, "Não foi possível enviar os inventários de batalha.");
                     } else {
                         MenuViewer winnerMenu = new MenuViewer(winner.getAccount().getNickname(), winner.getInventoryBase64(), arena.getModeName(), winner.getAccount().player().getHealth()),
                                 loserMenu = new MenuViewer(loser.getAccount().getNickname(), loser.getInventoryBase64(), arena.getModeName(), loser.getAccount().player().getHealth());
@@ -276,7 +276,7 @@ public class PhaseAction {
                         } else {
                             Instant now = Instant.now();
 
-                            Savage.Savage.Logger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "] Redefinindo...");
+                            Savage.getLogger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "] Redefinindo...");
 
                             if (arcade.hasFeature(ArcadeFeature.BUILD)) {
                                 try {
@@ -286,7 +286,7 @@ public class PhaseAction {
                                     });
                                     arena.getRollbackBlocks().clear();
                                 } catch (Exception e) {
-                                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível realizar o rollback...", e);
+                                    Savage.getLogger().log(Level.WARNING, "Não foi possível realizar o rollback...", e);
                                 }
                             }
 
@@ -300,7 +300,7 @@ public class PhaseAction {
 
                             arena.setPhase(RoomPhase.WAITING);
 
-                            Savage.Savage.Logger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "/" + Util.formatInstant(now) + "] Arena redefinida com sucesso.");
+                            Savage.getLogger().info("[" + arcade.getName() + "/" + arena.getIdentifier() + "/" + Util.formatInstant(now) + "] Arena redefinida com sucesso.");
                         }
                     }
                 }, 30);

@@ -38,7 +38,7 @@ public class CosmeticColorSyncListener implements Listener {
                 });
             } catch (Exception e) {
                 // Ignora erros de collectibles para não kickar jogadores
-                Savage.Savage.Logger().warning("Erro ao aplicar collectible para jogador " + online.getName() + ": " + e.getMessage());
+                Savage.getLogger().warning("Erro ao aplicar collectible para jogador " + online.getName() + ": " + e.getMessage());
             }
         }
     }

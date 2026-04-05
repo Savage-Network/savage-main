@@ -29,7 +29,7 @@ public class RedisListener {
             try {
                 jedis.subscribe(pubSub, channels);
             } catch (Exception e) {
-                Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível registar os canais do Redis...", e);
+                Savage.getLogger().log(Level.SEVERE, "Não foi possível registar os canais do Redis...", e);
 
                 try {
                     pubSub.unsubscribe();

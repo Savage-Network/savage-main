@@ -31,7 +31,7 @@ public class CollectibleController extends Controller<String, Collectible> {
     public void handle(Object instance, String path) {
         Instant now = Instant.now();
 
-        Savage.Savage.Logger().info("Registrando colecionáveis...");
+        Savage.getLogger().info("Registrando colecionáveis...");
 
         // Iniciando NMS
         NMSContract.handle();
@@ -49,7 +49,7 @@ public class CollectibleController extends Controller<String, Collectible> {
 
                     save(collectible);
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível iniciar o cosmético " + cosmeticClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.SEVERE, "Não foi possível iniciar o cosmético " + cosmeticClass.getSimpleName(), e);
                 }
             }
         }
@@ -60,7 +60,7 @@ public class CollectibleController extends Controller<String, Collectible> {
         CompanionType.handle();
 
         if (!isEmpty())
-            Savage.Savage.Logger().info(size() + " colecionáveis foram carregados. (Tempo médio: " + Util.formatInstant(now) + ")");
+            Savage.getLogger().info(size() + " colecionáveis foram carregados. (Tempo médio: " + Util.formatInstant(now) + ")");
     }
 
     public Collectible of(CollectibleCategory category, String name) {

@@ -152,3 +152,5 @@ public class NavigationMenu extends Menu {
         SERVER, ROOM
     }
 }
+
+

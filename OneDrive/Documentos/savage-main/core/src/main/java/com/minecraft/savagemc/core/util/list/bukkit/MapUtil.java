@@ -32,7 +32,7 @@ public class MapUtil {
         BufferedImage image = ImageIO.read(imageFile);
 
         if (image == null) {
-            Savage.Savage.Logger().warning("Não foi possível renderizar a imagem do mapa!");
+            Savage.getLogger().warning("Não foi possível renderizar a imagem do mapa!");
             return;
         }
 

@@ -10,7 +10,8 @@ import java.util.Arrays;
 public enum PunishmentReason {
 
     CHEATING("Uso de Trapaças"),
-    COMMUNITY("Diretrizes da Comunidade");
+    COMMUNITY("Diretrizes da Comunidade"),
+    IP_BAN("Banimento por IP");
 
     private final String name;
 

@@ -19,7 +19,7 @@ public class BedWars extends BukkitCore {
     public void onLoad() {
         super.onLoad();
 
-        Savage.Logger().info("Iniciando BedWars...");
+        getLogger().info("Iniciando BedWars...");
 
         saveDefaultConfig();
 
@@ -59,13 +59,13 @@ public class BedWars extends BukkitCore {
         // Packets
         getManager().getProtocol().addPacketListener(new SoundPacket(this));
 
-        Savage.Logger().info("BedWars iniciado com sucesso.");
+        getLogger().info("BedWars iniciado com sucesso.");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
 
-        Savage.Logger().info("BedWars desligado com sucesso.");
+        getLogger().info("BedWars desligado com sucesso.");
     }
 }

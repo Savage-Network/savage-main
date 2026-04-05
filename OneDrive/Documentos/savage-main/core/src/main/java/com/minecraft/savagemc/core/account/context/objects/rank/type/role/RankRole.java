@@ -10,6 +10,7 @@ public enum RankRole {
     NONE("Nenhuma"),
     VIP("VIP"),
     SPECIAL("Especial"),
+    EXCLUSIVE("Exclusiva"),
     STAFF("Equipe");
 
     private final String name;

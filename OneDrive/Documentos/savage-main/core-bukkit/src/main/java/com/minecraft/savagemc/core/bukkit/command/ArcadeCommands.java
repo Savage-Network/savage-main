@@ -62,7 +62,7 @@ public class ArcadeCommands implements CommandInheritor {
             new ArcadeInfoMenu(context.getPlayer()).handle();
     }
 
-    @Command(name = "salacustom", rank = RankType.ADMIN)
+    @Command(name = "salacustom", permission = "salacustom")
     public void customRoom(BukkitCommandContext context) {
         new CustomArcadeMenu(context.getPlayer(), null).handle();
     }

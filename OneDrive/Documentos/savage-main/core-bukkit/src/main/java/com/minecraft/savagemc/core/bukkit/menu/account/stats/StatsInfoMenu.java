@@ -37,6 +37,11 @@ public class StatsInfoMenu extends Menu {
         this.server = server;
     }
 
+    // Método adicional para compatibilidade
+    public void setPeriod(LeaderboardPeriod period) {
+        this.period = period;
+    }
+
     protected int getStatistic(Supplier<Integer> general, Supplier<Integer> month, Supplier<Integer> week) {
         return period.equals(LeaderboardPeriod.MONTH) ? month.get() : period.equals(LeaderboardPeriod.WEEK) ? week.get() : general.get();
     }

@@ -38,7 +38,15 @@ public class Sidebar {
     public Sidebar(Player owner, String title) {
         this.owner = owner;
 
-        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        // Usar o scoreboard existente do jogador ao invés de criar um novo
+        // Isso preserva os teams criados pelo TagManager
+        Scoreboard existingScoreboard = owner.getScoreboard();
+        if (existingScoreboard == null || existingScoreboard.equals(Bukkit.getScoreboardManager().getMainScoreboard())) {
+            this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+            owner.setScoreboard(this.scoreboard);
+        } else {
+            this.scoreboard = existingScoreboard;
+        }
 
         Objective objective = scoreboard.getObjective(bukkit.getName().toLowerCase());
 
@@ -86,14 +94,24 @@ public class Sidebar {
 
         this.showing = true;
 
-        if (isAnimated())
+        if (isAnimated) {
             this.animation = new Scroller(ChatColor.stripColor(title).toUpperCase(), "§6§l", "§f§l", "§e§l");
+        }
 
         BukkitCore.getManager().getSidebar().save(this);
     }
 
     public void clear() {
-        scoreboard.getEntries().forEach(scoreboard::resetScores);
+        // Remover apenas os scores das linhas da sidebar, não todas as entries do scoreboard
+        // Isso preserva os teams criados pelo TagManager para o tab
+        for (SidebarRow row : rows) {
+            if (row != null) {
+                String lineText = Util.color(row.getPrefix() + row.getSuffix());
+                if (lineText != null && !lineText.isEmpty()) {
+                    scoreboard.resetScores(lineText);
+                }
+            }
+        }
         rows.clear();
         rowIndex = 0;
         rowCount = 0;
@@ -106,15 +124,19 @@ public class Sidebar {
 
     public void hide() {
         scoreboard.clearSlot(DisplaySlot.SIDEBAR);
-        scoreboard.getEntries().forEach(scoreboard::resetScores);
+        // Remover apenas os scores das linhas da sidebar, não todas as entries
+        for (SidebarRow row : rows) {
+            if (row != null && row.getPrefix() != null && !row.getPrefix().isEmpty()) {
+                scoreboard.resetScores(row.getPrefix());
+            }
+        }
         showing = false;
         rowIndex = 0;
     }
 
     public void setTitle(String title) {
         this.title = title;
-
-        objective.setDisplayName(Constant.SERVER_COLOR + ChatColor.BOLD.toString() + Util.color(title.length() > 32 ? title.substring(0, 32) : title));
+        objective.setDisplayName(title);
     }
 
     public boolean hasRow(String field) {
@@ -147,7 +169,11 @@ public class Sidebar {
 
                 // Verifique se o texto realmente mudou antes de atualizar a linha
                 if (!truncatedText.equals(row.getPrefix())) {
-                    scoreboard.resetScores(row.getPrefix());
+                    // Remover apenas o score antigo, não resetar todo o scoreboard
+                    String oldText = row.getPrefix();
+                    if (oldText != null && !oldText.isEmpty()) {
+                        scoreboard.resetScores(oldText);
+                    }
 
                     row.setPrefix(truncatedText);
                     row.setSuffix("");
@@ -175,5 +201,9 @@ public class Sidebar {
 
     protected String randomColor(int row) {
         return ChatColor.values()[row].toString() + ChatColor.RESET;
+    }
+
+    public Player getOwner() {
+        return owner;
     }
 }

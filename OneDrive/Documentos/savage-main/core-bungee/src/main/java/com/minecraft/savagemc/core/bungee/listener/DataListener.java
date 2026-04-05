@@ -80,7 +80,7 @@ public class DataListener implements Listener {
 
     private boolean isNicknameValid(String userName, PreLoginEvent event) {
         if (!Validator.isNickname(userName)) {
-            Savage.Savage.Logger().warning("Nome de usuário inválido: " + userName);
+            Savage.getLogger().warning("Nome de usuário inválido: " + userName);
             event.setCancelReason(TextComponent.fromLegacyText(Constant.SERVER_TITLE + "\n\n" +
                     "§cNome de usuário inválido ;(\n" +
                     "§cTente trocar e entrar novamente!"));
@@ -108,7 +108,7 @@ public class DataListener implements Listener {
     }
 
     private void handleVerificationFailure(String userName, PreLoginEvent event) {
-        Savage.Savage.Logger().log(Level.WARNING, "Falha na verificação da conta: " + userName);
+        Savage.getLogger().log(Level.WARNING, "Falha na verificação da conta: " + userName);
         event.setCancelReason(TextComponent.fromLegacyText(Constant.SERVER_TITLE + "\n\n" +
                 "§cNão foi possível verificar sua conexão ;(\n" +
                 "§cTente novamente mais tarde!"));
@@ -141,14 +141,14 @@ public class DataListener implements Listener {
 
         } catch (Exception e) {
             controller.remove(id);
-            Savage.Savage.Logger().log(Level.WARNING, "Erro ao carregar a conta de " + userName, e);
+            Savage.getLogger().log(Level.WARNING, "Erro ao carregar a conta de " + userName, e);
         }
     }
 
     private Account createNewAccount(LoginEvent event, UUID id, String userName) {
         Account account = data.save(new Account(id, userName));
         if (account == null) {
-            Savage.Savage.Logger().warning("Conta não encontrada para " + userName);
+            Savage.getLogger().warning("Conta não encontrada para " + userName);
             event.setCancelReason(TextComponent.fromLegacyText(Constant.ACCOUNT_LOAD_FAILED_MESSAGE));
             event.setCancelled(true);
         }
@@ -224,7 +224,7 @@ public class DataListener implements Listener {
         account.setOnline(true);
         account.notifyFriends();
 
-        Savage.Savage.Logger().info(account.getName() + " entrou no servidor.");
+        Savage.getLogger().info(account.getName() + " entrou no servidor.");
     }
 
     @EventHandler(priority = EventPriority.HIGH)

@@ -42,14 +42,14 @@ public abstract class Arcade extends ArcadeHolder {
 
     @Override
     public boolean load() {
-        Savage.Savage.Logger().info("Iniciando " + getName() + "...");
+        Savage.getLogger().info("Iniciando " + getName() + "...");
 
         if (!loadMaps(mapsDirectory)) return false;
 
         List<Map> availableMaps = getMaps();
 
         if (availableMaps.isEmpty()) {
-            Savage.Savage.Logger().warning("Nenhum mapa disponível para " + getName() + ".");
+            Savage.getLogger().warning("Nenhum mapa disponível para " + getName() + ".");
             return false;
         }
 
@@ -64,15 +64,15 @@ public abstract class Arcade extends ArcadeHolder {
             mapIndex = (mapIndex + 1) % availableMaps.size();
         }
 
-        Savage.Savage.Logger().info("Modo de jogo " + getName() + " iniciado com sucesso.");
+        Savage.getLogger().info("Modo de jogo " + getName() + " iniciado com sucesso.");
         return true;
     }
 
     @Override
     public void unload() {
-        Savage.Savage.Logger().info("Encerrando jogo " + getName() + "...");
+        Savage.getLogger().info("Encerrando jogo " + getName() + "...");
         getRooms().clear();
-        Savage.Savage.Logger().info("O jogo " + getName() + " foi desligado com sucesso!");
+        Savage.getLogger().info("O jogo " + getName() + " foi desligado com sucesso!");
     }
 
     @Override
@@ -83,7 +83,7 @@ public abstract class Arcade extends ArcadeHolder {
 
         Arena arena = new Arena(id, this, map, slot);
 
-        Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Criando arena...");
+        Savage.getLogger().info("[" + getName() + "/" + id + "] Criando arena...");
 
         String templateName = getName().toLowerCase(),
                 worldName = templateName + "-" + id;
@@ -96,7 +96,7 @@ public abstract class Arcade extends ArcadeHolder {
 
             getRooms().add(arena);
 
-            Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Arena criada com sucesso. (Tempo médio: " + Util.formatInstant(now) + ")");
+            Savage.getLogger().info("[" + getName() + "/" + id + "] Arena criada com sucesso. (Tempo médio: " + Util.formatInstant(now) + ")");
         });
 
         return arena;

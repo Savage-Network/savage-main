@@ -2,16 +2,21 @@ package com.minecraft.savagemc.core.bukkit.command.structure;
 
 import com.minecraft.savagemc.core.Constant;
 import com.minecraft.savagemc.core.command.CommandSender;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-@RequiredArgsConstructor
+@Getter
 public class BukkitCommandSender implements CommandSender {
 
     private final org.bukkit.command.CommandSender sender;
+
+    public BukkitCommandSender(org.bukkit.command.CommandSender sender) {
+        this.sender = sender;
+    }
 
     @Override
     public UUID getId() {
@@ -23,14 +28,13 @@ public class BukkitCommandSender implements CommandSender {
         return isPlayer() ? sender.getName() : "CONSOLE";
     }
 
-    @Override
     public boolean isPlayer() {
         return sender instanceof Player;
     }
 
     @Override
-    public void send(String... message) {
-        sender.sendMessage(message);
+    public void send(String... messages) {
+        sender.sendMessage(messages);
     }
 
     @Override

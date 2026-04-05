@@ -1,11 +1,61 @@
 {
-  "server": "HUB",
+  "server": "HUB_HUNGERGAMES",
   "locations": [
     {
       "name": "spawn",
-      "x": 0,
-      "y": 50,
-      "z": 0
+      "x": 0.5,
+      "y": 100,
+      "z": 0.5,
+      "yaw": 0,
+      "pitch": 0
+    },
+    {
+      "name": "npc_hgmix",
+      "x": 10.5,
+      "y": 100,
+      "z": 5.5,
+      "yaw": 180,
+      "pitch": 0
+    },
+    {
+      "name": "npc_clanxclan",
+      "x": -10.5,
+      "y": 100,
+      "z": 5.5,
+      "yaw": 180,
+      "pitch": 0
+    },
+    {
+      "name": "npc_event",
+      "x": 10.5,
+      "y": 100,
+      "z": -5.5,
+      "yaw": 0,
+      "pitch": 0
+    },
+    {
+      "name": "npc_champion",
+      "x": -10.5,
+      "y": 100,
+      "z": -5.5,
+      "yaw": 0,
+      "pitch": 0
+    },
+    {
+      "name": "leaderboard_wins",
+      "x": 15.5,
+      "y": 100,
+      "z": 0.5,
+      "yaw": -90,
+      "pitch": 0
+    },
+    {
+      "name": "leaderboard_kills_record",
+      "x": -15.5,
+      "y": 100,
+      "z": 0.5,
+      "yaw": 90,
+      "pitch": 0
     }
   ]
 }

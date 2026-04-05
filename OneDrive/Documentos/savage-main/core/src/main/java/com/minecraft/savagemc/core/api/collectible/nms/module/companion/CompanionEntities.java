@@ -50,7 +50,7 @@ public class CompanionEntities {
         try {
             return (CompanionEntity) entityClass.getConstructors()[0].newInstance(companion);
         } catch (Exception ex) {
-            Savage.Savage.Logger().log(Level.WARNING, "createForType(" + clazz.getSimpleName() + "): ", ex);
+            Savage.getLogger().log(Level.WARNING, "createForType(" + clazz.getSimpleName() + "): ", ex);
         }
 
         return null;

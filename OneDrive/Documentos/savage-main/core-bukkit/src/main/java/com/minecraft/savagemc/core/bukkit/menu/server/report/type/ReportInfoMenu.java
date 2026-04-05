@@ -23,7 +23,7 @@ public class ReportInfoMenu extends Menu {
     public void handle() {
         clear();
 
-        addItem(11, Item.of(Material.ENDER_PEARL, "§aTeleportar",
+        addItem(10, Item.of(Material.ENDER_PEARL, "§aTeleportar",
                         "§7Vá para o local",
                         "§7do jogador.",
                         "",
@@ -35,7 +35,7 @@ public class ReportInfoMenu extends Menu {
                     new AccountExecuteCommandMessage(getPlayer().getUniqueId(), "go " + report.getTargetName()).send();
                 }));
 
-        addItem(13, Item.of(Material.PAPER, "§aDenúncias",
+        addItem(12, Item.of(Material.PAPER, "§aDenúncias",
                         "§7Veja as denúncias",
                         "§7que o jogador recebeu.",
                         "",
@@ -45,7 +45,20 @@ public class ReportInfoMenu extends Menu {
                     new ReportListMenu(getPlayer(), report, this).handle();
                 }));
 
-        addItem(15, Item.of(Material.BARRIER, "§cExcluir",
+        // Botão de Replay
+        if (report.getReplayId() != null) {
+            addItem(14, Item.of(Material.EYE_OF_ENDER, "§eClique para ver a partida",
+                            "§7Assista o replay da",
+                            "§7partida reportada.",
+                            "",
+                            "§eClique para assistir!")
+                    .click(event -> {
+                        sound(MenuSound.PAGINATED);
+                        new ReplayViewMenu(getPlayer(), report, this).handle();
+                    }));
+        }
+
+        addItem(16, Item.of(Material.BARRIER, "§cExcluir",
                         "§eClique para remover!")
                 .click(event -> {
                     sound(MenuSound.DONE);

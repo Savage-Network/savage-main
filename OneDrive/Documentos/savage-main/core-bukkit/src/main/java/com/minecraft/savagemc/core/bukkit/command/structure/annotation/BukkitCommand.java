@@ -91,14 +91,14 @@ public class BukkitCommand extends org.bukkit.command.Command {
                     Map.Entry<Method, Object> entry = BukkitCommandHandler.getCommandMap().get(cmdLabel);
 
                     if (entry == null) {
-                        Savage.Savage.Logger().warning("Não foi possível encontrar a entrada de " + cmdLabel);
+                        Savage.getLogger().warning("Não foi possível encontrar a entrada de " + cmdLabel);
                         return false;
                     }
 
                     Command command = entry.getKey().getAnnotation(Command.class);
 
                     if (command == null) {
-                        Savage.Savage.Logger().warning("Não foi possível encontrar a anotação de Comando do " + cmdLabel);
+                        Savage.getLogger().warning("Não foi possível encontrar a anotação de Comando do " + cmdLabel);
                         return false;
                     }
 
@@ -136,14 +136,14 @@ public class BukkitCommand extends org.bukkit.command.Command {
                     } catch (Exception e) {
                         sender.sendMessage("§cOcorreu um erro ao tentar executar este comando!");
 
-                        Savage.Savage.Logger().log(Level.WARNING, "Não foi possível executar o comando " + command.name(), e);
+                        Savage.getLogger().log(Level.WARNING, "Não foi possível executar o comando " + command.name(), e);
                     }
 
                     return true;
                 }
             }
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Ocorreu um problema ao executar o comando!", e);
+            Savage.getLogger().log(Level.WARNING, "Ocorreu um problema ao executar o comando!", e);
         }
         return false;
     }
@@ -152,7 +152,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         try {
             entry.getKey().invoke(entry.getValue(), new BukkitCommandContext(sender, args, label, subCommand));
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Ocorreu um erro ao registrar o comando...", e);
+            Savage.getLogger().log(Level.WARNING, "Ocorreu um erro ao registrar o comando...", e);
         }
     }
 
@@ -167,11 +167,23 @@ public class BukkitCommand extends org.bukkit.command.Command {
         } catch (Throwable exception) {
             sender.sendMessage("§cOcorreu um erro ao tentar executar este comando!");
 
-            Savage.Savage.Logger().log(Level.WARNING, "Exceção não tratada executando comando '" + label + "' no plugin " + holder.getDescription().getFullName(), exception);
+            Savage.getLogger().log(Level.WARNING, "Exceção não tratada executando comando '" + label + "' no plugin " + holder.getDescription().getFullName(), exception);
             return false;
         }
 
         return success;
     }
 
+    // Métodos adicionais para compatibilidade
+    public void setRank(RankType rank) {
+        this.rank = rank;
+    }
+
+    public BukkitCompleter getCompleter() {
+        return completer;
+    }
+
+    public void setCompleter(BukkitCompleter completer) {
+        this.completer = completer;
+    }
 }

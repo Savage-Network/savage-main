@@ -22,4 +22,12 @@ public class Combat {
     public boolean isValid() {
         return target != null && expiresAt > System.currentTimeMillis();
     }
+
+    public long getExpiresAt() {
+        return expiresAt;
+    }
+
+    public Player getTarget() {
+        return target;
+    }
 }

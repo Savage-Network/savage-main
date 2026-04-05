@@ -27,7 +27,7 @@ public class SkinCacheData {
             if (skin == null) {
                 skin = Skin.unknown();
 
-                Savage.Savage.Logger().severe("[Skin-Cache] Não foi possível encontrar a skin de " + account.getName());
+                Savage.getLogger().severe("[Skin-Cache] Não foi possível encontrar a skin de " + account.getName());
                 return skin;
             }
 

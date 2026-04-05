@@ -13,6 +13,7 @@ import com.minecraft.savagemc.core.bukkit.event.type.account.AccountClanChangeEv
 import com.minecraft.savagemc.core.bukkit.event.type.player.PlayerDamageEvent;
 import com.minecraft.savagemc.core.bukkit.event.type.update.type.UpdateType;
 import com.minecraft.savagemc.core.bukkit.event.type.update.type.list.AsyncUpdateEvent;
+import com.minecraft.savagemc.core.bukkit.manager.list.TagManager;
 import com.minecraft.savagemc.core.bukkit.user.UserModel;
 import com.minecraft.savagemc.core.server.type.ServerType;
 import com.minecraft.savagemc.core.util.Util;
@@ -160,3 +161,5 @@ public class ServerListener implements Listener {
         }
     }
 }
+
+

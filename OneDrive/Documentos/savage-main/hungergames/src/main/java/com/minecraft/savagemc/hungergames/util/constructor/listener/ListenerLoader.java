@@ -1,0 +1,34 @@
+/*
+ * Copyright (C) Savage Network, Todos os direitos reservados
+ * Este código é propriedade da Savage Network
+ * Uso, distribuição ou modificação não autorizados são proibidos
+ */
+
+package com.minecraft.savagemc.hungergames.util.constructor.listener;
+
+import com.minecraft.savagemc.hungergames.HungerGames;
+import com.minecraft.savagemc.hungergames.util.game.GameStage;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
+
+public class ListenerLoader {
+
+    public void load(Object... objects) {
+        for (Object object : objects) {
+            if (Listener.class.isAssignableFrom(object.getClass())) {
+                if (object.getClass().isAnnotationPresent(RecurringListener.class)) {
+                    final RecurringListener recurringListener = object.getClass().getAnnotation(RecurringListener.class);
+                    recurringListener.register().getPendingRegister().add((Listener) object);
+                    recurringListener.unregister().getPendingUnregister().add((Listener) object);
+                } else {
+                    Bukkit.getPluginManager().registerEvents((Listener) object, HungerGames.getInstance());
+                }
+            }
+        }
+    }
+
+    public void handle(GameStage stage) {
+        stage.register();
+        stage.unregister();
+    }
+}

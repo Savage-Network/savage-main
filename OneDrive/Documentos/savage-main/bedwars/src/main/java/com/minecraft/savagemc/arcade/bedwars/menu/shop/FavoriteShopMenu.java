@@ -39,7 +39,12 @@ public class FavoriteShopMenu extends Menu {
     public void handle() {
         clear();
 
-        List<BedItem> list = member.getMenu(BedMenuType.FAVORITE).getItemList();
+        List<BedItem> list = new ArrayList<>();
+
+        // Verificar se o menu de favoritos existe
+        if (member.getMenu(BedMenuType.FAVORITE) != null) {
+            list = member.getMenu(BedMenuType.FAVORITE).getItemList();
+        }
 
         /* Adicionando item selecionado */
         List<String> lore = new ArrayList<>();
@@ -52,42 +57,81 @@ public class FavoriteShopMenu extends Menu {
                 .name("§c" + item.getName())
                 .lore(lore));
 
-        /* Adicionando Espaços Vázios */
-        int slot = 19, last = slot;
-        for (int i = 0; i < getMaxItems(); i++) {
-            int finalSlot = slot;
-            BedItem item = list.stream().filter(root -> root.getSlot() == finalSlot).findFirst().orElse(null);
+        // Adicionar vidros cinzas apenas na linha 2
+        for (int i = 9; i < 18; i++) {
+            addItem(i, Item.of(Material.STAINED_GLASS_PANE, 7, " "));
+        }
 
-            if (item != null) {
-                BedWarsItem root = BedWarsItem.of(item.getName());
+        /* Adicionando Espaços Vázios - 3 linhas de 7 slots (21 slots totais) */
+        // Linhas 3-5 (slots 19-25, 28-34, 37-43)
+        int[] slots = {
+            19, 20, 21, 22, 23, 24, 25,  // Linha 3
+            28, 29, 30, 31, 32, 33, 34,  // Linha 4
+            37, 38, 39, 40, 41, 42, 43   // Linha 5
+        };
+
+        for (int slot : slots) {
+            BedItem existingItem = list.stream().filter(root -> root.getSlot() == slot).findFirst().orElse(null);
+
+            if (existingItem != null) {
+                BedWarsItem root = BedWarsItem.of(existingItem.getName());
 
                 if (root != null && !root.isAvailableForMode(arena.getType())) {
                     addItem(slot, buildIncompatibleItem());
-                } else
-                    addItem(slot, buildEmptySpace());
-            } else
-                addItem(slot, buildEmptySpace());
-
-            slot++;
-            if (slot == (last + 7)) {
-                slot += 2;
-                last = slot;
+                } else {
+                    // Mostrar o item que já está favoritado com opção de remover
+                    if (root != null) {
+                        List<String> itemLore = new ArrayList<>(root.getLore());
+                        itemLore.addAll(Arrays.asList(
+                                "",
+                                "§eClique esquerdo§7 para substituir.",
+                                "§eClique direito§7 para remover."
+                        ));
+                        
+                        addItem(slot, Item.fromStack(root.getStack())
+                                .name("§a" + root.getName())
+                                .lore(itemLore)
+                                .click(event -> {
+                                    if (event.isRightClick()) {
+                                        // Remover item favorito
+                                        sound(MenuSound.DONE);
+                                        member.removeFavoriteItem(root);
+                                        getPlayer().sendMessage("§cItem §6" + root.getName() + " §cremovido dos favoritos!");
+                                        handle();
+                                    } else if (event.isLeftClick()) {
+                                        // Substituir item
+                                        member.setFavoriteItem(slot, item);
+                                        sound(MenuSound.DONE);
+                                        getPlayer().sendMessage("§aItem §6" + item.getName() + " §aadicionado aos favoritos!");
+                                        new ShopMenu(getPlayer(), BedShop.FAVORITE).handle();
+                                    }
+                                }));
+                    } else {
+                        addItem(slot, buildEmptySpace(slot));
+                    }
+                }
+            } else {
+                addItem(slot, buildEmptySpace(slot));
             }
         }
-
-        // Adicionando os itens favoritos do jogador
-        for (BedItem root : list) {
-            BedWarsItem item = BedWarsItem.of(root.getName());
-
-            if (item == null) continue;
-
-            if (!item.isAvailableForMode(arena.getType()))
-                addItem(root.getSlot(), buildIncompatibleItem());
-            else
-                addItem(root.getSlot(), Item.fromStack(item.getStack())
-                        .name("§a" + item.getName())
-                        .lore("§7Você não pode mexer."));
+        
+        // Adicionar vidros cinzas nas laterais das linhas 3-5
+        int[] borderSlots = {18, 26, 27, 35, 36, 44};
+        for (int slot : borderSlots) {
+            addItem(slot, Item.of(Material.STAINED_GLASS_PANE, 7, " "));
         }
+        
+        // Adicionar botão do editor de hotbar no último slot (slot 53)
+        addItem(53, Item.of(Material.BLAZE_POWDER)
+                .name("§eEditor de hotbar (&#0381) (&#0372)")
+                .lore("§7Modifique previamente slots",
+                        "§7preferidos ao comprar um item.",
+                        "",
+                        "§eClique para editar!")
+                .click(event -> {
+                    sound(MenuSound.PAGINATED);
+                    new HotbarEditorMenu(getPlayer(), this).handle();
+                }));
 
         if (isReturnable())
             addBackButton(45);
@@ -95,13 +139,15 @@ public class FavoriteShopMenu extends Menu {
         display();
     }
 
-    protected Item buildEmptySpace() {
+    protected Item buildEmptySpace(int slot) {
         return Item.of(Material.STAINED_GLASS_PANE, 14, "§cEspaço vázio!",
                         "§eClique para selecionar!")
                 .click(event -> {
-                    member.setFavoriteItem(event.getSlot(), item);
+                    member.setFavoriteItem(slot, item);
 
                     sound(MenuSound.DONE);
+
+                    getPlayer().sendMessage("§aItem §6" + item.getName() + " §aadicionado aos favoritos!");
 
                     new ShopMenu(getPlayer(), BedShop.FAVORITE).handle();
                 });

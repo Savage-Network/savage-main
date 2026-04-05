@@ -12,6 +12,8 @@ import com.minecraft.savagemc.arcade.bedwars.menu.game.teleport.TeleportMenu;
 import com.minecraft.savagemc.arcade.bedwars.structure.team.Team;
 import com.minecraft.savagemc.arcade.bedwars.user.User;
 import com.minecraft.savagemc.arcade.bedwars.user.context.UserContext;
+import com.minecraft.savagemc.core.bukkit.user.combat.Combat;
+import com.minecraft.savagemc.core.Constant;
 import com.minecraft.savagemc.core.Savage;
 import com.minecraft.savagemc.core.account.Account;
 import com.minecraft.savagemc.core.account.context.objects.tag.Tag;
@@ -26,6 +28,7 @@ import com.minecraft.savagemc.core.arcade.room.phase.RoomPhase;
 import com.minecraft.savagemc.core.arcade.room.slot.Slot;
 import com.minecraft.savagemc.core.arcade.room.type.Type;
 import com.minecraft.savagemc.core.arcade.route.ArcadeRouteContext;
+import com.minecraft.savagemc.core.member.list.bedwars.objects.metadata.objects.collectible.objects.type.BedCollectibleType;
 import com.minecraft.savagemc.core.arcade.route.state.ArcadeState;
 import com.minecraft.savagemc.core.arcade.slime.SlimeWorldController;
 import com.minecraft.savagemc.core.bukkit.BukkitCore;
@@ -45,6 +48,7 @@ import com.minecraft.savagemc.core.util.list.TimeUtil;
 import com.minecraft.savagemc.core.util.list.bukkit.BukkitUtil;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -79,14 +83,14 @@ public abstract class Arcade extends ArcadeHolder {
 
     @Override
     public boolean load() {
-        Savage.Savage.Logger().info("[" + getName() + "] Iniciando jogo...");
+        Savage.getLogger().info("[" + getName() + "] Iniciando jogo...");
 
         if (!loadMaps(mapsDirectory)) return false;
 
         List<Map> availableMaps = getMaps();
 
         if (availableMaps.isEmpty()) {
-            Savage.Savage.Logger().warning("[" + getName() + "] Não há mapas disponíveis para este jogo.");
+            Savage.getLogger().warning("[" + getName() + "] Não há mapas disponíveis para este jogo.");
             return false;
         }
 
@@ -113,17 +117,17 @@ public abstract class Arcade extends ArcadeHolder {
             mapIndex = (mapIndex + 1) % availableMaps.size();
         }
 
-        Savage.Savage.Logger().info("[" + getName() + "] Jogo iniciado com sucesso.");
+        Savage.getLogger().info("[" + getName() + "] Jogo iniciado com sucesso.");
         return true;
     }
 
     @Override
     public void unload() {
-        Savage.Savage.Logger().info("[" + getName() + "] Desligando dados...");
+        Savage.getLogger().info("[" + getName() + "] Desligando dados...");
 
         getRooms().clear();
 
-        Savage.Savage.Logger().info("[" + getName() + "] O jogo foi interrompido.");
+        Savage.getLogger().info("[" + getName() + "] O jogo foi interrompido.");
     }
 
     @Override
@@ -135,7 +139,7 @@ public abstract class Arcade extends ArcadeHolder {
 
         Arena arena = new Arena(id, this, map, slot, type);
 
-        Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Iniciando arena...");
+        Savage.getLogger().info("[" + getName() + "/" + id + "] Iniciando arena...");
 
         String templateName = getName().toLowerCase() + "-" + map.getName().toLowerCase(),
                 worldName = templateName + "-" + id;
@@ -161,7 +165,7 @@ public abstract class Arcade extends ArcadeHolder {
 
         Arena arena = new Arena(id, this, map, root.getSlot(), root.getType());
 
-        Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Copiando arena...");
+        Savage.getLogger().info("[" + getName() + "/" + id + "] Copiando arena...");
 
         String[] mapSplit = map.getName().split(" ");
 
@@ -188,17 +192,22 @@ public abstract class Arcade extends ArcadeHolder {
                             ? arena.buildTeams(ChatColor.RED, ChatColor.BLUE, ChatColor.GREEN, ChatColor.YELLOW)
                             : arena.buildTeams());
 
-                    teamList.forEach(team -> team.setMaxPlayers(slot.ordinal()));
+                    // Definir o número correto de jogadores por time baseado no slot
+                    int playersPerTeam = slot.equals(Slot.SOLO) ? 1 : slot.equals(Slot.DUO) ? 2 : slot.equals(Slot.TRIO) ? 3 : 4;
+                    teamList.forEach(team -> team.setMaxPlayers(playersPerTeam));
 
-                    // Mat: Ordinal Slot => 1 (Verifica se é numero par) -> Se for, 8 * (1 + 1) = 2 / 2 -> 1, 8 * 1 = 8, MAX PLAYERS = 8, etc...
-                    int minPlayers = !arcade.name().contains("VERSUS")
-                            ? slot.equals(Slot.SOLO) ? 4 : slot.equals(Slot.DUO) ? 8 : slot.equals(Slot.TRIO) ? 6 : 12
-                            : slot.getMaxPlayers();
-
-                    // Solo / Quartet = 8 players, Duo = 16 players, Trio = 12 players
-                    int maxPlayers = !arcade.name().contains("VERSUS")
-                            ? slot.equals(Slot.DUO) ? 16 : slot.equals(Slot.TRIO) ? 12 : slot.equals(Slot.QUARTET) ? 16 : 8
-                            : slot.getMaxPlayers();
+                    // Calcular minPlayers e maxPlayers
+                    int minPlayers, maxPlayers;
+                    
+                    if (arcade.name().contains("VERSUS")) {
+                        // Para VERSUS: 2 times, então min e max são baseados no número de jogadores por time
+                        minPlayers = playersPerTeam * 2; // Ex: 2v2 = 4 players min
+                        maxPlayers = playersPerTeam * 2; // Ex: 2v2 = 4 players max
+                    } else {
+                        // Para modos normais (8 times)
+                        minPlayers = slot.equals(Slot.SOLO) ? 4 : slot.equals(Slot.DUO) ? 8 : slot.equals(Slot.TRIO) ? 6 : 12;
+                        maxPlayers = slot.equals(Slot.DUO) ? 16 : slot.equals(Slot.TRIO) ? 12 : slot.equals(Slot.QUARTET) ? 16 : 8;
+                    }
 
                     arena.getTeams().addAll(teamList);
 
@@ -211,7 +220,7 @@ public abstract class Arcade extends ArcadeHolder {
 
                     getRooms().add(arena);
 
-                    Savage.Savage.Logger().info("[" + getName() + "/" + id + "] Arena iniciada com sucesso. " +
+                    Savage.getLogger().info("[" + getName() + "/" + id + "] Arena iniciada com sucesso. " +
                             "(Tempo médio: " + Util.formatInstant(now) + ")");
                 });
     }
@@ -238,7 +247,7 @@ public abstract class Arcade extends ArcadeHolder {
 
             Collections.shuffle(availableTypes); // Embaralha a lista para distribuição aleatória
 
-            Savage.Savage.Logger().info("[" + getName() + "] Gerando +" + NUM_ARENAS_TO_GENERATE + " arenas...");
+            Savage.getLogger().info("[" + getName() + "] Gerando +" + NUM_ARENAS_TO_GENERATE + " arenas...");
 
             int loaded = 0;
             for (Type type : availableTypes) {
@@ -251,9 +260,9 @@ public abstract class Arcade extends ArcadeHolder {
             }
 
             if (loaded > 0)
-                Savage.Savage.Logger().info("[" + getName() + "] " + loaded + " arenas foram geradas.");
+                Savage.getLogger().info("[" + getName() + "] " + loaded + " arenas foram geradas.");
             else
-                Savage.Savage.Logger().warning("[" + getName() + "] Não foi possível gerar novas arenas!");
+                Savage.getLogger().warning("[" + getName() + "] Não foi possível gerar novas arenas!");
         }
     }
 
@@ -327,7 +336,7 @@ public abstract class Arcade extends ArcadeHolder {
 
         // Verifica se o jogador é dono da party e está reservado na arena
         if (account.isPartyOwner() && arena.isReserved() && arena.hasReservation(sender)) {
-            Savage.Savage.Logger().info("[PT-Route] O dono " + account.getNickname() + " entrou em " + arena.getIdentifier() + ".");
+            Savage.getLogger().info("[PT-Route] O dono " + account.getNickname() + " entrou em " + arena.getIdentifier() + ".");
             return true;
         }
 
@@ -353,6 +362,15 @@ public abstract class Arcade extends ArcadeHolder {
     public void load(User user) {
         handleSidebar(user);
         handleHotbar(user);
+        handleTabList(user);
+    }
+
+    public void handleTabList(User user) {
+        Player player = user.getPlayer();
+        if (player != null) {
+            player.setPlayerListHeaderFooter(new TextComponent(Constant.SERVER_TAB_HEADER),
+                    new TextComponent(Constant.SERVER_TAB_FOOTER));
+        }
     }
 
     public void handleSidebar(User user) {
@@ -397,11 +415,28 @@ public abstract class Arcade extends ArcadeHolder {
         sidebar.addWebsiteRow();
 
         sidebar.display();
-        TagManager.updateTag(user.getAccount());
+        
+        // Atualizar tag com o time do jogador no BedWars
+        Team team = user.getTeam();
+        String teamSuffix = "";
+        
+        if (team != null) {
+            // Pegar a primeira letra do nome do time
+            String teamInitial = team.getName().substring(0, 1).toUpperCase();
+            // Formato: [A] para Azul, [V] para Vermelho, etc
+            teamSuffix = " " + team.getColor() + "[" + teamInitial + "]";
+            
+            // Se tiver clan, adicionar também
+            if (user.getAccount().hasClan() && user.getAccount().getToggle().isAllowClanTag()) {
+                teamSuffix += " " + user.getAccount().getClanTag();
+            }
+        }
+        
+        TagManager.updateTagWithSuffix(user.getAccount(), user.getAccount().getTag(), teamSuffix);
     }
 
     public void updateSidebar(User user) {
-
+        // Método vazio - não atualiza mais as estatísticas na sidebar
     }
 
     public void handleHotbar(User user) {
@@ -517,7 +552,7 @@ public abstract class Arcade extends ArcadeHolder {
         context.downGradePickaxe(player);
         context.downGradeAxe(player);
 
-        user.setCombat(null);
+        user.setCombat((Combat) null);
         user.setDeaths();
 
         /* Caso for o abate final */
@@ -526,7 +561,7 @@ public abstract class Arcade extends ArcadeHolder {
         if (hasKiller) {
             Account account = killer.getAccount();
 
-            killer.setCombat(null);
+            killer.setCombat((Combat) null);
             killer.setKills();
 
             /* Pegar minérios e enviar para o Killer */
@@ -576,6 +611,23 @@ public abstract class Arcade extends ArcadeHolder {
                 arena.verifyTop(TopType.FINAL_KILL, killer.getAccount().getId(), context.getFinalKill());
 
                 account.send("§b+" + xp + " XP §7(Kill Final)");
+                
+                // Executar efeito de kill final se o jogador tiver um colecionável equipado
+                member.getActiveCollectibles().stream()
+                    .filter(collectible -> collectible.getType() == BedCollectibleType.FINAL_KILL)
+                    .findFirst()
+                    .ifPresent(collectible -> {
+                        try {
+                            // Tentar executar o método execute(Location) se existir
+                            java.lang.reflect.Method executeMethod = collectible.getClass().getMethod("execute", Location.class);
+                            executeMethod.invoke(collectible, player.getLocation());
+                        } catch (Exception e) {
+                            // Fallback para o efeito de raio padrão
+                            if (collectible.getName().equalsIgnoreCase("Raio")) {
+                                player.getWorld().strikeLightningEffect(player.getLocation());
+                            }
+                        }
+                    });
             }
 
             updateSidebar(killer);
@@ -596,9 +648,9 @@ public abstract class Arcade extends ArcadeHolder {
                 arena.getUsers().forEach(target -> CompletableFuture.runAsync(() -> arena.updateSidebarTeams(target)));
             }
 
-            if (arena.getAliveUsers().size() == 1) {
-                arena.setWinner(arena.getTeamList().stream().filter(search -> !search.equals(team)).findFirst().orElse(null));
-
+            // Verificar se resta apenas 1 time vivo (ou 1 jogador em solo)
+            if (arena.getAliveTeams().size() == 1) {
+                arena.setWinner(arena.getAliveTeams().get(0));
                 arena.setPhase(RoomPhase.ENDING);
                 return;
             }
@@ -615,6 +667,13 @@ public abstract class Arcade extends ArcadeHolder {
 
         /* Alterar Visibilidade */
         arena.hideAndShow(user);
+        
+        // Atualizar visibilidade para todos os jogadores da arena
+        arena.getUsers().forEach(target -> {
+            if (!target.equals(user)) {
+                arena.hideAndShow(target);
+            }
+        });
     }
 
     /* Death Messages */
@@ -671,8 +730,10 @@ public abstract class Arcade extends ArcadeHolder {
 
                 int gainXp = Savage.RANDOM.ints(40, 140).findFirst().orElse(35);
 
+                System.out.println("[Arcade] Jogador " + user.getPlayer().getName() + " ganhou! Wins antes: " + stats.getWins());
                 stats.setWins();
                 stats.setWinStreak();
+                System.out.println("[Arcade] Jogador " + user.getPlayer().getName() + " - Wins depois: " + stats.getWins() + ", WinStreak: " + stats.getWinStreak());
 
                 if (arena.isType(Type.COMPETITIVE))
                     member.addEloXp(gainXp);
@@ -749,6 +810,50 @@ public abstract class Arcade extends ArcadeHolder {
                         "§7Clique para ver!"
                 ));
             }
+            
+            // Criar apenas um holograma por ilha (no primeiro baú encontrado)
+            List<Location> chestLocations = findChestsInIsland(team);
+            
+            if (!chestLocations.isEmpty()) {
+                Location firstChestLocation = chestLocations.get(0);
+                HologramServer chestHologram = manager.getHologram().spawnServer(
+                        "chest_hologram_" + team.getTypeName().toLowerCase(), 
+                        firstChestLocation.clone().add(0.5, 1.5, 0.5));
+                
+                chestHologram.setText(Arrays.asList(
+                        "§eBata aqui",
+                        "§ePara depositar"
+                ));
+            }
         }
+    }
+    
+    private List<Location> findChestsInIsland(Team team) {
+        List<Location> chests = new ArrayList<>();
+        Location base = team.getBase();
+        if (base == null) return chests;
+        
+        // Procurar baús em um raio de 15 blocos da base
+        int radius = 15;
+        
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -5; y <= 5; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    Location loc = base.clone().add(x, y, z);
+                    org.bukkit.block.Block block = loc.getBlock();
+                    
+                    // Procurar tanto baú normal quanto ender chest
+                    if (block.getType() == org.bukkit.Material.CHEST || 
+                        block.getType() == org.bukkit.Material.ENDER_CHEST) {
+                        // Verificar se está na ilha do time
+                        if (team.inIsland(loc)) {
+                            chests.add(loc);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return chests;
     }
 }

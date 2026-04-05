@@ -159,17 +159,13 @@ public class AquaticArchitect extends Architect {
 
         Elo elo = member.getElo();
 
-        // Enviar apenas para jogadores no mesmo servidor (lobby aquatic)
-        player.getServer().getOnlinePlayers().forEach(targetPlayer -> {
-            Account targetAccount = Savage.getAccountController().of(targetPlayer.getUniqueId());
-            if (targetAccount != null) {
-                TextComponent text = new TextComponent(elo.getChat()
-                        + " " + account.getTag().getByPrefix(targetAccount.getTagPrefix()) + account.getNickname() + ": ");
+        Savage.getAccountController().list().forEach(target -> {
+            TextComponent text = new TextComponent(elo.getChat()
+                    + " " + account.getTag().getByPrefix(target.getTagPrefix()) + account.getNickname() + ": ");
 
-                text.addExtra(account.isAllowColoredChat() ? "§f" + Util.color(message) : "§7" + message);
+            text.addExtra(account.isAllowColoredChat() ? "§f" + Util.color(message) : "§7" + message);
 
-                targetAccount.send(text);
-            }
+            target.send(text);
         });
     }
 
@@ -178,3 +174,5 @@ public class AquaticArchitect extends Architect {
         return direction.multiply(1.1).setY(0.2);
     }
 }
+
+

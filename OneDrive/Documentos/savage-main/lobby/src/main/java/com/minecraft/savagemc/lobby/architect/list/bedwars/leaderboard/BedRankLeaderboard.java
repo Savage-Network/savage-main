@@ -44,9 +44,11 @@ public class BedRankLeaderboard extends LeaderboardHologram {
         Stream<BedMember> stream = Savage.getBedWarsData().ranking("context.eloXp", 100).stream();
 
         if (period.equals(LeaderboardPeriod.WEEK))
-            stream = stream.sorted(Comparator.comparing(Member::getWeekEloXp));
+            stream = stream.sorted(Comparator.comparing(Member::getWeekEloXp).reversed());
         else if (period.equals(LeaderboardPeriod.MONTH))
-            stream = stream.sorted(Comparator.comparing(Member::getMonthEloXp));
+            stream = stream.sorted(Comparator.comparing(Member::getMonthEloXp).reversed());
+        else
+            stream = stream.sorted(Comparator.comparing(Member::getEloXp).reversed());
 
         stream = stream.filter(member -> Savage.getAccountData().of(member.getId()) != null);
 
@@ -175,3 +177,4 @@ public class BedRankLeaderboard extends LeaderboardHologram {
         return builder.toString();
     }
 }
+

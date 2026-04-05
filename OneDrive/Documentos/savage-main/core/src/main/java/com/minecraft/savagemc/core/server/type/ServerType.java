@@ -49,6 +49,24 @@ public enum ServerType {
     /* Default Servers */
     HUNGERGAMES("lobby-hg", "hg", "MUSHROOM_SOUP", ServerCategory.NONE, ArcadeStyle.COMBAT,
             singletonList(ServerFlag.RANKED), true),
+    
+    /* Event Servers */
+    EVENT("Evento", "evento", "FIREWORK", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            new ArrayList<>(), asList("evento", "event"), false),
+    
+    /* HungerGames Game Servers */
+    HGMIX("HG Mix", "hgmix", "MUSHROOM_SOUP", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            new ArrayList<>(), asList("hgmix", "hg-mix"), true),
+    CLANXCLAN("Clan x Clan", "clanxclan", "BANNER", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            new ArrayList<>(), asList("clanxclan", "clan-x-clan", "cxc"), true),
+    CHAMPION("Champion", "champion", "GOLDEN_APPLE", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            singletonList(ServerFlag.RANKED), true),
+    HUNGERGAMES_LEAGUE("League", "league", "MUSHROOM_SOUP", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            singletonList(ServerFlag.RANKED), true),
+    HUNGERGAMES_SPLIT("Split", "split", "MUSHROOM_SOUP", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            singletonList(ServerFlag.RANKED), true),
+    HUNGERGAMES_CLANXCLAN("ClanxClan", "clanxclan", "MUSHROOM_SOUP", ServerCategory.NONE, ArcadeStyle.COMBAT,
+            singletonList(ServerFlag.RANKED), true),
     ;
 
     private final String name;

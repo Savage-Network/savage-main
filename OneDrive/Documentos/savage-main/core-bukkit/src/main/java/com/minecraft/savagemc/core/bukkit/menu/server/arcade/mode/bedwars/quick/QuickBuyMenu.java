@@ -47,12 +47,16 @@ public class QuickBuyMenu extends Menu {
                 addErrorButton("§cNão foi possível visualizar o seu inventário...");
             else {
 
-                /* Adicionando Espaços Vázios */
-                int emptySlot = 10, last = emptySlot;
-                for (int i = 0; i < getMaxItems(); i++) {
-                    int finalEmptySlot = emptySlot;
-
-                    addItem(emptySlot, Item.of(Material.STAINED_GLASS_PANE, 14, "§cEspaço vázio!",
+                /* Adicionando Espaços Vázios - 3 linhas de 7 slots (21 slots totais) */
+                // Linhas 2-4 (slots 10-16, 19-25, 28-34)
+                int[] slots = {
+                    10, 11, 12, 13, 14, 15, 16,  // Linha 2
+                    19, 20, 21, 22, 23, 24, 25,  // Linha 3
+                    28, 29, 30, 31, 32, 33, 34   // Linha 4
+                };
+                
+                for (int slot : slots) {
+                    addItem(slot, Item.of(Material.STAINED_GLASS_PANE, 14, "§cEspaço vázio!",
                                     "§7Este é um espaço para",
                                     "§7item favorito.",
                                     "",
@@ -60,16 +64,10 @@ public class QuickBuyMenu extends Menu {
                             .click(event -> {
                                 if (event.isLeftClick()) {
                                     sound(MenuSound.PAGINATED);
-                                    new FavoriteSelectMenu(getPlayer(), member, this, finalEmptySlot).handle();
+                                    new FavoriteSelectMenu(getPlayer(), member, this, slot).handle();
                                 } else
                                     sound(MenuSound.ERROR);
                             }));
-
-                    emptySlot++;
-                    if (emptySlot == (last + 7)) {
-                        emptySlot += 2;
-                        last = emptySlot;
-                    }
                 }
 
                 List<BedItem> list = menu.getItemList();
@@ -78,6 +76,19 @@ public class QuickBuyMenu extends Menu {
                     BedWarsItem root = BedWarsItem.of(item.getName());
 
                     if (root == null) continue;
+
+                    int targetSlot = item.getSlot();
+                    
+                    // Validar se o slot está dentro dos slots válidos
+                    boolean validSlot = false;
+                    for (int validSlotCheck : slots) {
+                        if (targetSlot == validSlotCheck) {
+                            validSlot = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!validSlot) continue;
 
                     List<String> lore = new ArrayList<>(root.getLore());
 
@@ -90,7 +101,7 @@ public class QuickBuyMenu extends Menu {
                             "§eClique direito§7 para remover."
                     ));
 
-                    addItem(item.getSlot() - 9, Item.fromStack(root.getStack())
+                    addItem(targetSlot, Item.fromStack(root.getStack())
                             .name("§a" + root.getName())
                             .flags(ItemFlag.values())
                             .lore(lore)
@@ -106,7 +117,7 @@ public class QuickBuyMenu extends Menu {
 
                                 if (event.isLeftClick()) {
                                     sound(MenuSound.PAGINATED);
-                                    new FavoriteSelectMenu(getPlayer(), member, this, item.getSlot() - 9).handle();
+                                    new FavoriteSelectMenu(getPlayer(), member, this, targetSlot).handle();
                                 }
                             }));
                 }
@@ -136,6 +147,28 @@ public class QuickBuyMenu extends Menu {
                             sound(MenuSound.DONE);
                             member.setShare(share.next());
 
+                            handle();
+                        }));
+                
+                // Botão para remover todos os favoritos
+                addItem(getTotalSlots() - 5, Item.of(Material.BARRIER, "§cRemover todos os favoritos",
+                                "§7Remove todos os itens",
+                                "§7da sua lista de favoritos.",
+                                "",
+                                "§cClique para remover tudo!")
+                        .click(event -> {
+                            sound(MenuSound.DONE);
+                            
+                            // Remover todos os itens favoritos
+                            List<BedItem> itemsToRemove = new ArrayList<>(list);
+                            for (BedItem item : itemsToRemove) {
+                                BedWarsItem root = BedWarsItem.of(item.getName());
+                                if (root != null) {
+                                    member.removeFavoriteItem(root);
+                                }
+                            }
+                            
+                            getPlayer().sendMessage("§cTodos os favoritos foram removidos!");
                             handle();
                         }));
 

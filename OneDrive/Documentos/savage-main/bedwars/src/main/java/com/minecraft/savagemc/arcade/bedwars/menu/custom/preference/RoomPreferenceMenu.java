@@ -1,6 +1,7 @@
 package com.minecraft.savagemc.arcade.bedwars.menu.custom.preference;
 
 import com.minecraft.savagemc.arcade.bedwars.arcade.arena.Arena;
+import com.minecraft.savagemc.arcade.bedwars.arcade.arena.context.objects.forge.ForgeSpeed;
 import com.minecraft.savagemc.core.api.item.Item;
 import com.minecraft.savagemc.core.arcade.room.custom.RoomCustom;
 import com.minecraft.savagemc.core.arcade.room.slot.Slot;
@@ -61,6 +62,24 @@ public class RoomPreferenceMenu extends Menu {
                         sound(MenuSound.DONE);
                         handle();
                     }
+                }));
+
+        // Velocidade da forja
+        ForgeSpeed currentSpeed = ForgeSpeed.fromMultiplier(custom.getForgeSpeed());
+        
+        addItem(16, Item.of(Material.FURNACE, "§aVelocidade da Forja")
+                .lore("§7Defina a velocidade de",
+                        "§7geração dos geradores.",
+                        "",
+                        "§7Velocidade: §a" + currentSpeed.getName(),
+                        "",
+                        "§eClique para alternar!")
+                .click(event -> {
+                    ForgeSpeed nextSpeed = currentSpeed.next();
+                    custom.setForgeSpeed(nextSpeed.getMultiplier());
+                    
+                    sound(MenuSound.DONE);
+                    handle();
                 }));
 
         if (isReturnable())

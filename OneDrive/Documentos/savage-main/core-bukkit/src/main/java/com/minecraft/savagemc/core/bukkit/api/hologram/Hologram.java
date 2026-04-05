@@ -20,8 +20,8 @@ import java.util.*;
 @ToString
 public abstract class Hologram {
 
-    private int id;
-    private final String tag;
+    protected int id;
+    protected final String tag;
 
     private final List<HologramRow> rows = new ArrayList<>();
     private final Set<Player> viewers = new HashSet<>();
@@ -33,7 +33,7 @@ public abstract class Hologram {
     private RowTemporary temporary;
 
     private TouchHandler touch;
-    private Location location;
+    protected Location location;
 
     private final long expiresAt;
 
@@ -78,8 +78,37 @@ public abstract class Hologram {
         }
     }
 
+    // Métodos adicionais para compatibilidade
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setTemporary(RowTemporary temporary) {
+        this.temporary = temporary;
+    }
+
+    public String getId() {
+        return String.valueOf(id);
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public TouchHandler getTouch() {
+        return touch;
+    }
+
+    public boolean hasTouch() {
+        return touch != null;
+    }
+
     public void space() {
-        List<HologramRow> rows = getRows().subList(2, getRows().size());
+        List<HologramRow> rows = getRows().subList(1, getRows().size());
 
         double offsetY = 0.1;
         for (HologramRow row : rows) {
@@ -156,10 +185,6 @@ public abstract class Hologram {
         }
     }
 
-    public boolean hasTouch() {
-        return touch != null;
-    }
-
     public void writeProperty(String key, Object value) {
         properties.put(key.toLowerCase(), value);
     }
@@ -186,5 +211,18 @@ public abstract class Hologram {
 
     public void removeProperty(String key) {
         properties.remove(key.toLowerCase());
+    }
+
+    // Métodos adicionais para compatibilidade
+    public Set<Player> getViewers() {
+        return viewers;
+    }
+
+    public List<HologramRow> getRows() {
+        return rows;
+    }
+
+    public Set<Integer> getEntityIds() {
+        return entityIds;
     }
 }

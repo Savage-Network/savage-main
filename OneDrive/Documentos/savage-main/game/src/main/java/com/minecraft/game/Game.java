@@ -20,7 +20,7 @@ public class Game extends BukkitCore {
         super.onLoad();
         instance = this;
 
-        Savage.Logger().info("Iniciando Game Events...");
+        Savage.getLogger().info("Iniciando Game Events...");
 
         saveDefaultConfig();
 
@@ -38,13 +38,13 @@ public class Game extends BukkitCore {
 
         getManager().getArcade().handle(this, Constant.SOURCE_DIR + ".game.arcade.list");
 
-        Savage.Logger().info("Game Events iniciado com sucesso.");
+        Savage.getLogger().info("Game Events iniciado com sucesso.");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
 
-        Savage.Logger().info("Game Events desligado com sucesso.");
+        Savage.getLogger().info("Game Events desligado com sucesso.");
     }
 }

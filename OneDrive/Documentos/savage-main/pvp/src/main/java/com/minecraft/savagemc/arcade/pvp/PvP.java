@@ -35,13 +35,13 @@ public class PvP extends BukkitCore {
 
         getManager().getArcade().handle(this, Constant.SOURCE_DIR + ".arcade.pvp.arcade.list");
 
-        Savage.Logger().info("PvP iniciado com sucesso.");
+        Savage.getLogger().info("PvP iniciado com sucesso.");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
 
-        Savage.Logger().info("PvP encerrado com sucesso.");
+        Savage.getLogger().info("PvP encerrado com sucesso.");
     }
 }

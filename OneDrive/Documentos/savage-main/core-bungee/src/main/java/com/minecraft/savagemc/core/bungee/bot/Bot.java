@@ -29,7 +29,7 @@ public class Bot {
                     .thenAccept(this::handle)
                     .join();
         } catch (Exception e) {
-            Savage.Savage.Logger().warning("[Discord] Falha ao conectar o bot: " + e.getMessage());
+            Savage.getLogger().warning("[Discord] Falha ao conectar o bot: " + e.getMessage());
         }
     }
 
@@ -40,14 +40,14 @@ public class Bot {
 
         api.addSlashCommandCreateListener(new SlashListener());
 
-        Savage.Savage.Logger().info("[Discord] Os serviços foram iniciados.");
+        Savage.getLogger().info("[Discord] Os serviços foram iniciados.");
     }
 
     public void disconnect() {
         if (api != null) {
             api.disconnect().join();
 
-            Savage.Savage.Logger().info("[Discord] Os serviços foram desligados.");
+            Savage.getLogger().info("[Discord] Os serviços foram desligados.");
         }
     }
 

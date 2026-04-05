@@ -37,7 +37,7 @@ public class GeographyService {
                 return GeographyBuilder.builder().build();
 
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.WARNING, "Não foi possível requisitar os dados do IP: " + address, e);
+            Savage.getLogger().log(Level.WARNING, "Não foi possível requisitar os dados do IP: " + address, e);
         }
 
         return GeographyBuilder.builder().build();

@@ -4,6 +4,8 @@ import com.minecraft.savagemc.core.Constant;
 import com.minecraft.savagemc.core.Savage;
 import com.minecraft.savagemc.core.account.Account;
 import com.minecraft.savagemc.core.account.context.objects.rank.Rank;
+import com.minecraft.savagemc.core.account.context.objects.rank.type.RankType;
+import com.minecraft.savagemc.core.account.context.objects.rank.type.role.RankRole;
 import com.minecraft.savagemc.core.account.context.objects.tag.Tag;
 import com.minecraft.savagemc.core.arcade.ArcadeHolder;
 import com.minecraft.savagemc.core.arcade.payload.ArcadePayload;
@@ -198,16 +200,18 @@ public class UpdateListener implements Listener {
     }
 
     @EventHandler
-    public void sidebar(PlayerSidebarUpdateEvent event) {
+    public void onSidebarUpdate(PlayerSidebarUpdateEvent event) {
         Player player = event.getPlayer();
 
-        UserModel user = UserModel.of(player.getUniqueId());
+        if (player == null)
+            return;
 
-        if (user != null) {
-            Sidebar sidebar = user.getSidebar();
+        Sidebar sidebar = manager.getSidebar().of(player);
 
-            sidebar.updateRow(event.getRow());
-        }
+        if (sidebar == null)
+            return;
+
+        sidebar.updateRow(event.getRow());
     }
 
     @EventHandler
@@ -241,10 +245,14 @@ public class UpdateListener implements Listener {
     }
 
     @EventHandler
-    public void rankUpdate(AccountRankUpdateEvent event) {
+    public void onRankUpdate(AccountRankUpdateEvent event) {
         Account account = event.getAccount();
-
-        Rank rank = event.getRank();
+        RankType rankType = event.getRank();
+        
+        // Criar objeto Rank a partir do RankType
+        Rank rank = Rank.builder()
+                .type(rankType)
+                .build();
 
         Tag tag = Tag.of(rank.getType());
 
@@ -254,7 +262,7 @@ public class UpdateListener implements Listener {
         Player player = account.player();
 
         if (player != null) {
-            if (rank.isPayment()) {
+            if (rankType.getRole().equals(RankRole.VIP)) {
                 TextComponent message = new TextComponent("Sua compra foi processada!\n\n");
 
                 message.addExtra("Você adquiriu o rank: " + rank.getColor() + "Rank " + rank.getName() + "\n\n");
@@ -273,10 +281,12 @@ public class UpdateListener implements Listener {
             PermissionManager.loadPermissions(player);
             Savage.getPlatform().runSync(() -> TagManager.updateTag(account, tag), 10);
 
-            account.send(rank.isPayment() ?
+            account.send(java.util.Arrays.asList(
+                    rankType.getRole().equals(RankRole.VIP) ?
                     "§aA sua compra foi processada! O rank " + rank.getColoredName() + "§a foi adicionado em sua conta com duração "
                             + (rank.isPermanent() ? "vitalícia" : "de " + TimeUtil.formatTime(rank.getExpiresAt(), TimeUtil.TimeFormat.SHORT)) + "."
-                    : "§aO rank " + rank.getColoredName() + "§a foi adicionado a sua conta.");
+                    : "§aO rank " + rank.getColoredName() + "§a foi adicionado a sua conta."
+            ));
             account.sound(Sound.ORB_PICKUP);
         }
     }

@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.bukkit.Sound;
 
 @Getter
-@AllArgsConstructor
 public enum MenuSound {
 
     DONE(Sound.ITEM_PICKUP),
@@ -14,4 +13,12 @@ public enum MenuSound {
     PAGINATED(Sound.CLICK);
 
     private final Sound sound;
+
+    MenuSound(Sound sound) {
+        this.sound = sound;
+    }
+
+    public Sound getSound() {
+        return sound;
+    }
 }

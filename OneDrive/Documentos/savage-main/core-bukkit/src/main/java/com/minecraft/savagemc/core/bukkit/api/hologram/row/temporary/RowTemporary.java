@@ -16,4 +16,8 @@ public class RowTemporary extends HologramRow {
 
         this.preview = preview;
     }
+
+    public String getPreview() {
+        return preview;
+    }
 }

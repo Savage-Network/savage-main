@@ -67,7 +67,7 @@ public class Arena extends Room {
         Account account = Savage.getAccountController().of(player.getUniqueId());
 
         if (account == null) {
-            Savage.Savage.Logger().info("Não foi possível alterar a skin de " + player.getName() + ". Conta não encontrada!");
+            Savage.getLogger().info("Não foi possível alterar a skin de " + player.getName() + ". Conta não encontrada!");
             return;
         }
 

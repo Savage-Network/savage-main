@@ -24,4 +24,38 @@ public class SidebarRow {
         this.prefix = prefix;
         this.suffix = "";
     }
+
+    // Métodos adicionais para compatibilidade
+    public void setSlot(int slot) {
+        this.slot = slot;
+    }
+
+    public void setScore(Score score) {
+        this.score = score;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
+
+    public int getSlot() {
+        return slot;
+    }
+
+    // Métodos adicionais para compatibilidade
+    public String getField() {
+        return field;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public String getSuffix() {
+        return suffix;
+    }
 }

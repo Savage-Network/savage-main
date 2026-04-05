@@ -30,6 +30,10 @@ public class Cooldown {
         return (-(System.currentTimeMillis() - endTime)) / 1000D;
     }
 
+    public boolean isShowBar() {
+        return showBar;
+    }
+
     public long getEndTime() {
         return startTime + TimeUnit.SECONDS.toMillis(duration);
     }
@@ -40,5 +44,18 @@ public class Cooldown {
 
     public double getPercentage() {
         return (getRemaining() * 100) / duration;
+    }
+
+    // Métodos adicionais para compatibilidade
+    public String getName() {
+        return name;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }

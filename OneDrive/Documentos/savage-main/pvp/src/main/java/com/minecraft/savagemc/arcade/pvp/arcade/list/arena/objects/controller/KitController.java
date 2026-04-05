@@ -33,7 +33,7 @@ public class KitController {
 
                     list.add(kit);
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível instanciar o kit " + kitClass.getName() + "!", e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível instanciar o kit " + kitClass.getName() + "!", e);
                 }
             }
         }

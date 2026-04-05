@@ -44,10 +44,10 @@ public class UserFactory {
 
             constructor.newInstance(member, arena, join);
         } catch (NoSuchMethodException e) {
-            Savage.Savage.Logger().log(Level.SEVERE, "Construtor não encontrado para a classe de usuário: " + userClass.getName(), e);
+            Savage.getLogger().log(Level.SEVERE, "Construtor não encontrado para a classe de usuário: " + userClass.getName(), e);
             instantiateDefaultUser(member, arena, join);
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.SEVERE, "Falha ao inicializar o usuário de " + member.getId() + " para a classe " + userClass.getName(), e);
+            Savage.getLogger().log(Level.SEVERE, "Falha ao inicializar o usuário de " + member.getId() + " para a classe " + userClass.getName(), e);
             instantiateDefaultUser(member, arena, join);
         }
     }

@@ -37,6 +37,11 @@ public class BedWarsStatsMenu extends Menu {
         this.member = (BedMember) account.loadMember(ServerType.BEDWARS);
     }
 
+    // Método adicional para compatibilidade
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     @Override
     public void handle() {
         clear();

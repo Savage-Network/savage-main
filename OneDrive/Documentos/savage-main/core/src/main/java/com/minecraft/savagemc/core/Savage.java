@@ -186,7 +186,7 @@ public class Savage {
 
         RedisDatabase redis = new RedisDatabase(
                 DatabaseCredentials.builder()
-                        .host("172.18.0.1")
+                        .host("206.0.29.85")
                         .port(6379)
                         .build());
         redis.load();
@@ -219,14 +219,9 @@ public class Savage {
     }
 
     public static void unload() {
-        logger.info("Cancelando serviços...");
-
-        serverData.stop();
-
-        postgres.unload();
-        redis.unload();
-
-        logger.info("Serviços cancelados com sucesso.");
+        getAccountController().getCache().clear();
+        getMemberController().getCache().clear();
+        getCollectibleController().getCache().clear();
     }
 
     public static void scan(String title, Instant started) {

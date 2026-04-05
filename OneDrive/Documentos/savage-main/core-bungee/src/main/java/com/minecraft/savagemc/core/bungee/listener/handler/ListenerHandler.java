@@ -23,7 +23,7 @@ public class ListenerHandler {
 
         int loaded = 0;
 
-        Savage.Savage.Logger().info("Registrando eventos...");
+        Savage.getLogger().info("Registrando eventos...");
 
         for (Class<?> listenerClass : ClassLoader.getClassesForPackage(bungee, path)) {
             if (Listener.class.isAssignableFrom(listenerClass)) {
@@ -40,12 +40,12 @@ public class ListenerHandler {
                     }
 
                 } catch (Exception e) {
-                    Savage.Savage.Logger().log(Level.SEVERE, "Não foi possível registrar o evento " + listenerClass.getSimpleName(), e);
+                    Savage.getLogger().log(Level.SEVERE, "Não foi possível registrar o evento " + listenerClass.getSimpleName(), e);
                 }
             }
         }
 
         if (loaded > 0)
-            Savage.Savage.Logger().info("Registro de eventos concluído. (Total de eventos registrados: " + loaded + " em " + Util.formatInstant(now) + ")");
+            Savage.getLogger().info("Registro de eventos concluído. (Total de eventos registrados: " + loaded + " em " + Util.formatInstant(now) + ")");
     }
 }

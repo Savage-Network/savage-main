@@ -55,13 +55,15 @@ public class HologramActionPacket extends PacketAdapter {
                             .orElse(null);
 
                     if (clickableRow != null) {
-                        clickableRow.getTouch().handle(player, touch);
-                    } else if (hologram.hasTouch())
+                        if (clickableRow.getTouch() != null) {
+                            clickableRow.getTouch().handle(player, touch);
+                        }
+                    } else if (hologram.hasTouch() && hologram.getTouch() != null)
                         hologram.getTouch().handle(player, touch);
                 }
             }
         } catch (Exception e) {
-            Savage.Savage.Logger().log(Level.SEVERE, "Ocorreu um erro com o toque dos hologramas...", e);
+            Savage.getLogger().log(Level.SEVERE, "Ocorreu um erro com o toque dos hologramas...", e);
         }
     }
 }

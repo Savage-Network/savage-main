@@ -24,6 +24,11 @@ public class HologramManager {
 
     private final Map<Integer, Hologram> holograms = new ConcurrentHashMap<>();
 
+    // Métodos adicionais para compatibilidade
+    public Map<Integer, Hologram> getHolograms() {
+        return holograms;
+    }
+
     public boolean canSpawn(Hologram hologram, Location location) {
         Location hologramLocation = hologram.getLocation();
 

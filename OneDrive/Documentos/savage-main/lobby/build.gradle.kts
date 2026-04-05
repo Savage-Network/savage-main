@@ -8,10 +8,6 @@ dependencies {
 
     compileOnly(files("../libs/spigot.jar"))
     compileOnly(files("../libs/ProtocolLib.jar"))
-    
-    // ZXing para geração de QR Code
-    implementation("com.google.zxing:core:3.5.1")
-    implementation("com.google.zxing:javase:3.5.1")
 }
 
 tasks.register<Copy>("copyJar") {

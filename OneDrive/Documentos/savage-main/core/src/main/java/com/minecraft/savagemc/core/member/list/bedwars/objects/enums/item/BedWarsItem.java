@@ -114,12 +114,15 @@ public enum BedWarsItem {
 
     /* Util Item List */
     UTIL_GOLD_APPLE("Maçã Dourada", BedShop.UTIL, BedOre.GOLD, Item.of(Material.GOLDEN_APPLE), 3, new ArrayList<>()),
-    UTIL_MOTH_BALL("Bolinha de traça", BedShop.UTIL, BedOre.IRON, Item.of(Material.SNOW_BALL, "§eBolinha de traça"), 40, asList(
+    UTIL_LIGHTER("Isqueiro", BedShop.UTIL, BedOre.GOLD, Item.of(Material.FLINT_AND_STEEL, "§eIsqueiro"), 3,
+            asList("§7Acenda fogo nos blocos.",
+                    "§73 usos.")),
+    UTIL_MOTH_BALL("Bolinha de traça", BedShop.UTIL, BedOre.IRON, Item.of(Material.SNOW_BALL, "§eBolinha de traça"), 15, asList(
             "§7Invoque 3 traças onde a Bola",
             "§7de Neve cair. Dura 15 segundos.")),
-    UTIL_FIREBALL("Fireball", BedShop.UTIL, BedOre.IRON, Item.of(Material.FIREBALL, "§cBola de Fogo"), 40,
+    UTIL_FIREBALL("Fireball", BedShop.UTIL, BedOre.IRON, Item.of(Material.FIREBALL, "§cBola de Fogo"), 30,
             singletonList(Type.CASUAL), new ArrayList<>()),
-    UTIL_SLINGSHOT("Estilingue", BedShop.UTIL, BedOre.GOLD, Item.of(Material.MAGMA_CREAM, "§eEstilingue"), 7,
+    UTIL_SLINGSHOT("Estilingue", BedShop.UTIL, BedOre.GOLD, Item.of(Material.MAGMA_CREAM, "§eEstilingue"), 6,
             singletonList(Type.CASUAL), new ArrayList<>()),
     UTIL_DEFENSE("Defesa dos Sonhos", BedShop.UTIL, BedOre.IRON, Item.of(Material.MONSTER_EGG, "§eDefesa dos Sonhos"), 90, asList(
             "§7Invoque um Golem de Ferro para",
@@ -133,7 +136,7 @@ public enum BedWarsItem {
     UTIL_MILK_BUCKET("Leitinho Mágico", BedShop.UTIL, BedOre.GOLD, Item.of(Material.MILK_BUCKET, "§dLeite Mágico"), 2,
             asList("§7Fique imune às armadilhas durante",
                     "§730 segundos.")),
-    UTIL_JUMPER("Jumper", BedShop.UTIL, BedOre.EMERALD, Item.of(Material.SLIME_BLOCK, "§aJumper"), 2,
+    UTIL_JUMPER("Booster", BedShop.UTIL, BedOre.EMERALD, Item.of(Material.SLIME_BLOCK, "§aBooster"), 2,
             singletonList(Type.CASUAL), asList(
             "§7Use os slimes para pular",
             "§7o mais alto possível.")),
@@ -146,7 +149,25 @@ public enum BedWarsItem {
     UTIL_TRACKING("Rastreador", BedShop.UTIL, BedOre.EMERALD, Item.of(Material.COMPASS, "§cRastreador"), 2,
             asList(Type.CASUAL, Type.COMPETITIVE),
             asList("§7Localize os times inimigos.", "§7Uso único."),
-            singletonList(BedItemFlag.CAN_BUY_AFTER_BED_BREAK));
+            singletonList(BedItemFlag.CAN_BUY_AFTER_BED_BREAK)),
+    UTIL_MINI_CASTLE("Mini Castelo", BedShop.UTIL, BedOre.IRON, Item.of(Material.CAULDRON, "§aMini Castelo"), 24,
+            asList("§7Crie uma pequena fortaleza",
+                    "§7de blocos ao seu redor.",
+                    "§7Cooldown de 5 segundos.")),
+    UTIL_COMPACT_TOWER("Torre Compacta", BedShop.UTIL, BedOre.IRON, Item.of(Material.BRICK, "§aTorre Compacta"), 12,
+            asList("§7Crie uma torre vertical",
+                    "§7compacta de 10 blocos.",
+                    "§7Cooldown de 3 segundos.")),
+    UTIL_POP_TOWER("PopTower", BedShop.UTIL, BedOre.IRON, Item.of(Material.BLAZE_ROD, "§aPopTower"), 16,
+            asList("§7Cria automaticamente uma torre",
+                    "§7de 5 blocos quando você cai.",
+                    "§7Uso único.")),
+
+    /* Rotativos Item List */
+    ROTATIVOS_BLINK("Blink", BedShop.ROTATIVOS, BedOre.GOLD, Item.of(Material.NETHER_STAR, "§dBlink"), 5,
+            asList("§7Salva o jogador do void,",
+                    "§7teleportando-o para uma folha",
+                    "§7a 5 blocos acima da sua posição."));
 
     private final String name;
 

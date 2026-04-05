@@ -45,11 +45,6 @@ public class Quartet extends Arcade {
 
             arena.renderSidebarTeams(user);
 
-            sidebar.blankRow();
-            sidebar.addRow("kills", "Kills: §a" + Util.formatNumber(user.getKills()));
-            sidebar.addRow("finalKill", "Kills Finais: §a" + Util.formatNumber(user.getFinalKill()));
-            sidebar.addRow("bedDestruction", "Camas Destruídas: §a" + Util.formatNumber(user.getBedDestruction()));
-
         } else {
             // Renderizar scoreboard quando o jogo ainda não iniciou
 
@@ -66,15 +61,28 @@ public class Quartet extends Arcade {
         sidebar.addWebsiteRow();
 
         sidebar.display();
-        TagManager.updateTag(user.getAccount());
+        
+        // Atualizar tag com o time do jogador no BedWars
+        com.minecraft.savagemc.arcade.bedwars.structure.team.Team team = user.getTeam();
+        String teamSuffix = "";
+        
+        if (team != null) {
+            // Pegar a primeira letra do nome do time
+            String teamInitial = team.getName().substring(0, 1).toUpperCase();
+            // Formato: [A] para Azul, [V] para Vermelho, etc
+            teamSuffix = " " + team.getColor() + "[" + teamInitial + "]";
+            
+            // Se tiver clan, adicionar também
+            if (user.getAccount().hasClan() && user.getAccount().getToggle().isAllowClanTag()) {
+                teamSuffix += " " + user.getAccount().getClanTag();
+            }
+        }
+        
+        TagManager.updateTagWithSuffix(user.getAccount(), user.getAccount().getTag(), teamSuffix);
     }
 
     @Override
     public void updateSidebar(User user) {
-        Sidebar sidebar = user.getSidebar();
-
-        sidebar.updateRow("kills", "Kills: §a" + Util.formatNumber(user.getKills()));
-        sidebar.updateRow("finalKill", "Kills Finais: §a" + Util.formatNumber(user.getFinalKill()));
-        sidebar.updateRow("bedDestruction", "Camas Destruídas: §a" + Util.formatNumber(user.getBedDestruction()));
+        // Método vazio - não atualiza mais as estatísticas na sidebar
     }
 }

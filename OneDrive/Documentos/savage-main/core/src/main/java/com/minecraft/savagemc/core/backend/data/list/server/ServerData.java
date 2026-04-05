@@ -21,11 +21,17 @@ public abstract class ServerData {
 
     public void start(int maxPlayers) {
         ServerType serverType = Savage.getServerType();
+        
+        if (serverType == null) {
+            Savage.getLogger().warning("[Server] ServerType não está definido. Não foi possível iniciar o servidor.");
+            return;
+        }
 
         // Evitar criar servidores com a mesma porta e tipo
-        if (of(getPort()) != null && of(getPort()).getType().equals(serverType)) return;
+        Server existingServer = of(getPort());
+        if (existingServer != null && existingServer.getType() != null && existingServer.getType().equals(serverType)) return;
 
-        int possibleId = getServerList(server -> server.getType().equals(serverType)).size() + 1; // Example: 0 servers -> 0 + 1 = 1 possible ID
+        int possibleId = getServerList(server -> server.getType() != null && server.getType().equals(serverType)).size() + 1; // Example: 0 servers -> 0 + 1 = 1 possible ID
 
         Server server = new Server(possibleId, getPort(), serverType, new ServerPayload(maxPlayers));
 
@@ -41,7 +47,7 @@ public abstract class ServerData {
         if (server != null)
             Savage.getRedis().delete(SERVER_KEY_FORMAT + server.getIdentifier());
         else
-            Savage.Savage.Logger().info("[Server] Não foi possível encerrar o servidor. Servidor não encontrado!");
+            Savage.getLogger().info("[Server] Não foi possível encerrar o servidor. Servidor não encontrado!");
     }
 
     public void refresh(Server server) {
@@ -79,7 +85,9 @@ public abstract class ServerData {
     }
 
     public Server of(ServerType serverType) {
-        List<Server> serverList = getServerList(server -> server.getType().equals(serverType));
+        List<Server> serverList = getServerList(server -> server.getType() != null && 
+            (server.getType().equals(serverType) || 
+            (server.getIdentifier() != null && server.getIdentifier().replace("-", "_").equalsIgnoreCase(serverType.name()))));
 
         Optional<Server> bestServer = serverList.stream().filter(server -> !server.getPayload().isFull() && !server.isDead()).findFirst();
 
@@ -103,7 +111,11 @@ public abstract class ServerData {
     }
 
     public int getOnlinePlayers() {
-        return getOnlinePlayers(ServerType.BUNGEE);
+        // Retornar total de jogadores em todos os servidores
+        return sum(getServerList(server -> server.getPayload() != null && !server.isDead())
+                .stream()
+                .map(server -> server.getPayload().getPlayers())
+                .collect(Collectors.toList()));
     }
 
     public int getOnlinePlayers(ServerType... serverTypes) {
@@ -113,5 +125,17 @@ public abstract class ServerData {
                 .stream()
                 .map(server -> server.getPayload().getPlayers())
                 .collect(Collectors.toList()));
+    }
+
+    // Métodos adicionais para compatibilidade
+    public ServerType getServerType() {
+        return Savage.getServerType();
+    }
+
+    public void broadcastMessage(String message) {
+        getServerList().forEach(server -> {
+            // Enviar mensagem para todos os jogadores no servidor
+            // Implementação específica depende do sistema de mensageria
+        });
     }
 }

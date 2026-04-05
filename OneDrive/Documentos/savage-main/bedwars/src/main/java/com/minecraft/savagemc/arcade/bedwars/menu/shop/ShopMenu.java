@@ -15,6 +15,7 @@ import com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedOre;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.enums.BedShop;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.enums.item.flag.BedItemFlag;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.menu.item.BedItem;
+import com.minecraft.savagemc.core.member.list.bedwars.objects.menu.BedMenuMetadata;
 import com.minecraft.savagemc.core.member.list.bedwars.objects.menu.type.BedMenuType;
 import com.minecraft.savagemc.core.util.list.bukkit.BukkitUtil;
 import com.minecraft.savagemc.core.util.list.bukkit.ColorUtil;
@@ -90,8 +91,16 @@ public class ShopMenu extends Menu {
             }
 
             // Adicionar vidros abaixo dos ícones de lojas
-            for (int i = 9; i < 18; i++)
-                addItem(i, Item.of(Material.STAINED_GLASS_PANE, 7, "§8↑ Categorias", "§8↓ Itens"));
+            // Vidros ficam verdes (5) apenas na categoria selecionada, cinza (7) nas outras
+            for (int i = 9; i < 18; i++) {
+                // Calcular qual categoria corresponde a este slot
+                int categoryIndex = i - 9;
+                boolean isSelected = categoryIndex < BedShop.values().length && 
+                                   BedShop.values()[categoryIndex].equals(this.shop);
+                
+                int glassColor = isSelected ? 5 : 7; // Verde se selecionado, cinza caso contrário
+                addItem(i, Item.of(Material.STAINED_GLASS_PANE, glassColor, "§8↑ Categorias", "§8↓ Itens"));
+            }
 
             // Renderizando itens da loja
             handleItemList();
@@ -107,45 +116,83 @@ public class ShopMenu extends Menu {
             List<BedWarsItem> list = BedWarsItem.list(shop)
                     .stream().filter(item -> item.isAvailableForMode(arena.getType()))
                     .collect(Collectors.toList());
+            
+            // Filtrar ferramentas para mostrar apenas a próxima upgrade
+            if (shop.equals(BedShop.TOOLS)) {
+                list = filterNextToolUpgrade(list);
+            }
 
             if (list.isEmpty())
                 addErrorButton(31, "§cNão há itens disponíveis...");
-            else
-                buildPageItems(list, 19, (item, slot) -> addItem(slot, buildItem(item)));
+            else {
+                // Se for loja ROTATIVOS e tiver apenas 1 item, centralizar
+                if (shop.equals(BedShop.ROTATIVOS) && list.size() == 1) {
+                    addItem(31, buildItem(list.get(0))); // Slot 31 é o centro
+                } else {
+                    buildPageItems(list, 19, (item, slot) -> addItem(slot, buildItem(item)));
+                }
+            }
 
         } else {
             // Renderizar inventário de favoritos
 
-            // Moldar espaços vázios da loja
-            int emptySlot = 19, lastEmptySlot = emptySlot;
-            for (int i = 0; i < getMaxItems(); i++) {
-
-                addItem(emptySlot, Item.of(Material.STAINED_GLASS_PANE, 14, "§cEspaço vázio!",
+            // Moldar espaços vázios da loja - 3 linhas de 7 slots (21 slots totais)
+            // Linhas 3-5 (slots 19-25, 28-34, 37-43)
+            int[] slots = {
+                19, 20, 21, 22, 23, 24, 25,  // Linha 3
+                28, 29, 30, 31, 32, 33, 34,  // Linha 4
+                37, 38, 39, 40, 41, 42, 43   // Linha 5
+            };
+            
+            for (int slot : slots) {
+                addItem(slot, Item.of(Material.STAINED_GLASS_PANE, 14, "§cEspaço vázio!",
                         "§7Este é um espaço para",
                         "§7item favorito."));
+            }
 
-                emptySlot++;
-                if (emptySlot == (lastEmptySlot + 7)) {
-                    emptySlot += 2;
-                    lastEmptySlot = emptySlot;
+            BedMenuMetadata favoriteMenu = member.getMenu(BedMenuType.FAVORITE);
+            
+            if (favoriteMenu != null) {
+                List<BedItem> favorites = favoriteMenu.getItemList();
+
+                for (BedItem favorite : favorites) {
+                    BedWarsItem item = BedWarsItem.of(favorite.getName());
+
+                    if (item == null) continue;
+
+                    int slot = favorite.getSlot();
+                    
+                    // Validar se o slot está dentro dos slots válidos
+                    boolean validSlot = false;
+                    for (int validSlotCheck : slots) {
+                        if (slot == validSlotCheck) {
+                            validSlot = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!validSlot) continue;
+
+                    if (!item.isAvailableForMode(arena.getType()))
+                        addItem(slot, Item.of(Material.STAINED_GLASS_PANE, 14, "§cItem incompatível!",
+                                "§7Este espaço está ocupado",
+                                "§7por um item incompatível."));
+                    else
+                        addItem(slot, buildItem(item));
                 }
             }
-
-            List<BedItem> favorites = member.getMenu(BedMenuType.FAVORITE).getItemList();
-
-            for (BedItem favorite : favorites) {
-                BedWarsItem item = BedWarsItem.of(favorite.getName());
-
-                if (item == null) continue;
-
-                if (!item.isAvailableForMode(arena.getType()))
-                    addItem(favorite.getSlot(), Item.of(Material.STAINED_GLASS_PANE, 14, "§cItem incompatível!",
-                            "§7Este espaço está ocupado",
-                            "§7por um item incompatível."));
-                else
-                    addItem(favorite.getSlot(), buildItem(item));
-
-            }
+            
+            // Adicionar botão do editor de hotbar no slot 53
+            addItem(53, Item.of(Material.BLAZE_POWDER)
+                    .name("§eEditor de hotbar (&#0381) (&#0372)")
+                    .lore("§7Modifique previamente slots",
+                            "§7preferidos ao comprar um item.",
+                            "",
+                            "§eClique para editar!")
+                    .click(event -> {
+                        sound(MenuSound.PAGINATED);
+                        new HotbarEditorMenu(getPlayer(), this).handle();
+                    }));
         }
     }
 
@@ -192,6 +239,8 @@ public class ShopMenu extends Menu {
         return model.name(titleColor + item.getName())
                 .lore(lore)
                 .click(event -> {
+                    // Verificar se é o editor de hotbar - REMOVIDO
+                    
                     if (event.isShiftClick()) {
                         sound(MenuSound.PAGINATED);
 
@@ -201,6 +250,8 @@ public class ShopMenu extends Menu {
                         } else {
                             // Excluir item dos favoritos
                             member.removeFavoriteItem(item);
+                            
+                            getPlayer().sendMessage("§cItem §6" + item.getName() + " §cremovido dos favoritos!");
 
                             handle();
                         }
@@ -263,7 +314,7 @@ public class ShopMenu extends Menu {
                         if (BukkitUtil.hasItemInInventory(getPlayer(), Material.WOOD_SWORD))
                             BukkitUtil.replaceItemByType(getPlayer(), Material.WOOD_SWORD, stack);
                         else
-                            inv.addItem(stack);
+                            addItemToInventory(inv, stack, item.getShop());
 
                         // Encantar espadas
                         if (team.hasSword())
@@ -282,7 +333,7 @@ public class ShopMenu extends Menu {
 
                             BukkitUtil.replaceItemByType(getPlayer(), stack.getType(), stack);
                         } else
-                            inv.addItem(stack);
+                            addItemToInventory(inv, stack, item.getShop());
 
                     } else {
 
@@ -292,8 +343,13 @@ public class ShopMenu extends Menu {
 
                         if (item.equals(BedWarsItem.UTIL_TRACKING) && !context.getTracker().isActive())
                             context.getTracker().setActive(true);
+                        
+                        // Configurar durabilidade do isqueiro para 3 usos
+                        if (item.equals(BedWarsItem.UTIL_LIGHTER)) {
+                            stack.durability(61); // 3 usos: 61, 62, 63 (64 é o máximo)
+                        }
 
-                        inv.addItem(stack);
+                        addItemToInventory(inv, stack, item.getShop());
                     }
 
                     // Efetuando a compra do item
@@ -304,6 +360,25 @@ public class ShopMenu extends Menu {
 
                     getPlayer().sendMessage("§eO item §6" + item.getName() + "§e foi adquirido.");
                 });
+    }
+    
+    /**
+     * Adiciona um item ao inventário respeitando as preferências de hotbar
+     */
+    private void addItemToInventory(PlayerInventory inv, ItemStack stack, BedShop category) {
+        int preferredSlot = member.getHotbarSlot(category);
+        
+        // Se tem preferência de slot e o slot está vazio, adicionar lá
+        if (preferredSlot >= 0 && preferredSlot < 9) {
+            ItemStack slotItem = inv.getItem(preferredSlot);
+            if (slotItem == null || slotItem.getType() == Material.AIR) {
+                inv.setItem(preferredSlot, stack);
+                return;
+            }
+        }
+        
+        // Caso contrário, adicionar normalmente
+        inv.addItem(stack);
     }
 
     protected boolean handleArmorPurchase(PlayerInventory inv, BedWarsItem item) {
@@ -356,5 +431,63 @@ public class ShopMenu extends Menu {
 
             user.getContext().setAxeItem(item);
         }
+    }
+    
+    private List<BedWarsItem> filterNextToolUpgrade(List<BedWarsItem> items) {
+        List<BedWarsItem> filtered = new ArrayList<>();
+        
+        // Separar picaretas e machados
+        List<BedWarsItem> pickaxes = items.stream()
+                .filter(BedWarsItem::isToolPickaxe)
+                .collect(Collectors.toList());
+        
+        List<BedWarsItem> axes = items.stream()
+                .filter(BedWarsItem::isToolAxe)
+                .collect(Collectors.toList());
+        
+        List<BedWarsItem> others = items.stream()
+                .filter(item -> !item.isToolPickaxe() && !item.isToolAxe())
+                .collect(Collectors.toList());
+        
+        // Adicionar apenas a próxima picareta disponível
+        BedWarsItem currentPickaxe = user.getContext().getPickaxeItem();
+        BedWarsItem nextPickaxe = null;
+        
+        for (BedWarsItem pickaxe : pickaxes) {
+            if (currentPickaxe == null) {
+                nextPickaxe = pickaxe;
+                break;
+            } else if (pickaxe.ordinal() > currentPickaxe.ordinal()) {
+                nextPickaxe = pickaxe;
+                break;
+            }
+        }
+        
+        if (nextPickaxe != null) {
+            filtered.add(nextPickaxe);
+        }
+        
+        // Adicionar apenas o próximo machado disponível
+        BedWarsItem currentAxe = user.getContext().getAxeItem();
+        BedWarsItem nextAxe = null;
+        
+        for (BedWarsItem axe : axes) {
+            if (currentAxe == null) {
+                nextAxe = axe;
+                break;
+            } else if (axe.ordinal() > currentAxe.ordinal()) {
+                nextAxe = axe;
+                break;
+            }
+        }
+        
+        if (nextAxe != null) {
+            filtered.add(nextAxe);
+        }
+        
+        // Adicionar outros itens (tesoura, etc)
+        filtered.addAll(others);
+        
+        return filtered;
     }
 }

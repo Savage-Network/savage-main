@@ -14,7 +14,7 @@ public class Auth extends BukkitCore {
     public void onLoad() {
         super.onLoad();
 
-        Savage.Logger().info("Iniciando Auth...");
+        Savage.getLogger().info("Iniciando Auth...");
 
         Savage.setServerType(ServerType.AUTH);
 
@@ -29,13 +29,13 @@ public class Auth extends BukkitCore {
         new BukkitCommandHandler(this).handle(Constant.SOURCE_DIR + ".auth.command");
         new ListenerHandler(this).handle(Constant.SOURCE_DIR + ".auth");
 
-        Savage.Logger().info("Auth iniciado com sucesso.");
+        Savage.getLogger().info("Auth iniciado com sucesso.");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
 
-        Savage.Logger().info("Auth desligado com sucesso.");
+        Savage.getLogger().info("Auth desligado com sucesso.");
     }
 }

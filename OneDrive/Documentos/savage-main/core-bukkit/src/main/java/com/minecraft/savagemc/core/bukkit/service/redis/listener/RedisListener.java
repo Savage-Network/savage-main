@@ -55,7 +55,7 @@ public class RedisListener implements Listener {
         JsonObject json = event.getJson();
 
         if (json == null) {
-            Savage.Savage.Logger().severe("Não foi possível recolher os dados do canal " + channel + ".");
+            Savage.getLogger().severe("Não foi possível recolher os dados do canal " + channel + ".");
             return;
         }
 
@@ -80,7 +80,7 @@ public class RedisListener implements Listener {
                 } catch (Exception e) {
                     account.send("§cNão foi possível atualizar as suas informações!");
 
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível atualizar as informações de " + account.getName(), e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível atualizar as informações de " + account.getName(), e);
                 }
                 break;
             }
@@ -93,7 +93,7 @@ public class RedisListener implements Listener {
                 ArcadeRouteContext route = message.getRoute();
 
                 if (!route.isValid()) {
-                    Savage.Savage.Logger().warning("[AS] Não foi possível buscar a arena para " + message.getSender() + ". Rota inválida!");
+                    Savage.getLogger().warning("[AS] Não foi possível buscar a arena para " + message.getSender() + ". Rota inválida!");
                     return;
                 }
 
@@ -102,7 +102,7 @@ public class RedisListener implements Listener {
                 Account account = Savage.getAccountData().of(message.getSender());
 
                 if (account == null) {
-                    Savage.Savage.Logger().warning("[AS] Não foi possível buscar a arena para " + message.getSender() + ". Jogador não encontrado!");
+                    Savage.getLogger().warning("[AS] Não foi possível buscar a arena para " + message.getSender() + ". Jogador não encontrado!");
                     return;
                 }
 
@@ -120,7 +120,7 @@ public class RedisListener implements Listener {
                 ArcadeHolder arcade = BukkitCore.getManager().getArcade().read(route.getArcade());
 
                 if (arcade == null) {
-                    Savage.Savage.Logger().warning("[AS] Não foi possível buscar a arena para " + account.getNickname() + ". Jogo não encontrado!");
+                    Savage.getLogger().warning("[AS] Não foi possível buscar a arena para " + account.getNickname() + ". Jogo não encontrado!");
 
                     new ArenaStatsMessage(message.getSender(), ArenaStatsMessage.RequestStatus.NOT_FOUND).send();
                     return;
@@ -131,7 +131,7 @@ public class RedisListener implements Listener {
                 new ArenaStatsMessage(message.getSender(), ArenaStatsMessage.RequestStatus.SEARCHING).send();
 
                 if (arena == null) {
-                    Savage.Savage.Logger().warning("[AS] Não foi possível buscar a arena para " + account.getNickname() + ". Arena não encontrada!");
+                    Savage.getLogger().warning("[AS] Não foi possível buscar a arena para " + account.getNickname() + ". Arena não encontrada!");
 
                     new ArenaStatsMessage(message.getSender(), ArenaStatsMessage.RequestStatus.NOT_FOUND).send();
                     return;
@@ -169,21 +169,21 @@ public class RedisListener implements Listener {
                 ArcadeRouteContext route = message.getRoute();
 
                 if (!receiver.inServer(route.getArcade().getServer())) {
-                    Savage.Savage.Logger().warning("Servidor não é igual.");
+                    Savage.getLogger().warning("Servidor não é igual.");
                     return;
                 }
 
                 ArcadeHolder arcade = BukkitCore.getManager().getArcade().read(route.getArcade());
 
                 if (arcade == null) {
-                    Savage.Savage.Logger().warning("Não foi possível encontrar o jogo solicitado.");
+                    Savage.getLogger().warning("Não foi possível encontrar o jogo solicitado.");
                     return;
                 }
 
                 Room arena = arcade.findBestArena(receiver.getId(), route);
 
                 if (arena == null) {
-                    Savage.Savage.Logger().info("Não foi possível encontrar a arena desejada.");
+                    Savage.getLogger().info("Não foi possível encontrar a arena desejada.");
                     return;
                 }
 
@@ -213,7 +213,7 @@ public class RedisListener implements Listener {
 
                 if (account == null) return;
 
-                new AccountRankUpdateEvent(account, rank).call();
+                new AccountRankUpdateEvent(account, rank.getType()).call();
                 break;
             }
 
@@ -377,6 +377,21 @@ public class RedisListener implements Listener {
 
                 }, 20L);
 
+                break;
+            }
+            
+            case Constant.REDIS_REPORT_CHANNEL: {
+                com.minecraft.savagemc.core.backend.database.redis.message.types.report.ReportReplayMessage message = 
+                    Savage.GSON.fromJson(json, com.minecraft.savagemc.core.backend.database.redis.message.types.report.ReportReplayMessage.class);
+
+                if (message == null) return;
+
+                // Atualizar o report com o replayId
+                com.minecraft.savagemc.core.api.report.Report report = Savage.getReportData().of(message.getReportedPlayer());
+                if (report != null && message.getReplayId() != null) {
+                    report.setReplayId(message.getReplayId());
+                }
+                
                 break;
             }
         }

@@ -46,6 +46,7 @@ import com.minecraft.savagemc.core.backend.database.redis.message.types.route.Ro
 import com.minecraft.savagemc.core.member.Member;
 import com.minecraft.savagemc.core.server.Server;
 import com.minecraft.savagemc.core.server.type.ServerType;
+import com.minecraft.savagemc.core.server.category.ServerCategory;
 import com.minecraft.savagemc.core.util.list.TimeUtil;
 import com.google.gson.JsonObject;
 import lombok.Getter;
@@ -186,7 +187,7 @@ public class Account {
     }
 
     public String getColoredName() {
-        return getTag().getColor() + (getTag().ordinal() >= Tag.MIDIA_PLUS.ordinal() ? "§o" : "") + getNickname();
+        return getTag().getColor() + (getTag().isHigherOrEqual(Tag.MIDIA_PLUS) ? "§o" : "") + getNickname();
     }
 
     public void checkInfos() {
@@ -284,9 +285,9 @@ public class Account {
 
         ClanTag clanTag = getActiveClanTag();
 
-        String raw = getClan().getTag();
+        String raw = getClan().getTag().toUpperCase();
 
-        return clanTag != ClanTag.NONE ? clanTag.format(raw) : raw;
+        return clanTag != ClanTag.NONE ? clanTag.format("[" + raw + "]") : "[" + raw + "]";
     }
 
     /* ClanTag Methods */
@@ -345,6 +346,10 @@ public class Account {
 
     public boolean hasRank(Rank rank) {
         return hasRank(rank.getType());
+    }
+
+    public boolean hasRankPermission(String permission) {
+        return hasPermission(permission);
     }
 
     public boolean hasOnlyRank(RankType rank) {
@@ -516,6 +521,10 @@ public class Account {
     }
 
     public boolean inServer(ServerType serverType) {
+        // Permitir conexão entre diferentes tipos de HUB
+        if (getServerType().getCategory() == ServerCategory.NONE && serverType.getCategory() == ServerCategory.NONE) {
+            return false; // Sempre permitir conectar entre hubs
+        }
         return getServerType().equals(serverType);
     }
 
@@ -1060,7 +1069,7 @@ public class Account {
     public boolean isAllowColoredChat() {
         if (isUsingFake()) return false;
 
-        return getTag().ordinal() >= Tag.VIP.ordinal();
+        return getTag().isHigherOrEqual(Tag.VIP);
     }
 
     /* Friend Methods */

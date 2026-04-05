@@ -13,12 +13,11 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 @Getter
-@Setter
 @ToString
 public class HologramRow {
 
-    private final Hologram hologram;
-    private final EntityArmorStand stand;
+    protected Hologram hologram;
+    protected EntityArmorStand stand;
 
     private TouchHandler touch;
     private Location location;
@@ -36,7 +35,7 @@ public class HologramRow {
         CraftWorld world = (CraftWorld) location.getWorld();
 
         if (world == null) {
-            Savage.Savage.Logger().info("Mundo não encontrado!");
+            Savage.getLogger().info("Mundo não encontrado!");
             return null;
         }
 
@@ -119,5 +118,26 @@ public class HologramRow {
         PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(this.getId(), stand.getDataWatcher(), true);
 
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(metadata);
+    }
+
+    // Métodos adicionais para compatibilidade
+    public Location getLocation() {
+        return location;
+    }
+
+    public TouchHandler getTouch() {
+        return touch;
+    }
+
+    public void setTouch(TouchHandler touch) {
+        this.touch = touch;
+    }
+
+    public EntityArmorStand getStand() {
+        return stand;
+    }
+
+    public Hologram getHologram() {
+        return hologram;
     }
 }

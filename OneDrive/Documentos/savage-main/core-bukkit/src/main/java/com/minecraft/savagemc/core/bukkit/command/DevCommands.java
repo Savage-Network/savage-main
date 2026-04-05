@@ -28,7 +28,7 @@ public class DevCommands implements CommandInheritor {
 
         player.sendMessage("§aInventário serializado!");
 
-        Savage.Savage.Logger().info(Serialization.serializeInventoryOfPlayer(player));
+        Savage.getLogger().info(Serialization.serializeInventoryOfPlayer(player));
     }
 
     @Command(name = "iunb", rank = RankType.ADMIN)
@@ -136,5 +136,42 @@ public class DevCommands implements CommandInheritor {
         message.addExtra(copy);
 
         player.sendMessage(message);
+    }
+
+    @Command(name = "dlib", rank = RankType.ADMIN)
+    public void whitelistNick(BukkitCommandContext context) {
+        Player player = context.getPlayer();
+        String[] args = context.getArgs();
+
+        if (args.length < 1) {
+            player.sendMessage("§cUso: /dlib (nick)");
+            return;
+        }
+
+        String nick = args[0];
+        Savage.getRedis().saveDefault("whitelist:nick:" + nick.toLowerCase(), System.currentTimeMillis());
+        player.sendMessage("§aNick §f" + nick + " §afoi liberado da lista de suspeitos.");
+        Savage.getLogger().info("[AntiDDoS] Nick " + nick + " foi liberado por " + player.getName());
+    }
+
+    @Command(name = "dip", rank = RankType.ADMIN)
+    public void whitelistIp(BukkitCommandContext context) {
+        Player player = context.getPlayer();
+        String[] args = context.getArgs();
+
+        if (args.length < 1) {
+            player.sendMessage("§cUso: /dip (ip)");
+            return;
+        }
+
+        String ip = args[0];
+        if (!ip.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
+            player.sendMessage("§cIP inválido.");
+            return;
+        }
+
+        Savage.getRedis().saveDefault("whitelist:ip:" + ip, System.currentTimeMillis());
+        player.sendMessage("§aIP §f" + ip + " §afoi liberado da blacklist.");
+        Savage.getLogger().info("[AntiDDoS] IP " + ip + " foi liberado por " + player.getName());
     }
 }

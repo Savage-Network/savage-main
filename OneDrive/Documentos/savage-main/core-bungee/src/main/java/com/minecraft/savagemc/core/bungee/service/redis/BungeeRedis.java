@@ -36,7 +36,7 @@ public class BungeeRedis extends JedisPubSub {
         JsonObject json = Savage.PARSER.parse(data).getAsJsonObject();
 
         if (json == null) {
-            Savage.Savage.Logger().severe("Não foi possível recolher os dados do canal " + channel + ".");
+            Savage.getLogger().severe("Não foi possível recolher os dados do canal " + channel + ".");
             return;
         }
 
@@ -61,7 +61,7 @@ public class BungeeRedis extends JedisPubSub {
                 } catch (Exception e) {
                     account.send("§cNão foi possível atualizar as suas informações!");
 
-                    Savage.Savage.Logger().log(Level.WARNING, "Não foi possível atualizar as informações de " + account.getName(), e);
+                    Savage.getLogger().log(Level.WARNING, "Não foi possível atualizar as informações de " + account.getName(), e);
                 }
                 break;
             }
@@ -135,7 +135,7 @@ public class BungeeRedis extends JedisPubSub {
                 RouteSearchMessage message = Savage.GSON.fromJson(json, RouteSearchMessage.class);
 
                 if (message == null) {
-                    Savage.Savage.Logger().info("Mensagem nula!");
+                    Savage.getLogger().info("Mensagem nula!");
                     return;
                 }
 
@@ -143,7 +143,7 @@ public class BungeeRedis extends JedisPubSub {
                 RouteContext route = message.getRoute();
 
                 if (account == null || account.proxiedPlayer() == null) {
-                    Savage.Savage.Logger().log(Level.WARNING, "Conexão não efetuada. O usuário não foi encontrado.");
+                    Savage.getLogger().log(Level.WARNING, "Conexão não efetuada. O usuário não foi encontrado.");
                     return;
                 }
 
@@ -154,7 +154,7 @@ public class BungeeRedis extends JedisPubSub {
                 if (server == null || server.getProxyServer() == null) {
                     account.send(String.format(Constant.SERVER_NOT_FOUND_MESSAGE, route.getServerType().getName()));
 
-                    Savage.Savage.Logger().log(Level.WARNING, "Conexão não efetuada. O servidor requisitado não foi encontrado.");
+                    Savage.getLogger().log(Level.WARNING, "Conexão não efetuada. O servidor requisitado não foi encontrado.");
                     return;
                 }
 
@@ -169,7 +169,7 @@ public class BungeeRedis extends JedisPubSub {
 
                 player.connect(server.getProxyServer());
 
-                Savage.Savage.Logger().info("[SR] " + account.getNickname() + " acessou o servidor " + server.getName() + ".");
+                Savage.getLogger().info("[SR] " + account.getNickname() + " acessou o servidor " + server.getName() + ".");
                 break;
             }
 

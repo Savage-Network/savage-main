@@ -95,4 +95,17 @@ public class HologramServer extends Hologram {
     public void updateRows() {
         getRows().forEach(row -> getViewers().forEach(row::update));
     }
+
+    // Métodos adicionais para compatibilidade
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return String.valueOf(id);
+    }
+
+    public Location getLocation() {
+        return location;
+    }
 }

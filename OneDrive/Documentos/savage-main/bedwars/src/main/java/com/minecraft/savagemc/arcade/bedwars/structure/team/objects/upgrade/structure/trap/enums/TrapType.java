@@ -21,44 +21,19 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public enum TrapType {
 
-    BLACKOUT("Apagão", Material.EYE_OF_ENDER, BedOre.DIAMOND, 1, Arrays.asList(
-            "§7Aplique os efeitos Cegueira",
-            "§7e Lentidão por 8 segundos."
+    FATIGUE("Fadiga", Material.GOLD_PICKAXE, BedOre.DIAMOND, 1, Collections.singletonList(
+            "§7Cause fadiga nos invasores."
+    ), ((executor, team) -> executor.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 20 * 5, 0)))),
+
+    ITS_A_TRAP("É uma Cilada!", Material.TRIPWIRE_HOOK, BedOre.DIAMOND, 1, Arrays.asList(
+            "§7Cause Cegueira e Lentidão",
+            "§7por 8 segundos em invasores."
     ), (executor, team) -> {
         executor.addPotionEffects(
                 new PotionEffect(PotionEffectType.BLINDNESS, 20 * 8, 0),
                 new PotionEffect(PotionEffectType.SLOW, 20 * 8, 0)
         );
-    }),
-
-    FATIGUE("Fadiga", Material.GOLD_PICKAXE, BedOre.DIAMOND, 1, Collections.singletonList(
-            "§7Cause fadiga nos invasores."
-    ), ((executor, team) -> executor.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 20 * 5, 0)))),
-
-    COUNTER_OFFENSIVE("Contra-ofensiva", Material.FEATHER, BedOre.DIAMOND, 4, Arrays.asList(
-            "§7Ao invadirem sua ilha",
-            "§7todos membros receberão Velocidade II",
-            "§7Super Pulo I e Força I por 5s."
-    ), (executor, team) -> {
-        for (Player player : team.getPlayers()) {
-            if (player.equals(executor) || !team.inIsland(player)) continue;
-
-            player.addPotionEffects(
-                    new PotionEffect(PotionEffectType.SPEED, 20 * 5, 1),
-                    new PotionEffect(PotionEffectType.JUMP, 20 * 5, 0),
-                    new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 5, 0)
-            );
-
-            player.sendMessage("§c§lContra-ofensiva: §cA sua ilha foi invadida. Você ficou mais forte!");
-            player.playSound(Sound.AMBIENCE_THUNDER);
-        }
-    }),
-
-    CURSE("Maldição", Item.of(Material.SKULL_ITEM, 3).skullByBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWQ4ZWY1Yjg2MGU0N2Q2NmY3ZTAwZjZjOWY3ZjViZGM5MzVlZGJjZTAwYWViNzU2ZjQxNTk5OWFkZTE2ZTM2YyJ9fX0="),
-            BedOre.DIAMOND, 3, Arrays.asList(
-            "§7Quem pisar na sua ilha,",
-            "§7será amaldiçoado."
-    ), ((executor, team) -> executor.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 20 * 5, 1))));
+    });
 
     private final String name;
 

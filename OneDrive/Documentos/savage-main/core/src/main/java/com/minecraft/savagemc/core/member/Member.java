@@ -38,6 +38,11 @@ public abstract class Member {
     public Account getAccount() {
         return Savage.getAccountData().of(id);
     }
+    
+    // Método para compatibilidade com banco de dados
+    public UUID getAccountId() {
+        return id;
+    }
 
     // Métodos relacionados ao nome
     public void setName(String name) {
@@ -166,7 +171,23 @@ public abstract class Member {
     }
 
     public int getMinLevelXp() {
-        return 300;
+        int level = getLevel();
+        
+        if (level < 10) {
+            return 500;
+        } else if (level < 20) {
+            return 1000;
+        } else if (level < 30) {
+            return 2000;
+        } else if (level < 40) {
+            return 3000;
+        } else if (level < 50) {
+            return 5000;
+        } else {
+            // A partir do nível 50, aumenta 1k a cada 10 níveis
+            int bracket = (level / 10) - 4; // 50-59 = bracket 1, 60-69 = bracket 2, etc
+            return 5000 + (bracket * 1000);
+        }
     }
 
     public int getWeekEloXp() {

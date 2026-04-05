@@ -39,13 +39,17 @@ public class DamageListener implements Listener {
             double currentHealth = target.getHealth() - damage;
 
             PlayerDamageTargetEvent damageTargetEvent = new PlayerDamageTargetEvent(
-                    player, target,
-                    (event.getDamager() instanceof Player) ? PlayerDamageTargetEvent.DamageCause.PLAYER : PlayerDamageTargetEvent.DamageCause.PROJECTILE,
-                    event.getFinalDamage(),
-                    damage,
-                    currentHealth,
-                    event.isCancelled()
+                player, 
+                target, 
+                (event.getDamager() instanceof Player) ? PlayerDamageTargetEvent.DamageCause.PLAYER : PlayerDamageTargetEvent.DamageCause.PROJECTILE,
+                event.getDamage(),
+                event.getFinalDamage(),
+                player.getHealth() - event.getDamage(),
+                false
             );
+            damageTargetEvent.setDamage(damage);
+            damageTargetEvent.setCurrentHealth(currentHealth);
+            damageTargetEvent.setCancelled(event.isCancelled());
 
             damageTargetEvent.call();
 
@@ -62,13 +66,12 @@ public class DamageListener implements Listener {
             double damage = event.getDamage(),
                     currentHealth = player.getHealth() - damage;
 
-            PlayerDamageEvent playerDamage = new PlayerDamageEvent(
-                    player,
-                    event.getCause(),
-                    damage,
-                    currentHealth,
-                    event.getFinalDamage(),
-                    event.isCancelled());
+            PlayerDamageEvent playerDamage = new PlayerDamageEvent();
+            playerDamage.setPlayer(player);
+            playerDamage.setCause(event.getCause());
+            playerDamage.setDamage(damage);
+            playerDamage.setCurrentHealth(currentHealth);
+            playerDamage.setCancelled(event.isCancelled());
 
             playerDamage.call();
 
