@@ -175,18 +175,18 @@ public class Savage {
         /* Configure Database */
         PostgresDatabase postgres = new PostgresDatabase(
                 DatabaseCredentials.builder()
-                        .host("206.0.29.85")
+                        .host("198.1.195.80")
                         .port(5432)
                         .database("savagemc")
                         .user("savagemc")
-                        .password("savagemc123")
+                        .password("savagemcnaochorax")
                         .build());
 
         postgres.load();
 
         RedisDatabase redis = new RedisDatabase(
                 DatabaseCredentials.builder()
-                        .host("206.0.29.85")
+                        .host("198.1.195.80")
                         .port(6379)
                         .build());
         redis.load();

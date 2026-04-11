@@ -48,8 +48,8 @@ public class MemberData<T extends Member> {
 
         for (String table : MEMBER_TABLE_NAMES) {
             try (Connection conn = postgres.getConnection()) {
-                PreparedStatement stmt = conn.prepareStatement("SELECT data FROM " + table + " WHERE id = ?::uuid");
-                stmt.setObject(1, id);
+                PreparedStatement stmt = conn.prepareStatement("SELECT data FROM " + table + " WHERE id::text = ?");
+                stmt.setString(1, id.toString());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next())
                     members.add(Savage.GSON.fromJson(rs.getString("data"), Member.class));
@@ -66,24 +66,23 @@ public class MemberData<T extends Member> {
 
     public T save(T member) {
         try (Connection conn = postgres.getConnection()) {
-            PreparedStatement check = conn.prepareStatement("SELECT id FROM " + tableName + " WHERE id = ?::uuid");
-            check.setObject(1, member.getId());
+            PreparedStatement check = conn.prepareStatement("SELECT id FROM " + tableName + " WHERE id::text = ?");
+            check.setString(1, member.getId().toString());
             ResultSet rs = check.executeQuery();
 
             if (!rs.next()) {
                 PreparedStatement insert = conn.prepareStatement(
-                    "INSERT INTO " + tableName + " (id, account_id, data) VALUES (?, ?::uuid, ?::jsonb)"
+                    "INSERT INTO " + tableName + " (id, data) VALUES (?, ?::jsonb)"
                 );
-                insert.setObject(1, member.getId());
-                insert.setObject(2, member.getAccountId());
-                insert.setString(3, Savage.GSON.toJson(member));
+                insert.setString(1, member.getId().toString());
+                insert.setString(2, Savage.GSON.toJson(member));
                 insert.executeUpdate();
 
                 redis.save(MEMBER_KEY_FORMAT + member.getId(), member);
                 controller.save(member);
             } else {
-                PreparedStatement sel = conn.prepareStatement("SELECT data FROM " + tableName + " WHERE id = ?::uuid");
-                sel.setObject(1, member.getId());
+                PreparedStatement sel = conn.prepareStatement("SELECT data FROM " + tableName + " WHERE id::text = ?");
+                sel.setString(1, member.getId().toString());
                 ResultSet data = sel.executeQuery();
                 if (data.next())
                     member = Savage.GSON.fromJson(data.getString("data"), type);
@@ -102,8 +101,8 @@ public class MemberData<T extends Member> {
 
             if (member == null) {
                 try (Connection conn = postgres.getConnection()) {
-                    PreparedStatement stmt = conn.prepareStatement("SELECT data FROM " + tableName + " WHERE id = ?");
-                    stmt.setObject(1, id);
+                    PreparedStatement stmt = conn.prepareStatement("SELECT data FROM " + tableName + " WHERE id::text = ?");
+                    stmt.setString(1, id.toString());
                     ResultSet rs = stmt.executeQuery();
                     if (rs.next())
                         member = Savage.GSON.fromJson(rs.getString("data"), generic);
@@ -126,10 +125,10 @@ public class MemberData<T extends Member> {
     public synchronized void update(T member, String field) {
         try (Connection conn = postgres.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE " + tableName + " SET data = ?::jsonb WHERE id = ?::uuid"
+                "UPDATE " + tableName + " SET data = ?::jsonb WHERE id::text = ?"
             );
             stmt.setString(1, Savage.GSON.toJson(member));
-            stmt.setObject(2, member.getId());
+            stmt.setString(2, member.getId().toString());
             stmt.executeUpdate();
             redis.update(MEMBER_KEY_FORMAT + member.getId(), member);
         } catch (Exception e) {

@@ -104,8 +104,13 @@ public class TagManager {
         String displayName = prefix + player.getName() + suffix;
         player.setDisplayName(displayName);
         
-        // Definir playerListName para garantir que apareça no tab
-        player.setPlayerListName(prefix + player.getName());
+        // Definir playerListName com suffix para garantir que apareça no tab
+        // Truncar se necessário para caber no limite de 16 caracteres do Minecraft
+        String playerListName = prefix + player.getName() + suffix;
+        if (playerListName.length() > 40) {
+            playerListName = truncateForScoreboard(playerListName, 40);
+        }
+        player.setPlayerListName(playerListName);
 
         // Criar/atualizar team no próprio scoreboard do jogador PRIMEIRO
         Scoreboard playerScoreboard = getOrCreateScoreboard(player);

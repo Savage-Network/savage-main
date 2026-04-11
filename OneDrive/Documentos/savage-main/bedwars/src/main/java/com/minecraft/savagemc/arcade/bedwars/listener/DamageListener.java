@@ -149,8 +149,21 @@ public class DamageListener implements Listener {
         if (!targetUser.isPlayer() || !damagerUser.isPlayer()) return;
         if (!targetUser.inState(ArcadeState.ALIVE) || !damagerUser.inState(ArcadeState.ALIVE)) return;
         
-        // Deixar o knockback vanilla fluido do Minecraft 1.8
-        // Sem modificações para manter a fluidez natural
+        // Knockback estilo Hypixel - mais suave e balanceado
+        Bukkit.getScheduler().runTaskLater(BedWars.getInstance(), () -> {
+            Vector velocity = target.getVelocity();
+            
+            // Knockback horizontal (X e Z) - 100% do vanilla
+            double horizontalMultiplier = 1.0;
+            velocity.setX(velocity.getX() * horizontalMultiplier);
+            velocity.setZ(velocity.getZ() * horizontalMultiplier);
+            
+            // Knockback vertical (Y) - reduzido para 35% (estilo Hypixel)
+            // Isso mantém o jogador mais no chão e menos "flutuando"
+            velocity.setY(velocity.getY() * 0.35);
+            
+            target.setVelocity(velocity);
+        }, 1L);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

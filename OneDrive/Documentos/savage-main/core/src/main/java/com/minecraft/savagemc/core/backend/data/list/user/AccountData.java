@@ -32,14 +32,14 @@ public class AccountData implements UserTemplate<Account> {
     @Override
     public Account save(Account account) {
         try (Connection conn = postgres.getConnection()) {
-            PreparedStatement check = conn.prepareStatement("SELECT id FROM accounts WHERE id = ?::uuid");
+            PreparedStatement check = conn.prepareStatement("SELECT id FROM accounts WHERE id = ?");
             check.setString(1, account.getId().toString());
             ResultSet rs = check.executeQuery();
 
             if (!rs.next()) {
                 String json = Savage.GSON.toJson(account);
                 PreparedStatement insert = conn.prepareStatement(
-                    "INSERT INTO accounts (id, name, ip, data) VALUES (?::uuid, ?, ?, ?::jsonb)"
+                    "INSERT INTO accounts (id, name, ip, data) VALUES (?, ?, ?, ?::jsonb)"
                 );
                 insert.setString(1, account.getId().toString());
                 insert.setString(2, account.getName());
@@ -50,7 +50,7 @@ public class AccountData implements UserTemplate<Account> {
                 redis.save(ACCOUNT_KEY_FORMAT + account.getId(), account);
                 controller.save(account);
             } else {
-                PreparedStatement sel = conn.prepareStatement("SELECT data FROM accounts WHERE id = ?::uuid");
+                PreparedStatement sel = conn.prepareStatement("SELECT data FROM accounts WHERE id = ?");
                 sel.setString(1, account.getId().toString());
                 ResultSet data = sel.executeQuery();
                 if (data.next())
@@ -65,7 +65,7 @@ public class AccountData implements UserTemplate<Account> {
     @Override
     public void delete(Account account) {
         try (Connection conn = postgres.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement("DELETE FROM accounts WHERE id = ?::uuid");
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM accounts WHERE id = ?");
             stmt.setString(1, account.getId().toString());
             stmt.executeUpdate();
             redis.delete(ACCOUNT_KEY_FORMAT + account.getId());
@@ -85,7 +85,7 @@ public class AccountData implements UserTemplate<Account> {
         try (Connection conn = postgres.getConnection()) {
             String json = Savage.GSON.toJson(account);
             PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE accounts SET data = ?::jsonb, name = ?, ip = ? WHERE id = ?::uuid"
+                "UPDATE accounts SET data = ?::jsonb, name = ?, ip = ? WHERE id = ?"
             );
             stmt.setString(1, json);
             stmt.setString(2, account.getName());
@@ -131,7 +131,7 @@ public class AccountData implements UserTemplate<Account> {
 
             if (account == null) {
                 try (Connection conn = postgres.getConnection()) {
-                    PreparedStatement stmt = conn.prepareStatement("SELECT data FROM accounts WHERE id = ?::uuid");
+                    PreparedStatement stmt = conn.prepareStatement("SELECT data FROM accounts WHERE id = ?");
                     stmt.setString(1, id.toString());
                     ResultSet rs = stmt.executeQuery();
                     if (rs.next()) {

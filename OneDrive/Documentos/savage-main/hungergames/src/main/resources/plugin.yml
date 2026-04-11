@@ -118,7 +118,7 @@ commands:
     permission: hungergames.admin.forcekit
 
 # Configuration
-softdepend: [PlaceholderAPI, Vault, WorldEdit]
+softdepend: [PlaceholderAPI, Vault]
 
 # Plugin metadata
 folia-supported: true

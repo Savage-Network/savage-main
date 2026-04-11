@@ -28,12 +28,23 @@ public class SearchListener implements Listener {
 
     @EventHandler
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
+        Savage.message("=== ASYNC PRE LOGIN INICIADO ===");
+        Savage.message("Jogador: " + event.getName());
+        Savage.message("UUID: " + event.getUniqueId());
+        Savage.message("Resultado: " + event.getLoginResult());
+        
         if (event.getLoginResult().equals(AsyncPlayerPreLoginEvent.Result.ALLOWED)) {
 
             UUID id = event.getUniqueId();
 
             // Buscando dados da rota
             RouteContext route = routeData.read(id);
+
+            Savage.message("=== DEBUG ROTA ===",
+                    "Jogador: " + event.getName() + " (" + id + ")",
+                    "Rota encontrada: " + (route != null),
+                    "Rota válida: " + (route != null ? route.isValidArcade() : "N/A"),
+                    "Rota detalhes: " + (route != null ? route.toString() : "NULL"));
 
             if (route == null || !route.isValidArcade()) {
                 routeData.delete(id);
@@ -59,34 +70,50 @@ public class SearchListener implements Listener {
             Arena arena = (Arena) arcade.getRoom(arcadeRoute);
 
             if (arena == null) {
+                Savage.message("Arena não encontrada!");
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Constant.NO_ROOM_AVAILABLE_MESSAGE);
                 return;
             }
 
+            Savage.message("Arena encontrada: " + arena.getIdentifier());
+            Savage.message("Carregando dados do BedMember...");
+
             // Carregando dados da conta Arcade
             BedMember member = Savage.getBedWarsData().of(id, true);
 
+            Savage.message("BedMember carregado: " + (member != null));
+
             if (member == null) {
+                Savage.message("Criando novo BedMember...");
                 member = Savage.getBedWarsData().save(new BedMember(id, event.getName()));
 
                 if (member == null) {
+                    Savage.message("Falha ao criar BedMember!");
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Constant.ACCOUNT_LOAD_FAILED_MESSAGE + " (Ex0002)");
                     return;
                 }
+                Savage.message("BedMember criado com sucesso!");
             }
 
+            Savage.message("Salvando member no controller...");
             Savage.getMemberController().save(member);
+            
+            Savage.message("Cancelando expiração...");
             Savage.getBedWarsData().cancelExpiration(id);
 
+            Savage.message("Criando usuário...");
             // Criando usuário
             User user = new User(member, arena, arcadeRoute.getJoin());
 
+            Savage.message("Verificando reconnect...");
             if (user.getAccount().hasReconnect()) {
                 Reconnect reconnect = Savage.getReconnectData().of(id);
 
                 if (reconnect != null)
                     user.getContext().setReconnect(reconnect);
             }
+            
+            Savage.message("=== LOGIN PERMITIDO ===");
         }
     }
 

@@ -83,7 +83,7 @@ public class ArenaKillsLeaderboard extends LeaderboardHologram {
 
                 textLines.add(String.format("§e%s. %s §7- §e%s",
                         id,
-                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " §8[" + account.getClanTag() + "]" : ""),
+                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " " + account.getClanTag() : ""),
                         Util.formatNumber(kills)));
 
             } else

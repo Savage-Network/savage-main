@@ -287,7 +287,7 @@ public class Account {
 
         String raw = getClan().getTag().toUpperCase();
 
-        return clanTag != ClanTag.NONE ? clanTag.format("[" + raw + "]") : "[" + raw + "]";
+        return clanTag != ClanTag.NONE ? clanTag.format("[" + raw + "]") : "§8[" + raw + "]";
     }
 
     /* ClanTag Methods */
@@ -525,6 +525,12 @@ public class Account {
         if (getServerType().getCategory() == ServerCategory.NONE && serverType.getCategory() == ServerCategory.NONE) {
             return false; // Sempre permitir conectar entre hubs
         }
+        
+        // Permitir conexão do lobby para o servidor de jogo
+        if (getServerType().isLobby() && !serverType.isLobby()) {
+            return false; // Sempre permitir ir do lobby para o jogo
+        }
+        
         return getServerType().equals(serverType);
     }
 
@@ -610,26 +616,40 @@ public class Account {
     }
 
     public void redirect(RouteContext route) {
+        Savage.message("=== REDIRECT INICIADO ===",
+                "Jogador: " + getName() + " (" + id + ")",
+                "Servidor destino: " + route.getServerType(),
+                "Tem party: " + hasParty(),
+                "Rota arcade: " + (route.getArcade() != null));
+
         if (hasParty() && !getParty().isAuthor(id) && route.getArcade() != null && !route.getArcade().isLinked() && route.getServerType().isArcade()) {
             send("§cApenas o dono da party pode procurar salas.");
+            Savage.message("REDIRECT CANCELADO: Não é dono da party");
             return;
         }
 
         if (route.getSenderId() == null) {
             send("§cO remetente da rota não pode ser nulo.");
+            Savage.message("REDIRECT CANCELADO: SenderId nulo");
             return;
         }
 
         if (inServer(route.getServerType())) {
             send("§cVocê já está conectado nesta sala.");
+            Savage.message("REDIRECT CANCELADO: Já está no servidor");
             return;
         }
 
+        Savage.message("Deletando rota antiga...");
         Savage.getRouteData().delete(id);
 
+        Savage.message("Salvando nova rota...");
         Savage.getRouteData().save(route);
 
+        Savage.message("Enviando RouteSearchMessage...");
         new RouteSearchMessage(this, route).send();
+        
+        Savage.message("REDIRECT CONCLUÍDO para " + getName());
     }
 
     public void redirect(ArcadeRouteContext route) {

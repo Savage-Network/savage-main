@@ -18,6 +18,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -386,7 +387,6 @@ public class ClanCommand implements CommandInheritor {
         account.send("§cVocê recusou o convite de " + target.getNickname() + " para entrar no clan.");
         target.send("§c" + account.getNickname() + " recusou o convite para entrar no clan.");
     }
-}
 
     @Command(name = "clan.membros")
     public void clanMembers(BungeeCommandContext context) {
@@ -405,17 +405,16 @@ public class ClanCommand implements CommandInheritor {
         // Listar membros por cargo
         for (ClanRole role : ClanRole.values()) {
             List<UUID> membersWithRole = new ArrayList<>();
-            
-            for (UUID memberId : clan.getMembers()) {
-                ClanRole memberRole = clan.getRole(memberId);
-                if (memberRole == role) {
-                    membersWithRole.add(memberId);
+
+            for (Map.Entry<UUID, com.minecraft.savagemc.core.api.clan.member.ClanMember> entry : clan.getMembers().entrySet()) {
+                if (entry.getValue().getRole() == role) {
+                    membersWithRole.add(entry.getKey());
                 }
             }
 
             if (!membersWithRole.isEmpty()) {
                 account.send(role.getColor() + role.getSymbol() + " " + role.getName() + "s:");
-                
+
                 for (UUID memberId : membersWithRole) {
                     Account member = Savage.getAccountController().of(memberId);
                     if (member != null) {
@@ -516,17 +515,20 @@ public class ClanCommand implements CommandInheritor {
             return;
         }
 
-        ClanRole currentRole = clan.getRole(target.getId());
+        ClanRole currentRole = clan.getMember(target.getId()).getRole();
 
         if (currentRole == newRole) {
             account.send("§c" + target.getNickname() + " já possui o cargo de " + newRole.getName() + ".");
             return;
         }
 
-        clan.setRole(target.getId(), newRole);
+        com.minecraft.savagemc.core.api.clan.member.ClanMember member = clan.getMember(target.getId());
+        member.setRole(newRole);
+        clan.updateMember(member);
 
         account.send("§aVocê promoveu " + target.getNickname() + " para " + newRole.getColor() + newRole.getName() + "§a.");
         target.send("§aVocê foi promovido para " + newRole.getColor() + newRole.getName() + "§a no clan " + clan.getName() + ".");
-        
+
         clan.send("§e" + account.getNickname() + " promoveu " + target.getNickname() + " para " + newRole.getColor() + newRole.getName() + "§e.");
     }
+}

@@ -271,18 +271,32 @@ public abstract class Arcade extends ArcadeHolder {
         Account account = Savage.getAccountData().of(sender);
         Redirect redirect = Savage.getRedirectData().of(sender);
 
+        System.out.println("[Search] Iniciando busca para " + sender);
+        System.out.println("[Search] Redirect: " + (redirect != null ? "SIM" : "NÃO"));
+
         // Se há redirecionamento, buscar a arena diretamente
         if (redirect != null) {
-            return findRedirectedArena(route);
+            Arena arena = findRedirectedArena(route);
+            System.out.println("[Search] Arena redirecionada: " + (arena != null ? arena.getIdentifier() : "NULL"));
+            return arena;
         }
 
         // Filtra as arenas conforme a rota e informações do jogador
         Stream<Arena> stream = getFilteredArenas(route);
+        
+        long totalArenas = stream.count();
+        System.out.println("[Search] Total de arenas filtradas: " + totalArenas);
+        
+        // Recria o stream pois count() o consome
+        stream = getFilteredArenas(route);
 
         // Filtra pela lógica de reconexão e reservas
-        return stream.filter(arena -> isArenaValidForPlayer(arena, route, account, sender))
+        Arena result = stream.filter(arena -> isArenaValidForPlayer(arena, route, account, sender))
                 .findFirst()
                 .orElse(null);
+                
+        System.out.println("[Search] Arena encontrada: " + (result != null ? result.getIdentifier() : "NULL"));
+        return result;
     }
 
     // Busca uma arena específica caso exista um redirecionamento
@@ -316,14 +330,19 @@ public abstract class Arcade extends ArcadeHolder {
     // Verifica se uma arena é válida para o jogador com base nas reservas e condições de reconexão
     private boolean isArenaValidForPlayer(Arena arena, ArcadeRouteContext route, Account account, UUID sender) {
         System.out.println("[Search] Filtrando " + arena.getIdentifier() + " para " + sender);
+        System.out.println("[Search]   - Fase: " + arena.getPhase());
+        System.out.println("[Search]   - Disponível: " + arena.isAvailable());
+        System.out.println("[Search]   - Jogadores: " + arena.getPlayers().size() + "/" + arena.getMaxPlayers());
 
         // Verifica reconexão
         if (account.hasReconnect() && arena.getId() == route.getRoomId() && arena.getMap().getId() == route.getMapId()) {
+            System.out.println("[Search]   - ACEITA (Reconexão)");
             return true;
         }
 
         // Verifica se a arena está disponível
         if (!arena.isAvailable()) {
+            System.out.println("[Search]   - REJEITADA (Não disponível)");
             return false;
         }
 
@@ -337,6 +356,7 @@ public abstract class Arcade extends ArcadeHolder {
         // Verifica se o jogador é dono da party e está reservado na arena
         if (account.isPartyOwner() && arena.isReserved() && arena.hasReservation(sender)) {
             Savage.getLogger().info("[PT-Route] O dono " + account.getNickname() + " entrou em " + arena.getIdentifier() + ".");
+            System.out.println("[Search]   - ACEITA (Dono da party reservado)");
             return true;
         }
 
@@ -344,11 +364,14 @@ public abstract class Arcade extends ArcadeHolder {
         if (arena.isReserved() && arena.hasReservation(sender) && !arena.isFull()) {
             arena.removeReservation(sender);
             System.out.println("[PT-Route] " + account.getNickname() + " entrou em " + arena.getIdentifier() + ".");
+            System.out.println("[Search]   - ACEITA (Reservado)");
             return true;
         }
 
         // Caso contrário, a arena deve estar disponível
-        return arena.isAvailable();
+        boolean available = arena.isAvailable();
+        System.out.println("[Search]   - " + (available ? "ACEITA" : "REJEITADA") + " (Disponibilidade final)");
+        return available;
     }
 
     /**
@@ -818,7 +841,7 @@ public abstract class Arcade extends ArcadeHolder {
                 Location firstChestLocation = chestLocations.get(0);
                 HologramServer chestHologram = manager.getHologram().spawnServer(
                         "chest_hologram_" + team.getTypeName().toLowerCase(), 
-                        firstChestLocation.clone().add(0.5, 1.5, 0.5));
+                        firstChestLocation.clone().add(0.5, 1.2, 0.5));
                 
                 chestHologram.setText(Arrays.asList(
                         "§eBata aqui",

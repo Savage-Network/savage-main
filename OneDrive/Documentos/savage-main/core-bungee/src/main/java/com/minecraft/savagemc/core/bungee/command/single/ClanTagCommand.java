@@ -48,8 +48,7 @@ public class ClanTagCommand implements CommandInheritor {
             ClanTag current = account.getContext().getClanTag();
 
             if (current == null || current == ClanTag.NONE) {
-                account.send("§cVocê não tem nenhuma clan tag §c;(");
-                account.send("§7Adquira uma em: §eloja.savagemc.net/category/clantag");
+                account.send("§eVocê não tem nenhuma clan tag selecionada.");
             } else {
                 account.send("§eSua clan tag atual: " + formatTag(current, clan.getTag()));
             }

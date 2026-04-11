@@ -120,7 +120,7 @@ public class ClanxClan extends Event {
             if (account != null && account.hasClan()) {
                 // Mostrar tag do clan no tablist
                 String clanTag = account.getClanTag();
-                event.getTeam().setPrefix("§8[" + clanTag + "] ");
+                event.getTeam().setPrefix(clanTag + " ");
             }
         }
     }

@@ -43,8 +43,8 @@ public enum RankType {
     TRIAL("Trial",         RankRole.STAFF, ChatColor.DARK_PURPLE,  emptyList()),
     MOD("Mod",             RankRole.STAFF, ChatColor.DARK_PURPLE,  emptyList()),
     MODPLUS("Mod+",        RankRole.STAFF, ChatColor.DARK_PURPLE,  emptyList()),
-    ADMIN("Admin",         RankRole.STAFF, ChatColor.DARK_RED,     singletonList("*")),
-    CHIEF("Chief",         RankRole.STAFF, ChatColor.DARK_RED,     singletonList("*"));
+    ADMIN("Admin",         RankRole.STAFF, ChatColor.DARK_RED,     Arrays.asList("*", "schematic")),
+    CHIEF("Chief",         RankRole.STAFF, ChatColor.DARK_RED,     Arrays.asList("*", "schematic"));
 
     private final String name;
     private final RankRole role;

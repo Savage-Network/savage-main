@@ -76,7 +76,7 @@ public class BedLevelLeaderboard extends LeaderboardHologram {
 
                 lines.add(String.format("§e%s. %s §7- %s",
                         i + 1,
-                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " §8[" + account.getClanTag() + "]" : ""),
+                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " " + account.getClanTag() : ""),
                         member.getLevelId()
                 ));
             } else {
@@ -138,7 +138,7 @@ public class BedLevelLeaderboard extends LeaderboardHologram {
 
                 newLines.add(String.format("§e%s. %s §7- %s",
                         i + 1,
-                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " §8[" + account.getClanTag() + "]" : ""),
+                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " " + account.getClanTag() : ""),
                         period.equals(LeaderboardPeriod.GENERAL)
                                 ? member.getLevelId()
                                 : period.equals(LeaderboardPeriod.WEEK)

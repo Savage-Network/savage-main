@@ -148,8 +148,14 @@ public class ServerListener implements Listener {
 
         if (account == null) return true;
 
-        return !(account.hasRank(RankType.BUILDER) || account.hasRank(RankType.ADMIN))
-                || !player.inGameMode(GameMode.CREATIVE) || !account.getToggle().isAllowBuild();
+        // Precisa ser Builder/Admin E estar em Creative E ter allowBuild ativado
+        if ((account.hasRank(RankType.BUILDER) || account.hasRank(RankType.ADMIN)) 
+                && player.inGameMode(GameMode.CREATIVE) 
+                && account.getToggle().isAllowBuild()) {
+            return false;
+        }
+
+        return true;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

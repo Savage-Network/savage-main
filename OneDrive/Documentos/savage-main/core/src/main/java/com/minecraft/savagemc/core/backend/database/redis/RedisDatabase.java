@@ -31,7 +31,7 @@ public class RedisDatabase implements Database {
                 .build()
                 // Server
                 : DatabaseCredentials.builder()
-                .host("206.0.29.85")
+                .host("198.1.195.80")
                 .port(6379)
                 .build());
     }

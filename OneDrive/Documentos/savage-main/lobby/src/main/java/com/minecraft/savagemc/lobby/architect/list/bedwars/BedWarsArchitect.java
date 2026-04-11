@@ -134,6 +134,7 @@ public class BedWarsArchitect extends Architect {
 
     @Override
     public void handleSidebar(User user) {
+        Account account = user.getAccount();
         BedMember member = user.getMember(BedMember.class);
 
         Sidebar sidebar = user.getSidebar();
@@ -176,6 +177,18 @@ public class BedWarsArchitect extends Architect {
         sidebar.addWebsiteRow();
 
         sidebar.display();
+        TagManager.updateTag(account);
+        
+        // Forçar atualização adicional após 5 ticks para garantir que o jogador veja seu próprio nick
+        org.bukkit.Bukkit.getScheduler().runTaskLater(
+            com.minecraft.savagemc.core.bukkit.BukkitCore.getInstance(), 
+            () -> {
+                if (account.player() != null && account.player().isOnline()) {
+                    TagManager.updateTag(account);
+                }
+            }, 
+            5L
+        );
     }
 
     @Override

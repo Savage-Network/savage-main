@@ -193,13 +193,8 @@ public class Npc {
 
         updateEquipment(player);
 
-        // NPCs permanecem no tablist junto com os jogadores
-        // Savage.getPlatform().runSync(() -> {
-        //     if (player.isOnline()) {
-        //         PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
-        //         conn.sendPacket(buildPlayerInfoPacket(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, profile));
-        //     }
-        // }, 40);
+        // NPCs agora aparecem no tablist com a tag [NPC]
+        // O nome já está definido no GameProfile como "§8[NPC] " + uuid
     }
 
     public void despawnTo(Player player) {

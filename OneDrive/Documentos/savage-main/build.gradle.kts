@@ -1,15 +1,26 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1" apply false
+}
+
 subprojects {
     apply(plugin = "java")
 
     group = "com.minecraft.savagemc"
     version = "1.0.0-SNAPSHOT"
 
+    configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
     tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
+        options.release.set(17)
     }
 
     repositories {
         mavenCentral()
+        maven("https://maven.enginehub.org/repo/")
     }
 
     dependencies {

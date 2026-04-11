@@ -25,15 +25,15 @@ public class ClanData {
 
     public void save(Clan clan) {
         try (Connection conn = postgres.getConnection()) {
-            PreparedStatement check = conn.prepareStatement("SELECT id FROM clans WHERE id = ?::uuid");
-            check.setObject(1, clan.getId(), java.sql.Types.OTHER);
+            PreparedStatement check = conn.prepareStatement("SELECT id FROM clans WHERE id = ?");
+            check.setString(1, clan.getId().toString());
             ResultSet rs = check.executeQuery();
 
             if (!rs.next()) {
                 PreparedStatement insert = conn.prepareStatement(
                     "INSERT INTO clans (id, name, tag, data) VALUES (?, ?, ?, ?::jsonb)"
                 );
-                insert.setObject(1, clan.getId(), java.sql.Types.OTHER);
+                insert.setString(1, clan.getId().toString());
                 insert.setString(2, clan.getName());
                 insert.setString(3, clan.getTag());
                 insert.setString(4, Savage.GSON.toJson(clan));
@@ -51,8 +51,8 @@ public class ClanData {
 
         if (clan == null) {
             try (Connection conn = postgres.getConnection()) {
-                PreparedStatement stmt = conn.prepareStatement("SELECT data FROM clans WHERE id = ?::uuid");
-                stmt.setObject(1, id, java.sql.Types.OTHER);
+                PreparedStatement stmt = conn.prepareStatement("SELECT data FROM clans WHERE id = ?");
+                stmt.setString(1, id.toString());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next())
                     clan = Savage.GSON.fromJson(rs.getString("data"), Clan.class);
@@ -110,12 +110,12 @@ public class ClanData {
     public void update(Clan clan, String field) {
         try (Connection conn = postgres.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE clans SET data = ?::jsonb, name = ?, tag = ? WHERE id = ?::uuid"
+                "UPDATE clans SET data = ?::jsonb, name = ?, tag = ? WHERE id = ?"
             );
             stmt.setString(1, Savage.GSON.toJson(clan));
             stmt.setString(2, clan.getName());
             stmt.setString(3, clan.getTag());
-            stmt.setObject(4, clan.getId(), java.sql.Types.OTHER);
+            stmt.setString(4, clan.getId().toString());
             stmt.executeUpdate();
             redis.update(CLAN_KEY_FORMAT + clan.getId(), clan);
         } catch (SQLException e) {
@@ -125,8 +125,8 @@ public class ClanData {
 
     public void delete(Clan clan) {
         try (Connection conn = postgres.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement("DELETE FROM clans WHERE id = ?::uuid");
-            stmt.setObject(1, clan.getId(), java.sql.Types.OTHER);
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM clans WHERE id = ?");
+            stmt.setString(1, clan.getId().toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

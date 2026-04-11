@@ -61,7 +61,7 @@ public class BedWinsLeaderboard extends LeaderboardHologram {
 
                 lines.add(String.format("§e%s. %s §7- %s",
                         i + 1,
-                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " §8[" + account.getClanTag() + "]" : ""),
+                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " " + account.getClanTag() : ""),
                         Util.formatNumber(member.getTotalWins())
                 ));
             } else {
@@ -107,7 +107,7 @@ public class BedWinsLeaderboard extends LeaderboardHologram {
 
                 newLines.add(String.format("§e%s. %s §7- %s",
                         i + 1,
-                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " §8[" + account.getClanTag() + "]" : ""),
+                        account.getRank().getColor() + account.getName() + (account.hasClan() ? " " + account.getClanTag() : ""),
                         Util.formatNumber(member.getTotalWins())
                 ));
             } else {
