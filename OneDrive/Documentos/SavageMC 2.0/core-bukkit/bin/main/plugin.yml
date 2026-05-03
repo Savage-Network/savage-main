@@ -1,0 +1,6 @@
+name: Core
+authors: [Gabriel Martins, Guitho]
+version: 0.0.1
+main: com.hish.core.bukkit.BukkitCore
+depend:
+  - ProtocolLib

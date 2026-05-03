@@ -1,0 +1,6 @@
+name: duels
+version: 0.0.1
+authors: [Gabriel Martins, Guitho]
+main: com.hish.arcade.duels.Duels
+depend:
+  - SlimeWorldManager
