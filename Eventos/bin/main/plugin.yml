@@ -1,0 +1,57 @@
+name: Eventos
+version: '${version}'
+main: gay.zrfa.eventos.Main
+api-version: '1.8'
+description: Plugin de eventos com espectador pós-morte, logs de vencedores, grupos e BungeeCord.
+author: Zrfa
+
+softdepend: [WorldEdit]
+
+commands:
+  lm:
+    description: Define o evento (nome, tipo, parar, status)
+    usage: /lm [nome|tipo|parar|status]
+  start:
+    description: Inicia o evento
+    usage: /start [nome do evento]
+  time:
+    description: Define o tipo do evento (solo, duplas, trio, panela)
+    usage: /time <solo|duplas|trio|panela>
+  tempo:
+    description: Tempo para iniciar o evento (countdown em segundos)
+    usage: /tempo <segundos|start|parar>
+  logs:
+    description: Ver últimos vencedores no banco de dados
+    usage: /logs [quantidade]
+  evtreload:
+    description: Recarrega a configuração do plugin de eventos
+    usage: /evtreload
+  grupo:
+    description: Adiciona um jogador ao seu grupo (por nick)
+    usage: /grupo <nick> ou /grupo sair
+  var:
+    description: "Define ou consulta variáveis do evento (ex. event.name para scoreboard)"
+    usage: /var <chave> [valor]
+  espectador:
+    description: Abre o menu de espectador (teleportar / ir ao lobby)
+    usage: /espectador
+
+permissions:
+  eventos.admin:
+    description: Acesso total aos comandos de evento
+    default: op
+  eventos.jogar:
+    description: Pode participar dos eventos
+    default: true
+  eventos.spectator:
+    description: Permissão para modo espectador pós-morte
+    default: true
+  eventos.moedas:
+    description: Ver e usar moedas do evento
+    default: true
+  eventos.vip:
+    description: VIP - tempo para reconectar após sair durante o evento (relog time)
+    default: false
+
+outgoing-channels:
+  - BungeeCord

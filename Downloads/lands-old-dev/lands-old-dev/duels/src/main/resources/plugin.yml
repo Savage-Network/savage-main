@@ -1,6 +1,0 @@
-name: duels
-version: 0.0.1
-author: Cássio Martim
-main: com.minecraft.savagemc.arcade.duels.Duels
-depend:
-  - SlimeWorldManager

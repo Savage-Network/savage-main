@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Savage.iml" filepath="$PROJECT_DIR$/.idea/modules/Savage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Eventos/Savage.Eventos.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Eventos/Savage.Eventos.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth/Savage.auth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth/Savage.auth.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bedwars/Savage.bedwars.main.iml" filepath="$PROJECT_DIR$/.idea/modules/bedwars/Savage.bedwars.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-bukkit/Savage.core-bukkit.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core-bukkit/Savage.core-bukkit.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-bungee/Savage.core-bungee.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core-bungee/Savage.core-bungee.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Savage.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Savage.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/duels/Savage.duels.main.iml" filepath="$PROJECT_DIR$/.idea/modules/duels/Savage.duels.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/eggwars/Savage.eggwars.main.iml" filepath="$PROJECT_DIR$/.idea/modules/eggwars/Savage.eggwars.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/game/hungergames/Savage.game.hungergames.main.iml" filepath="$PROJECT_DIR$/.idea/modules/game/hungergames/Savage.game.hungergames.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/game/Savage.game.main.iml" filepath="$PROJECT_DIR$/.idea/modules/game/Savage.game.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lobby/Savage.lobby.main.iml" filepath="$PROJECT_DIR$/.idea/modules/lobby/Savage.lobby.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pvp/Savage.pvp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/pvp/Savage.pvp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/skywars/Savage.skywars.main.iml" filepath="$PROJECT_DIR$/.idea/modules/skywars/Savage.skywars.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/thebridge/Savage.thebridge.main.iml" filepath="$PROJECT_DIR$/.idea/modules/thebridge/Savage.thebridge.main.iml" />
+    </modules>
+  </component>
+</project>
