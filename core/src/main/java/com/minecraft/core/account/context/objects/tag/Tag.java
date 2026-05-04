@@ -39,6 +39,8 @@ public enum Tag {
 
     /* Tags */
     TAG_BETA("Beta", "§1§lBETA §1", "F", TagRole.SPECIAL, ChatColor.DARK_BLUE, true, "§9§lBETA §9", "§b§lBETA §b"),
+    /** Roxo §5 + itálico §o antes do apelido (mesmo benefício tier que Beta). */
+    TAG_PRECIOUS("Precious", "§5§o", "N", TagRole.SPECIAL, ChatColor.DARK_PURPLE),
     TAG_CARNAVAL("Carnaval", "§6§lCARNAVAL §6", "G", TagRole.SPECIAL, ChatColor.GOLD),
     TAG_FERIAS("Férias", "§a§lFÉRIAS §a", "H", TagRole.SPECIAL, ChatColor.GREEN),
     TAG_HALLOWEEN("Halloween", "§5§lHALLOWEEN §5", "I", TagRole.SPECIAL, ChatColor.DARK_PURPLE),
@@ -134,7 +136,8 @@ public enum Tag {
         return Arrays.stream(values())
                 .filter(tag -> tag.name().equalsIgnoreCase(name) 
                         || tag.getName().equalsIgnoreCase(name) 
-                        || (name.equalsIgnoreCase("beta") && tag == TAG_BETA) // Alias específico para beta
+                        || (name.equalsIgnoreCase("beta") && tag == TAG_BETA)
+                        || (name.equalsIgnoreCase("precious") && tag == TAG_PRECIOUS)
                         || ((name.equalsIgnoreCase("ceo") || name.equalsIgnoreCase("owner")) && tag == TAG_OWNER)
                         || tag.getSurnames().stream().anyMatch(surName -> surName.equalsIgnoreCase(name)))
                 .findFirst()

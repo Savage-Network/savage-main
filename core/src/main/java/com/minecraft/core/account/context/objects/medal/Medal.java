@@ -56,6 +56,8 @@ public enum Medal {
     ASSINATURA("Assinatura", "✐", ChatColor.GRAY),
     CEM("100", "✫", ChatColor.GOLD),
     CHAMPION("Champion", "❂", ChatColor.GOLD),
+    /** Exclusiva do rank Precious §5♦ (&5♦). */
+    PRECIOUS("Precious", "♦", ChatColor.DARK_PURPLE),
     CAVEIRA("Ceifador", "☠", ChatColor.DARK_GRAY),
     NEGADO("Negado", "✘", ChatColor.RED),
     C("C", "§lC", ChatColor.DARK_RED),

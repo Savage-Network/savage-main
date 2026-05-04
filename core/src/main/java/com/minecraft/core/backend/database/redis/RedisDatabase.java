@@ -10,6 +10,8 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import redis.clients.jedis.exceptions.JedisDataException;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -52,6 +54,7 @@ public class RedisDatabase implements Database {
 
         try (Jedis jedis = pool.getResource()) {
             jedis.ping();
+            warnIfRedisReplicaReadOnly(jedis);
             Core.getLogger().info("Conexão com Redis efetuada com sucesso. (Tempo: " + Duration.between(now, Instant.now()).toMillis() + "ms)");
         } catch (Exception e) {
             Core.getLogger().severe("Erro ao conectar ao Redis: " + e.getMessage());
@@ -86,7 +89,11 @@ public class RedisDatabase implements Database {
             fields.values().removeIf(Objects::isNull);
             jedis.hmset(key, fields);
         } catch (Exception e) {
-            Core.getLogger().severe("[Redis] Erro ao salvar " + key + ": " + e.getMessage());
+            if (e instanceof JedisDataException) {
+                logRedisWriteFailure(key, "salvar", (JedisDataException) e);
+            } else {
+                Core.getLogger().severe("[Redis] Erro ao salvar " + key + ": " + e.getMessage());
+            }
         }
     }
 
@@ -126,8 +133,12 @@ public class RedisDatabase implements Database {
             fields.values().removeIf(Objects::isNull);
             jedis.hmset(key, fields);
         } catch (Exception e) {
-            Core.getLogger().severe("[Redis] Erro ao atualizar " + key + ": " + e.getMessage());
-            e.printStackTrace();
+            if (e instanceof JedisDataException) {
+                logRedisWriteFailure(key, "atualizar", (JedisDataException) e);
+            } else {
+                Core.getLogger().severe("[Redis] Erro ao atualizar " + key + ": " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -153,7 +164,11 @@ public class RedisDatabase implements Database {
         try (Jedis jedis = pool.getResource()) {
             jedis.del(key);
         } catch (Exception e) {
-            Core.getLogger().severe("[Redis] Erro ao deletar " + key + ": " + e.getMessage());
+            if (e instanceof JedisDataException) {
+                logRedisWriteFailure(key, "deletar", (JedisDataException) e);
+            } else {
+                Core.getLogger().severe("[Redis] Erro ao deletar " + key + ": " + e.getMessage());
+            }
         }
     }
 
@@ -229,5 +244,33 @@ public class RedisDatabase implements Database {
         try (Jedis jedis = pool.getResource()) {
             return jedis.smembers(key).size();
         }
+    }
+
+    /** Se a URL apontar para uma réplica, escritas falham com READONLY. */
+    private static void warnIfRedisReplicaReadOnly(Jedis jedis) {
+        try {
+            String info = jedis.info("replication");
+            if (info == null) return;
+            for (String line : info.split("\r\n")) {
+                if (!line.startsWith("role:")) continue;
+                String role = line.substring("role:".length()).trim();
+                if ("slave".equalsIgnoreCase(role) || "replica".equalsIgnoreCase(role)) {
+                    Core.getLogger().severe("[Redis] Esta instancia reporta papel '" + role
+                            + "' (replica read-only). Use o endpoint do Redis PRIMARY/master para escritas.");
+                }
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void logRedisWriteFailure(String key, String action, JedisDataException e) {
+        String msg = e.getMessage() != null ? e.getMessage() : "";
+        if (msg.contains("READONLY")) {
+            Core.getLogger().warning("[Redis] " + action + " bloqueado (READONLY / replica): "
+                    + key + " — aponte para o Redis primary.");
+            return;
+        }
+        Core.getLogger().severe("[Redis] Erro ao " + action + " " + key + ": " + msg);
     }
 }

@@ -27,6 +27,7 @@ import com.minecraft.core.api.collectible.rarity.CollectibleRarity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -390,24 +391,26 @@ public class AccountCommand implements CommandInheritor {
             case "medal": {
                 if (args.length == 2) {
                     sender.send("§cComo usar " + label + " medal:",
-                            "§c* " + label + " [jogador] medal add (nome)",
-                            "§c* " + label + " [jogador] medal remove (nome)",
-                            "§c* " + label + " [jogador] medal set (nome)",
-                            "§c* " + label + " [jogador] medal list");
+                            "§c* " + label + " [jogador] medal add [nome]",
+                            "§c* " + label + " [jogador] medal remove [nome]",
+                            "§c* " + label + " [jogador] medal set [nome]",
+                            "§c* " + label + " [jogador] medal list",
+                            "§c* " + label + " [jogador] medal info");
                     return;
                 }
 
                 switch (args[2].toLowerCase()) {
                     case "add": {
-                        if (args.length == 3) {
-                            sender.send("§cUso: " + label + " [jogador] medal add (nome).");
+                        if (args.length <= 3) {
+                            sender.send("§cUso: " + label + " [jogador] medal add [nome completo — pode ter espaços].");
                             return;
                         }
 
-                        Medal medal = Medal.of(args[3]);
+                        String medalQuery = joinArgs(args, 3);
+                        Medal medal = Medal.of(medalQuery);
 
                         if (medal == null) {
-                            sender.send("§cA medalha '" + args[3] + "' não foi encontrada.");
+                            sender.send("§cA medalha '" + medalQuery + "' não foi encontrada.");
                             return;
                         }
 
@@ -429,15 +432,16 @@ public class AccountCommand implements CommandInheritor {
                     }
 
                     case "remove": {
-                        if (args.length == 3) {
-                            sender.send("§cUso: " + label + " [jogador] medal remove (nome).");
+                        if (args.length <= 3) {
+                            sender.send("§cUso: " + label + " [jogador] medal remove [nome completo — pode ter espaços].");
                             return;
                         }
 
-                        Medal medal = Medal.of(args[3]);
+                        String medalQueryRm = joinArgs(args, 3);
+                        Medal medal = Medal.of(medalQueryRm);
 
                         if (medal == null) {
-                            sender.send("§cA medalha '" + args[3] + "' não foi encontrada.");
+                            sender.send("§cA medalha '" + medalQueryRm + "' não foi encontrada.");
                             return;
                         }
 
@@ -463,15 +467,16 @@ public class AccountCommand implements CommandInheritor {
                     }
 
                     case "set": {
-                        if (args.length == 3) {
-                            sender.send("§cUso: " + label + " [jogador] medal set (nome).");
+                        if (args.length <= 3) {
+                            sender.send("§cUso: " + label + " [jogador] medal set [nome completo — pode ter espaços].");
                             return;
                         }
 
-                        Medal medal = Medal.of(args[3]);
+                        String medalQuerySet = joinArgs(args, 3);
+                        Medal medal = Medal.of(medalQuerySet);
 
                         if (medal == null) {
-                            sender.send("§cA medalha '" + args[3] + "' não foi encontrada.");
+                            sender.send("§cA medalha '" + medalQuerySet + "' não foi encontrada.");
                             return;
                         }
 
@@ -483,6 +488,47 @@ public class AccountCommand implements CommandInheritor {
                         target.setMedal(medal);
 
                         sender.send("§aVocê definiu a medalha " + medal.getColoredName() + " como ativa na conta de " + target.getNickname() + ".");
+                        break;
+                    }
+
+                    case "info": {
+                        Medal activeMedal = target.getMedal();
+                        if (activeMedal == null || Medal.NONE.equals(activeMedal)) {
+                            sender.send("§7Medalha ativa no perfil: §fnenhuma§7.");
+                        } else {
+                            sender.send("§aMedalha ativa: " + activeMedal.getColoredName() + " §8(" + activeMedal.name() + "§8)");
+                        }
+
+                        LinkedHashSet<Medal> ownedSet = new LinkedHashSet<>(target.getMedals());
+                        ownedSet.remove(Medal.NONE);
+                        if (ownedSet.isEmpty()) {
+                            sender.send("§7Medalhas salvas na conta: §fvazio§7.");
+                        } else {
+                            sender.send("§aMedalhas salvas na conta §8(" + ownedSet.size() + "§8)§a:");
+                            for (Medal m : ownedSet) {
+                                String prefix = activeMedal != null && m.equals(activeMedal) ? "§e[ATIVA] " : "";
+                                sender.send(" §8- " + prefix + m.getColoredName() + " §8(" + m.name() + "§8)");
+                            }
+                        }
+
+                        if (!target.isStaffer()) {
+                            List<Medal> extraMedals = new ArrayList<>();
+                            for (Medal m : Medal.values()) {
+                                if (m == Medal.NONE) continue;
+                                if (target.getMedals().contains(m)) continue;
+                                if (target.hasMedal(m)) extraMedals.add(m);
+                            }
+                            if (!extraMedals.isEmpty()) {
+                                sender.send("§eUsáveis agora §8(rank/permissão/VIP)§e mas não na lista salva §8(" + extraMedals.size() + "§8)§e:");
+                                int cap = Math.min(extraMedals.size(), 15);
+                                for (int i = 0; i < cap; i++) {
+                                    Medal m = extraMedals.get(i);
+                                    sender.send(" §8- " + m.getColoredName() + " §8(" + m.name() + "§8)");
+                                }
+                                if (extraMedals.size() > cap)
+                                    sender.send(" §8… §7e mais " + (extraMedals.size() - cap) + "§7.");
+                            }
+                        }
                         break;
                     }
 
@@ -514,6 +560,14 @@ public class AccountCommand implements CommandInheritor {
                         }
                         break;
                     }
+
+                    default:
+                        sender.send("§cComo usar " + label + " medal:",
+                                "§c* " + label + " [jogador] medal add [nome]",
+                                "§c* " + label + " [jogador] medal remove [nome]",
+                                "§c* " + label + " [jogador] medal set [nome]",
+                                "§c* " + label + " [jogador] medal list",
+                                "§c* " + label + " [jogador] medal info");
                 }
 
                 break;

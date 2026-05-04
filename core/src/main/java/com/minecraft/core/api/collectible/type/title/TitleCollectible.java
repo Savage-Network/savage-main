@@ -20,6 +20,14 @@ public abstract class TitleCollectible extends Collectible {
     public CollectibleTitleGroup getTitleGroup() {
         return CollectibleTitleGroup.PROFILE_STATS;
     }
+
+    /**
+     * Interpretação / MC do título quando {@link #getTitleGroup()} é {@link CollectibleTitleGroup#MUSICAS}.
+     * Para classificar músicas novas até saberes o artista, deixa-se o default {@link CollectibleMusicArtist#UNKNOWN}.
+     */
+    public CollectibleMusicArtist getMusicArtist() {
+        return CollectibleMusicArtist.UNKNOWN;
+    }
     
     /**
      * Retorna o título a ser exibido

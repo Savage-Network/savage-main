@@ -5,13 +5,16 @@ import com.minecraft.core.account.Account;
 import com.minecraft.core.api.collectible.Collectible;
 import com.minecraft.core.api.collectible.CollectibleCategory;
 import com.minecraft.core.api.collectible.operator.CollectibleOperator;
+import com.minecraft.core.api.collectible.type.title.CollectibleMusicArtist;
 import com.minecraft.core.api.collectible.type.title.CollectibleTitleGroup;
 import com.minecraft.core.api.collectible.type.title.TitleCollectible;
 import com.minecraft.core.api.item.Item;
 import com.minecraft.core.bukkit.api.menu.Menu;
 import com.minecraft.core.bukkit.api.menu.sound.MenuSound;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 
 import java.util.*;
 
@@ -29,6 +32,9 @@ public class TitleCollectibleSelectorMenu extends Menu {
 
     /** null = todos os títulos */
     private CollectibleTitleGroup titleSubgroupFilter;
+
+    /** null com Músicas = todos os artistas (filtro desligado). */
+    private CollectibleMusicArtist musicArtistFilter;
 
     private enum SortMode {
         NONE("Nenhum Filtro"),
@@ -81,12 +87,18 @@ public class TitleCollectibleSelectorMenu extends Menu {
                 setPageNumber(1);
             }
             if (titleSubgroupFilter != null) {
-                addItem(22, Item.of(Material.BARRIER, "§cNenhum título neste tipo",
-                        "",
+                List<String> barrierLore = new ArrayList<>(Arrays.asList(
                         "§7Não há títulos nesta subcategoria.",
-                        "§7Altere o filtro no Livro & Pena abaixo.",
+                        "§7Altere o Livro §8&§7 Pena ou o §6papel §7de artista ao lado",
+                        "§7na barra inferior.",
                         "",
                         "§eAlterne até §aTodos §epara ver tudo."));
+                if (titleSubgroupFilter == CollectibleTitleGroup.MUSICAS && musicArtistFilter != null) {
+                    barrierLore.addAll(Arrays.asList(
+                            "",
+                            "§7Filtrando artista: §f" + describeMusicArtistFilter()));
+                }
+                addItem(22, Item.of(Material.BARRIER, "§cNenhum título neste tipo", barrierLore.toArray(new String[0])));
             } else {
                 addItem(22, Item.of(Material.BARRIER, "§cNenhum título disponível",
                         "",
@@ -103,7 +115,11 @@ public class TitleCollectibleSelectorMenu extends Menu {
                         ""
                 ));
                 if (collectible instanceof TitleCollectible) {
-                    lore.add("§fTipo: " + ((TitleCollectible) collectible).getTitleGroup().getColoredLabel());
+                    TitleCollectible tt = (TitleCollectible) collectible;
+                    lore.add("§fTipo: " + tt.getTitleGroup().getColoredLabel());
+                    if (tt.getTitleGroup() == CollectibleTitleGroup.MUSICAS) {
+                        lore.add("§fArtista: " + tt.getMusicArtist().getColoredLabel());
+                    }
                     lore.add("");
                 }
                 if (!collectible.getLore().isEmpty()) {
@@ -176,14 +192,52 @@ public class TitleCollectibleSelectorMenu extends Menu {
                                 "§fAtualmente: " + describeTitleSubgroupFilterDisplay(),
                                 "§fPróximo: §e" + nextLabel,
                                 "",
+                                titleSubgroupFilter == CollectibleTitleGroup.MUSICAS
+                                        ? "§7Em §5Músicas§7, use o §6papel §7de artista §8(com brilho)§7 ao lado."
+                                        : "§7Em §5Músicas§7, aparece o §6papel§7 de filtro §fpor artista§7.",
+                                "",
                                 "§eClique para alternar."
                         ))
                         .click(event -> {
                             sound(MenuSound.PAGINATED);
                             titleSubgroupFilter = titleSubgroupAdvance(titleSubgroupFilter);
+                            if (titleSubgroupFilter != CollectibleTitleGroup.MUSICAS)
+                                musicArtistFilter = null;
                             setPageNumber(1);
                             handle();
                         }));
+
+        CollectibleMusicArtist nextArtistPeek = peekNextMusicArtist(musicArtistFilter);
+        boolean onMusicSubgroup = titleSubgroupFilter == CollectibleTitleGroup.MUSICAS;
+        if (onMusicSubgroup) {
+            /* Igual aos títulos Músicas (paper); brilho só para não se perder no inventário. */
+            Item disc = Item.of(Material.PAPER, "§6§l♪ §aArtista §8· " + describeMusicArtistFilter())
+                    .lore(Arrays.asList(
+                            "§7Mesmo formato dos títulos §8(papel)§7 — filtro rápido.",
+                            "",
+                            "§fAtual: " + describeMusicArtistFilter(),
+                            "§fPróximo: " + formatMusicArtistLabel(nextArtistPeek),
+                            "",
+                            "§eClique para alternar artista."));
+            disc.unsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+            disc.flags(ItemFlag.HIDE_ENCHANTS);
+            addItem(46,
+                    disc.click(event -> {
+                        sound(MenuSound.PAGINATED);
+                        musicArtistFilter = nextArtistPeek;
+                        setPageNumber(1);
+                        handle();
+                    }));
+        } else {
+            addItem(46,
+                    Item.of(Material.STONE_BUTTON, "§8Artista §7(indisponível)")
+                            .lore(Arrays.asList(
+                                    "§7Primeiro escolha §5Músicas §7no",
+                                    "§7livro §8(& §7pena§8)§7 ao lado §8(§7slot 45§8)§7.",
+                                    "",
+                                    "§7Esse papel filtra §finterprete / MC §7nas músicas."))
+                            .click(event -> sound(MenuSound.ERROR)));
+        }
 
         addItem(getTotalSlots() - (getTotalPages() > 1 ? 7 : 8),
                 Item.of(Material.HOPPER)
@@ -220,6 +274,11 @@ public class TitleCollectibleSelectorMenu extends Menu {
         if (titleSubgroupFilter != null) {
             copy.removeIf(c -> !(c instanceof TitleCollectible)
                     || ((TitleCollectible) c).getTitleGroup() != titleSubgroupFilter);
+        }
+
+        if (titleSubgroupFilter == CollectibleTitleGroup.MUSICAS && musicArtistFilter != null) {
+            copy.removeIf(c -> !(c instanceof TitleCollectible)
+                    || ((TitleCollectible) c).getMusicArtist() != musicArtistFilter);
         }
 
         Comparator<Collectible> comparator;
@@ -276,5 +335,39 @@ public class TitleCollectibleSelectorMenu extends Menu {
     private String titleSubgroupPeekNextDisplay() {
         CollectibleTitleGroup next = titleSubgroupAdvance(titleSubgroupFilter);
         return next == null ? "§aTodos" : next.getColoredLabel();
+    }
+
+    /** Artistas clicáveis no menu (UNKNOWN não entra — evita filtros vazios). */
+    private static CollectibleMusicArtist[] selectableMusicArtists() {
+        return Arrays.stream(CollectibleMusicArtist.values())
+                .filter(a -> a != CollectibleMusicArtist.UNKNOWN)
+                .toArray(CollectibleMusicArtist[]::new);
+    }
+
+    /** Próximo no ciclo: §aTodos§r → enums → §aTodos§r */
+    private static CollectibleMusicArtist peekNextMusicArtist(CollectibleMusicArtist current) {
+        CollectibleMusicArtist[] v = selectableMusicArtists();
+        if (v.length == 0) {
+            return null;
+        }
+        if (current == null) {
+            return v[0];
+        }
+        for (int i = 0; i < v.length; i++) {
+            if (v[i] == current) {
+                int n = i + 1;
+                return n < v.length ? v[n] : null;
+            }
+        }
+        /* current era UNKNOWN ou artista antigo removido: volta ao ciclo válido */
+        return v[0];
+    }
+
+    private String describeMusicArtistFilter() {
+        return formatMusicArtistLabel(musicArtistFilter);
+    }
+
+    private static String formatMusicArtistLabel(CollectibleMusicArtist artist) {
+        return artist == null ? "§aTodos os artistas" : artist.getColoredLabel();
     }
 }

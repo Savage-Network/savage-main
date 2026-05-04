@@ -1265,8 +1265,11 @@ public class Account {
                 return true;
             }
             
-            // Caso especial para TAG_BETA: permitir se tiver rank BETA
-            if (tag == Tag.TAG_BETA && hasRank(RankType.BETA)) {
+            // Beta / Precious: mesmo tier — qualquer um dos dois ranks libera as duas tags
+            if (tag == Tag.TAG_BETA && (hasRank(RankType.BETA) || hasRank(RankType.PRECIOUS))) {
+                return true;
+            }
+            if (tag == Tag.TAG_PRECIOUS && (hasRank(RankType.BETA) || hasRank(RankType.PRECIOUS))) {
                 return true;
             }
             
@@ -1559,6 +1562,13 @@ public class Account {
             return false;
         }
 
+        // Medalha exclusiva do rank Precious (§5♦); tier >= Precious OU lista / medal.precious.
+        if (medal == Medal.PRECIOUS) {
+            return hasRank(RankType.PRECIOUS)
+                    || getMedals().contains(medal)
+                    || hasPermission(medal.getPermission());
+        }
+
         // Staffers (helper para cima) têm todas as medalhas
         if (isStaffer()) {
             return true;
@@ -1605,6 +1615,7 @@ public class Account {
                 && medal != Medal.TOWER
                 && medal != Medal.CHAMPION
                 && medal != Medal.Y
+                && medal != Medal.PRECIOUS
                 && medal != Medal.HALLOWEEN
                 && medal != Medal.ROSA_DOURADA
                 && medal != Medal.PRIMAVERA

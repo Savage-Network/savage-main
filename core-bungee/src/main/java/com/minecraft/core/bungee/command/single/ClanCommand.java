@@ -556,7 +556,12 @@ public class ClanCommand implements CommandInheritor {
             case BETA:
                 return account.hasPermission("tag.beta")
                         || account.hasPermission("rank.beta")
-                        || account.hasPermission("clan.color.beta");
+                        || account.hasPermission("clan.color.beta")
+                        || account.hasRank(RankType.BETA)
+                        || account.hasRank(RankType.PRECIOUS)
+                        || account.hasPermission("tag.precious")
+                        || account.hasPermission("rank.precious")
+                        || account.hasPermission("clan.color.precious");
             case CHAMPION:
                 return account.hasPermission(Tag.TAG_CHAMPION.getPermission());
             case MOD:
@@ -581,7 +586,7 @@ public class ClanCommand implements CommandInheritor {
     private String getRequirement(ClanColor color) {
         switch (color) {
             case BETA:
-                return "§1[CLAN] §7- Exclusivo para BETA";
+                return "§1[CLAN] §7- Exclusivo para §1Beta §7ou §5Precious";
             case CHAMPION:
                 return "§6[CLAN] §7- Exclusivo para CHAMPION";
             case MOD:

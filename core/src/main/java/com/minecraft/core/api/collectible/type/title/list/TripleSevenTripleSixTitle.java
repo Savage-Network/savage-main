@@ -2,6 +2,7 @@ package com.minecraft.core.api.collectible.type.title.list;
 
 import com.minecraft.core.account.context.objects.rank.type.RankType;
 import com.minecraft.core.api.collectible.rarity.CollectibleRarity;
+import com.minecraft.core.api.collectible.type.title.CollectibleMusicArtist;
 import com.minecraft.core.api.collectible.type.title.CollectibleTitleGroup;
 import com.minecraft.core.api.collectible.type.title.TitleCollectible;
 import com.minecraft.core.api.item.Item;
@@ -50,6 +51,11 @@ public class TripleSevenTripleSixTitle extends TitleCollectible {
                 "",
                 "§8Raridade §5Mítica"
         ));
+    }
+
+    @Override
+    public CollectibleMusicArtist getMusicArtist() {
+        return CollectibleMusicArtist.MATUE;
     }
 
     @Override

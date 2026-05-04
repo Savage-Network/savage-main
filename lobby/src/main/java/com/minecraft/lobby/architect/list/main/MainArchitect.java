@@ -4,6 +4,7 @@ import com.minecraft.core.Core;
 import com.minecraft.core.account.Account;
 import com.minecraft.core.account.context.objects.medal.Medal;
 import com.minecraft.core.bukkit.BukkitCore;
+import com.minecraft.core.server.Server;
 import com.minecraft.core.bukkit.api.hologram.type.server.HologramServer;
 import com.minecraft.core.bukkit.api.npc.type.server.NpcServer;
 import com.minecraft.core.bukkit.api.sidebar.Sidebar;
@@ -19,7 +20,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.util.Vector;
-import java.util.concurrent.CompletableFuture;
 
 public class MainArchitect extends Architect {
     private static int colorPatternIndex = 0;
@@ -44,7 +44,11 @@ public class MainArchitect extends Architect {
         sidebar.setTitle("§2§lSAVAGE");
         sidebar.blankRow();
         sidebar.addRow("rank", "Rank: " + account.getRank().getColoredName());
-        sidebar.addRow("lobby", "Lobby: §7#" + account.getServer().getId());
+        Server routeServer = account.getServer();
+        if (routeServer == null) {
+            routeServer = Core.getServerData().local();
+        }
+        sidebar.addRow("lobby", routeServer != null ? "Lobby: §7#" + routeServer.getId() : "Lobby: §7-");
         sidebar.blankRow();
         sidebar.addRow("clan", "Clan: " + (account.hasClan() ? account.getClanTag().trim() : "§cNenhum"));
         sidebar.blankRow();

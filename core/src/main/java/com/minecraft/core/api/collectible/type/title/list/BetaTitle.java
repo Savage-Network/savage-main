@@ -12,7 +12,7 @@ import java.util.Arrays;
 public class BetaTitle extends TitleCollectible {
 
     public BetaTitle() {
-        super("Desde o Início", CollectibleRarity.MYTHICAL, Arrays.asList(RankType.BETA), System.currentTimeMillis());
+        super("Desde o Início", CollectibleRarity.MYTHICAL, Arrays.asList(RankType.BETA, RankType.PRECIOUS), System.currentTimeMillis());
         
         setIcon(Item.of(Material.PAPER));
         setLore(Arrays.asList(
@@ -20,7 +20,7 @@ public class BetaTitle extends TitleCollectible {
                 "",
                 "§1Mostre o quanto você é antigo",
                 "",
-                "§7Exclusivo para §1§lBETAs"
+                "§7Exclusivo para §1§lBETA §7ou §5§oPrecious"
         ));
     }
 

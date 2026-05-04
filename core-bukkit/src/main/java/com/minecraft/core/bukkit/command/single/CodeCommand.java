@@ -72,7 +72,7 @@ public class CodeCommand implements CommandInheritor {
         } catch (IllegalArgumentException e) {
             account.send("§cRank inválido! Ranks disponíveis:");
             account.send("§cVIP, NATIVE, EMBER, EMBER_PLUS, SAVAGE");
-            account.send("§cBETA, CARNAVAL, FERIAS, HALLOWEEN, NATAL");
+            account.send("§cBETA, PRECIOUS, CARNAVAL, FERIAS, HALLOWEEN, NATAL");
             return;
         }
 
@@ -84,6 +84,7 @@ public class CodeCommand implements CommandInheritor {
             RankType.EMBER_PLUS,
             RankType.SAVAGE,
             RankType.BETA,
+            RankType.PRECIOUS,
             RankType.CARNAVAL,
             RankType.FERIAS,
             RankType.HALLOWEEN,
@@ -94,7 +95,7 @@ public class CodeCommand implements CommandInheritor {
         if (!allowedVips.contains(rankType)) {
             account.send("§cApenas estes ranks VIP podem ser usados:");
             account.send("§cVIP, NATIVE, EMBER, EMBER_PLUS, SAVAGE");
-            account.send("§cBETA, CARNAVAL, FERIAS, HALLOWEEN, NATAL");
+            account.send("§cBETA, PRECIOUS, CARNAVAL, FERIAS, HALLOWEEN, NATAL");
             return;
         }
 

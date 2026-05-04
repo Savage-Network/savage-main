@@ -22,6 +22,7 @@ public enum RankType {
     EMBER_PLUS("Ember+", RankRole.VIP, ChatColor.GOLD, emptyList()),
     SAVAGE("Savage", RankRole.VIP, ChatColor.DARK_GREEN, emptyList()),
     BETA("Beta", RankRole.VIP, ChatColor.BLUE, emptyList()),
+    PRECIOUS("Precious", RankRole.VIP, ChatColor.DARK_PURPLE, emptyList()),
     CARNAVAL("Carnaval", RankRole.VIP, ChatColor.LIGHT_PURPLE, emptyList()),
     FERIAS("Férias", RankRole.VIP, ChatColor.GREEN, emptyList()),
     HALLOWEEN("Halloween", RankRole.VIP, ChatColor.DARK_PURPLE, emptyList()),
