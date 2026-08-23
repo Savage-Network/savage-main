@@ -35,7 +35,7 @@ public enum Tag {
     NATIVE("Native", "J", "§e§lNATIVE §r§e", emptyList(), RankType.NATIVE, TagRole.VIP, ChatColor.YELLOW),
     EMBER("Ember", "I", "§c§lEMBER §r§c", emptyList(), RankType.EMBER, TagRole.VIP, ChatColor.RED),
     EMBER_PLUS("Ember+", "H", "§6§lEMBER§5+ §6", emptyList(), RankType.EMBER_PLUS, TagRole.VIP, ChatColor.GOLD),
-    SAVAGE("Savage", "H", "§2§lSAVAGE §r§2", emptyList(), RankType.SAVAGE, TagRole.VIP, ChatColor.DARK_GREEN),
+    SPARTA("Sparta", "H", "§2§lSPARTA §r§2", emptyList(), RankType.SAVAGE, TagRole.VIP, ChatColor.DARK_GREEN),
 
     /* Tags */
     TAG_BETA("Beta", "§1§lBETA §1", "F", TagRole.SPECIAL, ChatColor.DARK_BLUE, true, "§9§lBETA §9", "§b§lBETA §b"),
@@ -59,32 +59,38 @@ public enum Tag {
     MOD("Mod", "D", "§5§lMOD §r§5", emptyList(), RankType.MOD, TagRole.STAFF, ChatColor.DARK_PURPLE),
     MODPLUS("Mod+", "C", "§5§lMOD§5+ §r§5", emptyList(), RankType.MODPLUS, TagRole.STAFF, ChatColor.DARK_PURPLE),
     ADMIN("Admin", "B", "§4§lADMIN §r§4", emptyList(), RankType.ADMIN, TagRole.STAFF, ChatColor.DARK_RED),
-    DIRETOR("Diretor", "A", "§4§lDIRETOR §r§4", emptyList(), RankType.DIRETOR, TagRole.STAFF, ChatColor.DARK_RED),
-    VERMELHO("Vermelho", "1", "§c§o", emptyList(), RankType.VERMELHO, TagRole.STAFF, ChatColor.RED),
-    TAG_OWNER("Owner",
+    SPARK("Niko",
             "0",
-            "§4§lCEO§f✦§4§o",
+            "§e§lNIKO§o",
             emptyList(),
             RankType.OWNER,
             TagRole.STAFF,
-            ChatColor.DARK_RED,
+            ChatColor.YELLOW,
             Arrays.asList(
-                    "§4§lCEO§f✦§4§o",
-                    "§4§lCEO§e✦§4§o",
-                    "§4§lCEO§d✦§4§o",
-                    "§4§lCEO§c✦§4§o",
-                    "§4§lCEO§b✦§4§o",
-                    "§4§lCEO§a✦§4§o",
-                    "§4§lCEO§9✦§4§o",
-                    "§4§lCEO§8✦§4§o",
-                    "§4§lCEO§7✦§4§o",
-                    "§4§lCEO§6✦§4§o",
-                    "§4§lCEO§5✦§4§o",
-                    "§4§lCEO§4✦§4§o",
-                    "§4§lCEO§3✦§4§o",
-                    "§4§lCEO§2✦§4§o",
-                    "§4§lCEO§1✦§4§o",
-                    "§4§lCEO§0✦§4§o"
+                    // Frame 1 – tudo amarelo
+                    "§e§lNIKO ",
+                    // Frame 2 – tudo branco
+                    "§f§lNIKO ",
+                    // Frame 3 – amarelo novamente
+                    "§e§lNIKO ",
+                    // Frame 4 – branco novamente
+                    "§f§lNIKO ",
+                    // Frame 5 – N amarelo | IKO branco
+                    "§e§lN§f§lIKO ",
+                    // Frame 6 – NI amarelo | KO branco
+                    "§e§lNI§f§lKO ",
+                    // Frame 7 – NIK amarelo | O branco
+                    "§e§lNIK§f§lO ",
+                    // Frame 8 – tudo amarelo
+                    "§e§lNIKO ",
+                    // Frame 9 – N branco | IKO amarelo
+                    "§f§lN§e§lIKO ",
+                    // Frame 10 – NI branco | KO amarelo
+                    "§f§lNI§e§lKO ",
+                    // Frame 11 – NIK branco | O amarelo
+                    "§f§lNIK§e§lO ",
+                    // Frame 12 – tudo branco
+                    "§f§lNIKO "
             ));
 
     private final String name, order, prefix;
@@ -97,7 +103,7 @@ public enum Tag {
     private final ChatColor color;
 
     private final List<UUID> onlyThese;
-    
+
     private final boolean animated;
     private final String alternatePrefix;
     private final String thirdPrefix;
@@ -121,12 +127,12 @@ public enum Tag {
     Tag(String name, String prefix, String order, TagRole role, ChatColor color) {
         this(name, order, prefix, emptyList(), RankType.MEMBER, role, color, new ArrayList<>(), false, null, null, emptyList());
     }
-    
+
     /* Animated Tag Constructor - 6 parameters to avoid conflict */
     Tag(String name, String prefix, String order, TagRole role, ChatColor color, boolean animated, String alternatePrefix) {
         this(name, order, prefix, emptyList(), RankType.MEMBER, role, color, new ArrayList<>(), animated, alternatePrefix, null, emptyList());
     }
-    
+
     /* Animated Tag Constructor with 3 colors - 7 parameters */
     Tag(String name, String prefix, String order, TagRole role, ChatColor color, boolean animated, String alternatePrefix, String thirdPrefix) {
         this(name, order, prefix, emptyList(), RankType.MEMBER, role, color, new ArrayList<>(), animated, alternatePrefix, thirdPrefix, emptyList());
@@ -134,11 +140,11 @@ public enum Tag {
 
     public static Tag of(String name) {
         return Arrays.stream(values())
-                .filter(tag -> tag.name().equalsIgnoreCase(name) 
-                        || tag.getName().equalsIgnoreCase(name) 
+                .filter(tag -> tag.name().equalsIgnoreCase(name)
+                        || tag.getName().equalsIgnoreCase(name)
                         || (name.equalsIgnoreCase("beta") && tag == TAG_BETA)
                         || (name.equalsIgnoreCase("precious") && tag == TAG_PRECIOUS)
-                        || ((name.equalsIgnoreCase("ceo") || name.equalsIgnoreCase("owner")) && tag == TAG_OWNER)
+                        || ((name.equalsIgnoreCase("niko") || name.equalsIgnoreCase("owner")) && tag == SPARK)
                         || tag.getSurnames().stream().anyMatch(surName -> surName.equalsIgnoreCase(name)))
                 .findFirst()
                 .orElse(null);
@@ -154,7 +160,7 @@ public enum Tag {
     }
 
     public String getByPrefix(TagPrefix prefix) {
-        if (this == SPECTATOR || this == MEMBER || this == VERMELHO) return getPrefix();
+        if (this == SPECTATOR || this == MEMBER) return getPrefix();
 
         String prefixRegex = getPrefix().split(" ")[0];
 
